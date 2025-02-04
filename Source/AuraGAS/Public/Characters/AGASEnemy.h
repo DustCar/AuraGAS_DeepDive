@@ -15,7 +15,12 @@ class AURAGAS_API AAGASEnemy : public AAGASCharacterBase, public IAGASTargetInte
 public:
 	AAGASEnemy();
 
+	//~ Begin Target Interface
 	virtual void HighlightActor() override;
 	virtual void UnHighlightActor() override;
+	//~ End Target Interface
+
+protected:
+	virtual void BeginPlay() override;
 
 };

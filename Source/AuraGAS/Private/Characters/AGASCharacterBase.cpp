@@ -13,6 +13,12 @@ AAGASCharacterBase::AAGASCharacterBase()
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+UAbilitySystemComponent* AAGASCharacterBase::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+
 void AAGASCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();

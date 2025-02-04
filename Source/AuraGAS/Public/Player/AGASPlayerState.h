@@ -4,29 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "GameFramework/Character.h"
-#include "AGASCharacterBase.generated.h"
+#include "GameFramework/PlayerState.h"
+#include "AGASPlayerState.generated.h"
 
-class UAttributeSet;
 class UAbilitySystemComponent;
-
-UCLASS(Abstract)
-class AURAGAS_API AAGASCharacterBase : public ACharacter, public IAbilitySystemInterface
+class UAttributeSet;
+/**
+ * 
+ */
+UCLASS()
+class AURAGAS_API AAGASPlayerState : public APlayerState, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
 public:
-	AAGASCharacterBase();
+	AAGASPlayerState();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 protected:
-	virtual void BeginPlay() override;
-
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
-
 	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 

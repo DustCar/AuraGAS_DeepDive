@@ -13,11 +13,14 @@ class AURAGAS_API AAGASCharacter : public AAGASCharacterBase
 
 public:
 	AAGASCharacter();
+	
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
 
 protected:
 	virtual void BeginPlay() override;
+	void InitializeAbilityActorInfo();
 
-public:
-	virtual void Tick(float DeltaTime) override;
+private:
 
 };
