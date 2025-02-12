@@ -22,9 +22,13 @@ public:
 	AAGASPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
 
+	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnRep_PlayerState() override;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	void InitializeHUD();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")

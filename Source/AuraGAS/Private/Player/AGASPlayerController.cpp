@@ -6,6 +6,8 @@
 #include "EnhancedInputComponent.h"
 #include "Input/AGASInputConfig.h"
 #include "Interaction/AGASTargetInterface.h"
+#include "Player/AGASPlayerState.h"
+#include "UI/HUD/AGASHUD.h"
 
 AAGASPlayerController::AAGASPlayerController()
 {
@@ -17,6 +19,20 @@ void AAGASPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	CursorTrace();
+}
+
+void AAGASPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+
+	InitializeHUD();
+}
+
+void AAGASPlayerController::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	InitializeHUD();
 }
 
 void AAGASPlayerController::CursorTrace()
@@ -75,9 +91,10 @@ void AAGASPlayerController::BeginPlay()
 	check(AGASInputMapping);
 	
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-	check(Subsystem);
-
-	Subsystem->AddMappingContext(AGASInputMapping, 0);
+	if (Subsystem)
+	{
+		Subsystem->AddMappingContext(AGASInputMapping, 0);
+	}
 
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Type::Default;
@@ -112,4 +129,13 @@ void AAGASPlayerController::Move(const FInputActionValue& Value)
 	}
 }
 
+void AAGASPlayerController::InitializeHUD()
+{
+	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
+	check(AGASPlayerState);
 
+	if (AAGASHUD* AGASHUD = Cast<AAGASHUD>(GetHUD()))
+	{
+		AGASHUD->InitOverlay(this, AGASPlayerState, AGASPlayerState->GetAbilitySystemComponent(), AGASPlayerState->GetAttributeSet());
+	}
+}

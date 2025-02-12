@@ -20,12 +20,12 @@ void AAGASCharacter::BeginPlay()
 
 void AAGASCharacter::InitializeAbilityActorInfo()
 {
-	AAGASPlayerState* AuraGASPlayerState = GetPlayerState<AAGASPlayerState>();
-	check(AuraGASPlayerState);
+	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
+	check(AGASPlayerState);
 
-	AbilitySystemComponent = AuraGASPlayerState->GetAbilitySystemComponent();
-	AttributeSet = AuraGASPlayerState->GetAttributeSet();
-	AbilitySystemComponent->InitAbilityActorInfo(AuraGASPlayerState, this);
+	AbilitySystemComponent = AGASPlayerState->GetAbilitySystemComponent();
+	AttributeSet = AGASPlayerState->GetAttributeSet();
+	AbilitySystemComponent->InitAbilityActorInfo(AGASPlayerState, this);
 }
 
 void AAGASCharacter::PossessedBy(AController* NewController)
