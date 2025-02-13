@@ -8,5 +8,15 @@ void UAGASWidgetController::SetWidgetControllerParams(const FWidgetControllerPar
 	PlayerController = WCParams.PlayerController;
 	PlayerState = WCParams.PlayerState;
 	AbilitySystemComponent = WCParams.AbilitySystemComponent;
-	AttributeSet = WCParams.AttributeSet;
+	AGASAttributeSet = WCParams.AGASAttributeSet;
+}
+
+void UAGASWidgetController::BroadcastInitialValues()
+{
+	
+}
+
+void UAGASWidgetController::BindCallbacksToDependencies()
+{
+	
 }

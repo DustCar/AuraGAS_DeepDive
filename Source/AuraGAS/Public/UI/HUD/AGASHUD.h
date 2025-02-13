@@ -6,8 +6,8 @@
 #include "GameFramework/HUD.h"
 #include "AGASHUD.generated.h"
 
-class UAttributeSet;
 class UAbilitySystemComponent;
+class UAGASAttributeSet;
 struct FWidgetControllerParams;
 class UAGASOverlayWidgetController;
 class UAGASUserWidget;
@@ -26,7 +26,7 @@ public:
 
 	UAGASOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 
-	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS);
+	void InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAGASAttributeSet* AS);
 	
 protected:
 	

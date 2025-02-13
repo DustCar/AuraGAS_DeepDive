@@ -13,13 +13,14 @@ UAGASOverlayWidgetController* AAGASHUD::GetOverlayWidgetController(const FWidget
 	{
 		OverlayWidgetController = NewObject<UAGASOverlayWidgetController>(this, OverlayWidgetControllerClass);
 		OverlayWidgetController->SetWidgetControllerParams(WCParams);
+		OverlayWidgetController->BindCallbacksToDependencies();
 	}
 
 	return OverlayWidgetController;
 }
 
 // Creates the overlay widget and adds to viewport
-void AAGASHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAttributeSet* AS)
+void AAGASHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAGASAttributeSet* AS)
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay Widget Class uninitialized, please fill out BP_AGASHUD"))
 	checkf(OverlayWidgetControllerClass, TEXT("Overlay Widget Controller Class uninitialized, please fill out BP_AGASHUD"))
@@ -31,6 +32,7 @@ void AAGASHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySyst
 	UAGASOverlayWidgetController* OLWidgetController = GetOverlayWidgetController(WidgetControllerParams);
 
 	OverlayWidget->SetWidgetController(OLWidgetController);
+	OLWidgetController->BroadcastInitialValues();
 	
 	Widget->AddToViewport();
 }

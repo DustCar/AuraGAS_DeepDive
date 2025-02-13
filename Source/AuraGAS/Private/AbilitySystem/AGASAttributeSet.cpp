@@ -7,12 +7,13 @@
 
 UAGASAttributeSet::UAGASAttributeSet()
 {
-	InitHealthPoints(100.f);
+	InitHealthPoints(50.f);
 	InitMaxHealthPoints(100.f);
-	InitManaPoints(50.f);
+	InitManaPoints(25.f);
 	InitMaxManaPoints(50.f);
 }
 
+// Needed for Replication
 void UAGASAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -23,6 +24,7 @@ void UAGASAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MaxManaPoints, COND_None, REPNOTIFY_Always);
 }
 
+//~ Replication needed BEGIN
 void UAGASAttributeSet::OnRep_HealthPoints(const FGameplayAttributeData& OldHealthPoints) const
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, HealthPoints, OldHealthPoints)
@@ -42,4 +44,4 @@ void UAGASAttributeSet::OnRep_MaxManaPoints(const FGameplayAttributeData& OldMax
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, MaxManaPoints, OldMaxManaPoints)
 }
-
+//~ Replication needed END

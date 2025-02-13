@@ -7,8 +7,8 @@
 #include "GameFramework/PlayerState.h"
 #include "AGASPlayerState.generated.h"
 
-class UAbilitySystemComponent;
-class UAttributeSet;
+class UAGASAttributeSet;
+class UAGASAbilitySystemComponent;
 /**
  * 
  */
@@ -21,12 +21,12 @@ public:
 	AAGASPlayerState();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
+	UAGASAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 protected:
 	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UAGASAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
-	TObjectPtr<UAttributeSet> AttributeSet;
+	TObjectPtr<UAGASAttributeSet> AttributeSet;
 };
