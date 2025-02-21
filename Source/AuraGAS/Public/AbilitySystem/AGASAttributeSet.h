@@ -12,6 +12,44 @@
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
+
+// Base struct for GameplayEffect properties
+USTRUCT()
+struct FEffectProperties
+{
+	GENERATED_BODY()
+
+	UPROPERTY(Transient)
+	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AActor> AvatarActor = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<AController> Controller = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<ACharacter> Character = nullptr;
+};
+
+// Advanced struct that holds the effect context and the source and target effect properties
+USTRUCT()
+struct FEffectPropertiesAdvanced
+{
+	GENERATED_BODY()
+
+	FEffectPropertiesAdvanced()
+	{
+		SourceProperties = MakeShared<FEffectProperties>();
+		TargetProperties = MakeShared<FEffectProperties>();
+	}
+
+	FGameplayEffectContextHandle EffectContext;
+
+	TSharedPtr<FEffectProperties> SourceProperties;
+
+	TSharedPtr<FEffectProperties> TargetProperties;
+};
 /**
  * 
  */
@@ -23,6 +61,9 @@ class AURAGAS_API UAGASAttributeSet : public UAttributeSet
 public:
 	UAGASAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 	
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthPoints, Category = "MainStats")
 	FGameplayAttributeData HealthPoints;
@@ -53,7 +94,12 @@ public:
 	UFUNCTION()
 	void OnRep_MaxManaPoints(const FGameplayAttributeData& OldMaxManaPoints) const;
 	//~ End Main attribute rep notifies
+
+private:
+	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectPropertiesAdvanced& Props);
 };
+
+
 
 
 
