@@ -3,6 +3,8 @@
 
 #include "Characters/AGASCharacterBase.h"
 
+#include "AbilitySystem/AGASAbilitySystemComponent.h"
+
 
 AAGASCharacterBase::AAGASCharacterBase()
 {
@@ -22,6 +24,11 @@ UAbilitySystemComponent* AAGASCharacterBase::GetAbilitySystemComponent() const
 void AAGASCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	
+}
+
+void AAGASCharacterBase::InitializeAbilityActorInfo()
+{
 	
 }
 

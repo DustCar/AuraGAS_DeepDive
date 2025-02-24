@@ -39,6 +39,11 @@ void AAGASEnemy::UnHighlightActor()
 void AAGASEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	InitializeAbilityActorInfo();
+}
 
+void AAGASEnemy::InitializeAbilityActorInfo()
+{
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	AbilitySystemComponent->AbilityActorInfoSet();
 }

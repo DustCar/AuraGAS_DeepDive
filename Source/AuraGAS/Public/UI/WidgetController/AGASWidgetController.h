@@ -8,7 +8,7 @@
 #include "AGASWidgetController.generated.h"
 
 class UAGASAttributeSet;
-class UAbilitySystemComponent;
+class UAGASAbilitySystemComponent;
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
@@ -16,7 +16,7 @@ struct FWidgetControllerParams
 	GENERATED_BODY()
 
 	FWidgetControllerParams() {}
-	FWidgetControllerParams(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAGASAttributeSet* AS)
+	FWidgetControllerParams(APlayerController* PC, APlayerState* PS, UAGASAbilitySystemComponent* ASC, UAGASAttributeSet* AS)
 	: PlayerController(PC), PlayerState(PS), AbilitySystemComponent(ASC), AGASAttributeSet(AS) {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -26,7 +26,7 @@ struct FWidgetControllerParams
 	TObjectPtr<APlayerState> PlayerState = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent = nullptr;
+	TObjectPtr<UAGASAbilitySystemComponent> AbilitySystemComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UAGASAttributeSet> AGASAttributeSet = nullptr;
@@ -55,7 +55,7 @@ protected:
 	TObjectPtr<APlayerState> PlayerState;
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UAGASAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
 	TObjectPtr<UAGASAttributeSet> AGASAttributeSet;

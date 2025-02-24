@@ -4,6 +4,7 @@
 #include "Player/AGASPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "Input/AGASInputConfig.h"
 #include "Interaction/AGASTargetInterface.h"
 #include "Player/AGASPlayerState.h"
@@ -136,6 +137,6 @@ void AAGASPlayerController::InitializeHUD()
 
 	if (AAGASHUD* AGASHUD = Cast<AAGASHUD>(GetHUD()))
 	{
-		AGASHUD->InitOverlay(this, AGASPlayerState, AGASPlayerState->GetAbilitySystemComponent(), AGASPlayerState->GetAttributeSet());
+		AGASHUD->InitOverlay(this, AGASPlayerState, Cast<UAGASAbilitySystemComponent>(AGASPlayerState->GetAbilitySystemComponent()), AGASPlayerState->GetAttributeSet());
 	}
 }

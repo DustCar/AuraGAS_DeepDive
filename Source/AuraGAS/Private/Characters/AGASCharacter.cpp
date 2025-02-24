@@ -4,6 +4,7 @@
 #include "Characters/AGASCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "Player/AGASPlayerState.h"
 
 
@@ -20,12 +21,15 @@ void AAGASCharacter::BeginPlay()
 
 void AAGASCharacter::InitializeAbilityActorInfo()
 {
+	
 	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
 	check(AGASPlayerState);
 
-	AbilitySystemComponent = AGASPlayerState->GetAbilitySystemComponent();
+	AbilitySystemComponent = Cast<UAGASAbilitySystemComponent>(AGASPlayerState->GetAbilitySystemComponent());
 	AttributeSet = AGASPlayerState->GetAttributeSet();
 	AbilitySystemComponent->InitAbilityActorInfo(AGASPlayerState, this);
+	AbilitySystemComponent->AbilityActorInfoSet();
+
 }
 
 void AAGASCharacter::PossessedBy(AController* NewController)

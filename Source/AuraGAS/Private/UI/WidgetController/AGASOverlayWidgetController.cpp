@@ -3,6 +3,7 @@
 
 #include "UI/WidgetController/AGASOverlayWidgetController.h"
 
+#include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAttributeSet.h"
 
 // initially broadcast the starter values of attributes to delegates
@@ -38,6 +39,19 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	// binds MaxManaPointsChanged to max MP attribute
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		AGASAttributeSet->GetMaxManaPointsAttribute()).AddUObject(this, &ThisClass::MaxManaPointsChanged);
+
+	// use of lambda allows us to avoid declaring multiple callbacks for simpler code like this and the attribute changes
+	// I will leave the attribute change callbacks up for now, but may change it to lambdas if functionality stays
+	AbilitySystemComponent->EffectAssetTags.AddLambda(
+		[] (const FGameplayTagContainer& AssetTags)
+		{
+			for (const FGameplayTag& Tag : AssetTags)
+			{
+				const FString Msg = FString::Printf(TEXT("GE Tag: %s"), *Tag.ToString());
+				GEngine->AddOnScreenDebugMessage(-1, 8.f, FColor::Blue, Msg);
+			}
+		}
+	);
 }
 
 // callback for when HP changes

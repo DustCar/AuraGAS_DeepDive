@@ -8,7 +8,7 @@
 #include "AGASCharacterBase.generated.h"
 
 class UAGASAttributeSet;
-class UAbilitySystemComponent;
+class UAGASAbilitySystemComponent;
 
 UCLASS(Abstract)
 class AURAGAS_API AAGASCharacterBase : public ACharacter, public IAbilitySystemInterface
@@ -27,9 +27,13 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
 
+	// Using just our version of ASC since we will not be implementing multiple types of ASC in this project
 	UPROPERTY()
-	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
+	TObjectPtr<UAGASAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
 	TObjectPtr<UAGASAttributeSet> AttributeSet;
+
+	virtual void InitializeAbilityActorInfo();
+
 };

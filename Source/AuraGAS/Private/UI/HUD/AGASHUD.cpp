@@ -3,6 +3,7 @@
 
 #include "UI/HUD/AGASHUD.h"
 
+#include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "UI/Widget/AGASUserWidget.h"
 #include "UI/WidgetController/AGASOverlayWidgetController.h"
 
@@ -20,7 +21,7 @@ UAGASOverlayWidgetController* AAGASHUD::GetOverlayWidgetController(const FWidget
 }
 
 // Creates the overlay widget and adds to viewport
-void AAGASHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAbilitySystemComponent* ASC, UAGASAttributeSet* AS)
+void AAGASHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAGASAbilitySystemComponent* ASC, UAGASAttributeSet* AS)
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay Widget Class uninitialized, please fill out BP_AGASHUD"))
 	checkf(OverlayWidgetControllerClass, TEXT("Overlay Widget Controller Class uninitialized, please fill out BP_AGASHUD"))
