@@ -27,10 +27,8 @@ void UAGASAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, MaxManaPoints, COND_None, REPNOTIFY_Always);
 }
 
-void UAGASAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+void UAGASAttributeSet::PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const
 {
-	Super::PreAttributeChange(Attribute, NewValue);
-
 	if (Attribute == GetHealthPointsAttribute())
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealthPoints());

@@ -62,14 +62,16 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WidgetData")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
-	
-	void HealthPointsChanged(const FOnAttributeChangeData& Data) const;
-	void MaxHealthPointsChanged(const FOnAttributeChangeData& Data) const;
-	void ManaPointsChanged(const FOnAttributeChangeData& Data) const;
-	void MaxManaPointsChanged(const FOnAttributeChangeData& Data) const;
 
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
+
+private:
+	/**
+	 *	Function that binds a gameplay attribute to the ASC gameplay attribute change delegate and
+	 *	broadcasts the new value for the attribute to our custom OnAttributeChangedSignature delegate
+	 */ 
+	void BindAttributeChange(const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& AttributeDelegate) const;
 };
 
 template <typename T>

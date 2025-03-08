@@ -25,20 +25,16 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	 */
 	
 	// binds HealthPointsChanged to HP attribute
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		AGASAttributeSet->GetHealthPointsAttribute()).AddUObject(this, &ThisClass::HealthPointsChanged);
+	BindAttributeChange(AGASAttributeSet->GetHealthPointsAttribute(), OnHealthPointsChanged);
 
 	// binds MaxHealthPointsChanged to max HP attribute
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		AGASAttributeSet->GetMaxHealthPointsAttribute()).AddUObject(this, &ThisClass::MaxHealthPointsChanged);
+	BindAttributeChange(AGASAttributeSet->GetMaxHealthPointsAttribute(), OnMaxHealthPointsChanged);
 
 	// binds ManaPointsChanged to MP attribute
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		AGASAttributeSet->GetManaPointsAttribute()).AddUObject(this, &ThisClass::ManaPointsChanged);
+	BindAttributeChange(AGASAttributeSet->GetManaPointsAttribute(), OnManaPointsChanged);
 
 	// binds MaxManaPointsChanged to max MP attribute
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		AGASAttributeSet->GetMaxManaPointsAttribute()).AddUObject(this, &ThisClass::MaxManaPointsChanged);
+	BindAttributeChange(AGASAttributeSet->GetMaxManaPointsAttribute(), OnMaxManaPointsChanged);
 
 	// use of lambda allows us to avoid declaring multiple callbacks for simpler code like this and the attribute changes
 	// I will leave the attribute change callbacks up for now, but may change it to lambdas if functionality stays
@@ -58,26 +54,14 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	);
 }
 
-// callback for when HP changes
-void UAGASOverlayWidgetController::HealthPointsChanged(const FOnAttributeChangeData& Data) const
+void UAGASOverlayWidgetController::BindAttributeChange(const FGameplayAttribute& Attribute,
+	FOnAttributeChangedSignature& AttributeDelegate) const
 {
-	OnHealthPointsChanged.Broadcast(Data.NewValue);
-}
-
-// callback for when max HP changes
-void UAGASOverlayWidgetController::MaxHealthPointsChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxHealthPointsChanged.Broadcast(Data.NewValue);
-}
-
-// callback for when MP changes
-void UAGASOverlayWidgetController::ManaPointsChanged(const FOnAttributeChangeData& Data) const
-{
-	OnManaPointsChanged.Broadcast(Data.NewValue);
-}
-
-// callback for when max MP changes
-void UAGASOverlayWidgetController::MaxManaPointsChanged(const FOnAttributeChangeData& Data) const
-{
-	OnMaxManaPointsChanged.Broadcast(Data.NewValue);
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+		Attribute).AddLambda(
+			[this, &AttributeDelegate] (const FOnAttributeChangeData& Data)
+			{
+				AttributeDelegate.Broadcast(Data.NewValue);
+			}
+		);
 }
