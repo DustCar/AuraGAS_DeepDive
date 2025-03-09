@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "AGASCharacterBase.generated.h"
 
+class UGameplayEffect;
 class UAGASAttributeSet;
 class UAGASAbilitySystemComponent;
 
@@ -35,5 +36,10 @@ protected:
 	TObjectPtr<UAGASAttributeSet> AttributeSet;
 
 	virtual void InitializeAbilityActorInfo();
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
+	TSubclassOf<UGameplayEffect> DefaultMainStats;
+
+	void InitializeMainStats() const;
 
 };

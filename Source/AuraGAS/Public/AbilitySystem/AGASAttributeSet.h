@@ -64,24 +64,39 @@ public:
 
 	virtual void PreAttributeBaseChange(const FGameplayAttribute& Attribute, float& NewValue) const override;
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
-	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthPoints, Category = "MainStats")
-	FGameplayAttributeData HealthPoints;
+
+	/**
+	 * Vital Attributes Accessors
+	 */
 	ATTRIBUTE_ACCESSORS(ThisClass, HealthPoints)
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealthPoints, Category = "MainStats")
-	FGameplayAttributeData MaxHealthPoints;
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxHealthPoints)
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ManaPoints, Category = "MainStats")
-	FGameplayAttributeData ManaPoints;
 	ATTRIBUTE_ACCESSORS(ThisClass, ManaPoints)
-
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxManaPoints, Category = "MainStats")
-	FGameplayAttributeData MaxManaPoints;
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxManaPoints)
+
+	/**
+	 * Main Stats Accessors
+	 */
+	ATTRIBUTE_ACCESSORS(ThisClass, Strength)
+	ATTRIBUTE_ACCESSORS(ThisClass, Intelligence)
+	ATTRIBUTE_ACCESSORS(ThisClass, Resilience)
+	ATTRIBUTE_ACCESSORS(ThisClass, Vigor)
+
+protected:
+	//~ Begin Vital Attributes
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthPoints, Category = "VitalAttributes")
+	FGameplayAttributeData HealthPoints;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealthPoints, Category = "VitalAttributes")
+	FGameplayAttributeData MaxHealthPoints;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ManaPoints, Category = "VitalAttributes")
+	FGameplayAttributeData ManaPoints;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxManaPoints, Category = "VitalAttributes")
+	FGameplayAttributeData MaxManaPoints;
+	//~ End Vital Attributes
 	
-	//~ Begin Main attribute rep notifies
+	//~ Begin Vital attribute rep notifies
 	UFUNCTION()
 	void OnRep_HealthPoints(const FGameplayAttributeData& OldHealthPoints) const;
 
@@ -93,13 +108,39 @@ public:
 
 	UFUNCTION()
 	void OnRep_MaxManaPoints(const FGameplayAttributeData& OldMaxManaPoints) const;
-	//~ End Main attribute rep notifies
+	//~ End Vital attribute rep notifies
+
+	
+	//~ Begin Main Stats
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Strength, Category = "MainStats")
+	FGameplayAttributeData Strength;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Intelligence, Category = "MainStats")
+	FGameplayAttributeData Intelligence;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Resilience, Category = "MainStats")
+	FGameplayAttributeData Resilience;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Vigor, Category = "MainStats")
+	FGameplayAttributeData Vigor;
+	//~ End Main Stats
+
+	//~ Begin Main stat rep notifies
+	UFUNCTION()
+	void OnRep_Strength(const FGameplayAttributeData& OldStrength) const;
+
+	UFUNCTION()
+	void OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence) const;
+
+	UFUNCTION()
+	void OnRep_Resilience(const FGameplayAttributeData& OldResilience) const;
+
+	UFUNCTION()
+	void OnRep_Vigor(const FGameplayAttributeData& OldVigor) const;
+	//~ End Main stat rep notifies
 
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectPropertiesAdvanced& Props);
 };
-
-
-
 
 

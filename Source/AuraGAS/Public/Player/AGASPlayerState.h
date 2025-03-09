@@ -24,7 +24,7 @@ public:
 	UAGASAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 protected:
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAGASAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY()
