@@ -31,7 +31,7 @@ void AAGASCharacter::InitializeAbilityActorInfo()
 	AbilitySystemComponent->AbilityActorInfoSet();
 
 	// Can be called on server side only since attributes are replicated, however, it is okay to call on server and clients
-	InitializeMainStats();
+	InitializeDefaultStats();
 }
 
 void AAGASCharacter::PossessedBy(AController* NewController)
