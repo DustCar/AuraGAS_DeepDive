@@ -21,7 +21,6 @@ void AAGASCharacter::BeginPlay()
 
 void AAGASCharacter::InitializeAbilityActorInfo()
 {
-	
 	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
 	check(AGASPlayerState);
 
@@ -48,6 +47,14 @@ void AAGASCharacter::OnRep_PlayerState()
 
 	// Initialize Ability Actor Info for client
 	InitializeAbilityActorInfo();
+}
+
+int32 AAGASCharacter::GetPlayerLevel()
+{
+	const AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
+	check(AGASPlayerState);
+	
+	return AGASPlayerState->GetPlayerLevel();
 }
 
 

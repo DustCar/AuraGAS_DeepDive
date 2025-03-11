@@ -35,6 +35,11 @@ void AAGASEnemy::UnHighlightActor()
 	WeaponMesh->SetRenderCustomDepth(false);
 }
 
+int32 AAGASEnemy::GetPlayerLevel()
+{
+	return Level;
+}
+
 
 void AAGASEnemy::BeginPlay()
 {

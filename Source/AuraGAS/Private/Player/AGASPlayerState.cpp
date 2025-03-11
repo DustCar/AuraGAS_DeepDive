@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAttributeSet.h"
+#include "Net/UnrealNetwork.h"
 
 AAGASPlayerState::AAGASPlayerState()
 {
@@ -17,7 +18,19 @@ AAGASPlayerState::AAGASPlayerState()
 	NetUpdateFrequency = 100.f;
 }
 
+void AAGASPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ThisClass, Level);
+}
+
 UAbilitySystemComponent* AAGASPlayerState::GetAbilitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void AAGASPlayerState::OnRep_Level(int32 OldLevel)
+{
+	
 }

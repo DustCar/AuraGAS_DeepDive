@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
+#include "Interaction/AGASCombatInterface.h"
 #include "AGASCharacterBase.generated.h"
 
 class UGameplayEffect;
@@ -12,7 +13,7 @@ class UAGASAttributeSet;
 class UAGASAbilitySystemComponent;
 
 UCLASS(Abstract)
-class AURAGAS_API AAGASCharacterBase : public ACharacter, public IAbilitySystemInterface
+class AURAGAS_API AAGASCharacterBase : public ACharacter, public IAbilitySystemInterface, public IAGASCombatInterface
 {
 	GENERATED_BODY()
 
