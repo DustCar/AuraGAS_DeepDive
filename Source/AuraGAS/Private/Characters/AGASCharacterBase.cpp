@@ -40,7 +40,8 @@ void AAGASCharacterBase::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& G
 	 */
 	check(IsValid(GetAbilitySystemComponent()));
 	check(GameplayEffectClass);
-	const FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+	FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
+	ContextHandle.AddSourceObject(this);
 	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, ContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data, GetAbilitySystemComponent());
 }
@@ -49,5 +50,6 @@ void AAGASCharacterBase::InitializeDefaultStats() const
 {
 	ApplyEffectToSelf(DefaultMainStats, 1.f);
 	ApplyEffectToSelf(DefaultSecondaryStats, 1.f);
+	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
 }
 

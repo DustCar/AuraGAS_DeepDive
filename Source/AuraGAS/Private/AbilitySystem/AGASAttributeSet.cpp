@@ -10,8 +10,7 @@
 
 UAGASAttributeSet::UAGASAttributeSet()
 {
-	InitHealthPoints(10.f);
-	InitManaPoints(25.f);
+	
 }
 
 // Needed for Replication
