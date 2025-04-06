@@ -25,7 +25,7 @@ void UAGASAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, ManaPoints, COND_None, REPNOTIFY_Always);
 
 	/**
-	 * Main Stats
+	 * Primary Attributes
 	 */
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Strength, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Intelligence, COND_None, REPNOTIFY_Always);
@@ -33,7 +33,7 @@ void UAGASAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Vigor, COND_None, REPNOTIFY_Always);
 
 	/**
-	 * Secondary Stats
+	 * Secondary Attributes
 	 */
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, Armor, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(ThisClass, ArmorPenetration, COND_None, REPNOTIFY_Always);
