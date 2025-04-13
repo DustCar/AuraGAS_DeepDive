@@ -48,8 +48,8 @@ void AAGASCharacterBase::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& G
 
 void AAGASCharacterBase::InitializeDefaultStats() const
 {
-	ApplyEffectToSelf(DefaultMainStats, 1.f);
-	ApplyEffectToSelf(DefaultSecondaryStats, 1.f);
+	ApplyEffectToSelf(DefaultPrimaryAttributes, 1.f);
+	ApplyEffectToSelf(DefaultSecondaryAttributes, 1.f);
 	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
 }
 

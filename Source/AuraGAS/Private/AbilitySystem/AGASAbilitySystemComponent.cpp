@@ -3,6 +3,8 @@
 
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 
+#include "AGASGameplayTags.h"
+
 void UAGASAbilitySystemComponent::AbilityActorInfoSet()
 {
 	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &ThisClass::EffectApplied);

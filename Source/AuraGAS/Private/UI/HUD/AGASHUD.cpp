@@ -3,21 +3,19 @@
 
 #include "UI/HUD/AGASHUD.h"
 
-#include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "UI/Widget/AGASUserWidget.h"
 #include "UI/WidgetController/AGASOverlayWidgetController.h"
+#include "UI/WidgetController/AGASAttributeMenuWidgetController.h"
 
 // Get current overlay widget controller, otherwise create one
 UAGASOverlayWidgetController* AAGASHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
 {
-	if (OverlayWidgetController == nullptr)
-	{
-		OverlayWidgetController = NewObject<UAGASOverlayWidgetController>(this, OverlayWidgetControllerClass);
-		OverlayWidgetController->SetWidgetControllerParams(WCParams);
-		OverlayWidgetController->BindCallbacksToDependencies();
-	}
+	return GetWidgetController<UAGASOverlayWidgetController>(OverlayWidgetController, OverlayWidgetControllerClass, WCParams);
+}
 
-	return OverlayWidgetController;
+UAGASAttributeMenuWidgetController* AAGASHUD::GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams)
+{
+	return GetWidgetController<UAGASAttributeMenuWidgetController>(AttributeMenuWidgetController, AttributeMenuWidgetControllerClass, WCParams);
 }
 
 // Creates the overlay widget and adds to viewport

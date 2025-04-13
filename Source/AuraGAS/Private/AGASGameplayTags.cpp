@@ -16,6 +16,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_CriticalHitDamage, "Attributes.S
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_CriticalHitResistance, "Attributes.Secondary.CriticalHitResistance")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_HealthRegeneration, "Attributes.Secondary.HealthRegeneration")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_ManaRegeneration, "Attributes.Secondary.ManaRegeneration")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_MaxHealthPoints, "Attributes.Secondary.MaxHealthPoints")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_MaxManaPoints, "Attributes.Secondary.MaxManaPoints")
 
 AGASGameplayTags::AGASGameplayTags()
 {
