@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "AbilitySystem/AGASAttributeSet.h"
 #include "Engine/DataAsset.h"
 #include "AGASAttributeInfo.generated.h"
 
@@ -21,8 +22,12 @@ struct FAttributeInfo
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText AttributeDescription = FText();
 
+	// set only from C++
 	UPROPERTY(BlueprintReadOnly)
 	float AttributeValue = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayAttribute AttributeToGet;
 };
 
 /**
