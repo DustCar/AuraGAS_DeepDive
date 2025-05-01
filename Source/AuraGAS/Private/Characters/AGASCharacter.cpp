@@ -39,6 +39,7 @@ void AAGASCharacter::PossessedBy(AController* NewController)
 
 	// Initialize Ability Actor Info for server
 	InitializeAbilityActorInfo();
+	AddCharacterAbilities();
 }
 
 void AAGASCharacter::OnRep_PlayerState()

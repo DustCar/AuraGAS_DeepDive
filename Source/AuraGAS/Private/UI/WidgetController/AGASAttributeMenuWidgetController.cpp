@@ -7,6 +7,7 @@
 #include "AbilitySystem/AGASAttributeSet.h"
 #include "AbilitySystem/Data/AGASAttributeInfo.h"
 
+// Change of implementation thanks to Frank Hochban from UDemy
 void UAGASAttributeMenuWidgetController::BroadcastAttributeInfo(const FAttributeInfo& Info) const
 {
 	FAttributeInfo NewInfo = Info;

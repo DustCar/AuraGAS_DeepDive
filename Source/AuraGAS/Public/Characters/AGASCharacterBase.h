@@ -8,6 +8,7 @@
 #include "Interaction/AGASCombatInterface.h"
 #include "AGASCharacterBase.generated.h"
 
+class UGameplayAbility;
 class UGameplayEffect;
 class UAGASAttributeSet;
 class UAGASAbilitySystemComponent;
@@ -49,4 +50,11 @@ protected:
 
 	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
 	void InitializeDefaultStats() const;
+
+	void AddCharacterAbilities();
+
+private:
+
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 };
