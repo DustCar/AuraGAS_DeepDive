@@ -19,6 +19,13 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_ManaRegeneration, "Attributes.Se
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_MaxHealthPoints, "Attributes.Secondary.MaxHealthPoints")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_MaxManaPoints, "Attributes.Secondary.MaxManaPoints")
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_LMB, "InputTag.LMB")
+UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_RMB, "InputTag.RMB")
+UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_1, "InputTag.1")
+UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_2, "InputTag.2")
+UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_3, "InputTag.3")
+UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_4, "InputTag.4")
+
 AGASGameplayTags::AGASGameplayTags()
 {
 }

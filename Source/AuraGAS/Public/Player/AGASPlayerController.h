@@ -6,6 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "AGASPlayerController.generated.h"
 
+struct FInputActionInstance;
+struct FGameplayTag;
 class IAGASTargetInterface;
 struct FInputActionValue;
 class UAGASInputConfig;
@@ -40,7 +42,10 @@ private:
 	void Move(const FInputActionValue& Value);
 
 	void CursorTrace();
-
 	TScriptInterface<IAGASTargetInterface> LastActor;
 	TScriptInterface<IAGASTargetInterface> CurrentActor;
+
+	void AbilityInputTagPressed(const FInputActionValue& Value, FGameplayTag InputTag);
+	void AbilityInputTagReleased(FGameplayTag InputTag);
+	void AbilityInputTagHeld(const FInputActionInstance& Instance, FGameplayTag InputTag);
 };
