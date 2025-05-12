@@ -133,17 +133,31 @@ void AAGASPlayerController::Move(const FInputActionValue& Value)
 
 void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Value, FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *InputTag.ToString());
+	// GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *InputTag.ToString());
 }
 
 void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(2, 3.f, FColor::Blue, *InputTag.ToString());
+	if (GetASC() == nullptr) return;
+
+	GetASC()->AbilityInputTagReleased(InputTag);
 }
 
 void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Instance, FGameplayTag InputTag)
 {
-	GEngine->AddOnScreenDebugMessage(3, 3.f, FColor::Green, *InputTag.ToString());
+	if (GetASC() == nullptr) return;
+
+	GetASC()->AbilityInputTagHeld(InputTag);
+}
+
+UAGASAbilitySystemComponent* AAGASPlayerController::GetASC()
+{
+	if (AGASAbilitySystemComponent == nullptr)
+	{
+		AGASAbilitySystemComponent = Cast<UAGASAbilitySystemComponent>(GetPlayerState<AAGASPlayerState>()->GetAbilitySystemComponent());
+	}
+
+	return AGASAbilitySystemComponent;
 }
 
 void AAGASPlayerController::InitializeHUD()

@@ -13,4 +13,9 @@ UCLASS()
 class AURAGAS_API UAGASGameplayAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (Categories = "InputTag"))
+	FGameplayTag StartupInputTag;
 };

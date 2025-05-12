@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "AGASPlayerController.generated.h"
 
+class UAGASAbilitySystemComponent;
 struct FInputActionInstance;
 struct FGameplayTag;
 class IAGASTargetInterface;
@@ -48,4 +49,9 @@ private:
 	void AbilityInputTagPressed(const FInputActionValue& Value, FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
 	void AbilityInputTagHeld(const FInputActionInstance& Instance, FGameplayTag InputTag);
+
+	UPROPERTY()
+	TObjectPtr<UAGASAbilitySystemComponent> AGASAbilitySystemComponent;
+
+	UAGASAbilitySystemComponent* GetASC();
 };

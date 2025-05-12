@@ -57,6 +57,6 @@ void AAGASCharacterBase::AddCharacterAbilities()
 {
 	if (!HasAuthority()) return;
 
-	AbilitySystemComponent->AddAndActivateCharacterAbilities(StartupAbilities);
+	AbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
 }
 
