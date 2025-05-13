@@ -2,8 +2,13 @@
 
 
 #include "Player/AGASPlayerController.h"
+
+#include "AGASGameplayTags.h"
 #include "EnhancedInputSubsystems.h"
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "Components/SplineComponent.h"
 #include "Input/AGASInputConfig.h"
 #include "Input/AGASInputComponent.h"
 #include "Interaction/AGASTargetInterface.h"
@@ -13,6 +18,8 @@
 AAGASPlayerController::AAGASPlayerController()
 {
 	bReplicates = true;
+
+	Spline = CreateDefaultSubobject<USplineComponent>("Spline");
 }
 
 void AAGASPlayerController::PlayerTick(float DeltaTime)
@@ -133,21 +140,82 @@ void AAGASPlayerController::Move(const FInputActionValue& Value)
 
 void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Value, FGameplayTag InputTag)
 {
-	// GEngine->AddOnScreenDebugMessage(1, 3.f, FColor::Red, *InputTag.ToString());
+	if (InputTag.MatchesTagExact(TAG_InputTag_LMB))
+	{
+		bTargeting = CurrentActor ? true : false;
+		bAutoRunning = false;
+	}
+	
 }
 
 void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (GetASC() == nullptr) return;
+	if (!InputTag.MatchesTagExact(TAG_InputTag_LMB))
+	{
+		if (GetASC() == nullptr) return;
+		GetASC()->AbilityInputTagReleased(InputTag);
+		return;
+	}
 
-	GetASC()->AbilityInputTagReleased(InputTag);
+	if (bTargeting)
+	{
+		if (GetASC() == nullptr) return;
+		GetASC()->AbilityInputTagReleased(InputTag);
+	}
+	else
+	{
+		APawn* ControlledPawn = GetPawn();
+		if (FollowTime <= ShortPressThreshold && ControlledPawn)
+		{
+			UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination);
+			if (NavPath == nullptr) return;
+
+			Spline->ClearSplinePoints();
+			for (const FVector& PointLoc : NavPath->PathPoints)
+			{
+				Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+				DrawDebugSphere(GetWorld(), PointLoc, 8.f, 8, FColor::Green, false, 5.f);
+			}
+
+			bAutoRunning = true;
+			
+		}
+		
+		FollowTime = 0.f;
+		bTargeting = false;
+	}
 }
 
 void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Instance, FGameplayTag InputTag)
 {
-	if (GetASC() == nullptr) return;
+	if (!InputTag.MatchesTagExact(TAG_InputTag_LMB))
+	{
+		if (GetASC() == nullptr) return;
+		GetASC()->AbilityInputTagHeld(InputTag);
+		return;
+	}
 
-	GetASC()->AbilityInputTagHeld(InputTag);
+	if (bTargeting)
+	{
+		if (GetASC() == nullptr) return;
+		GetASC()->AbilityInputTagHeld(InputTag);
+	}
+	else
+	{
+		FollowTime += GetWorld()->GetDeltaSeconds();
+
+		FHitResult Hit;
+		if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+		{
+			CachedDestination = Hit.ImpactPoint;
+		}
+
+		if (APawn* ControlledPawn = GetPawn())
+		{
+			const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
+			ControlledPawn->AddMovementInput(WorldDirection);
+		}
+	}
 }
 
 UAGASAbilitySystemComponent* AAGASPlayerController::GetASC()
