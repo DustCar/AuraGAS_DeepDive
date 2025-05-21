@@ -27,6 +27,11 @@ void AAGASPlayerController::PlayerTick(float DeltaTime)
 	Super::PlayerTick(DeltaTime);
 
 	CursorTrace();
+
+	if (bAutoRunning)
+	{
+		AutoRun();
+	}
 }
 
 void AAGASPlayerController::OnPossess(APawn* InPawn)
@@ -45,51 +50,16 @@ void AAGASPlayerController::OnRep_PlayerState()
 
 void AAGASPlayerController::CursorTrace()
 {
-	FHitResult Hit;
-	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
-	if (!Hit.bBlockingHit) return;
+	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	if (!CursorHit.bBlockingHit) return;
 
 	LastActor = CurrentActor;
-	CurrentActor = Hit.GetActor();
+	CurrentActor = CursorHit.GetActor();
 
-	/**
-	*	Line trace from cursor. Different Scenarios:
-	*	A. LastActor is null && CurrentActor is null
-	*		- Do nothing
-	*	B. LastActor is null && CurrentActor is valid
-	*		- Highlight CurrentActor
-	*	C. LastActor is valid && CurrentActor is null
-	*		- UnHighlight LastActor
-	*	D. Both actors valid, but LastActor != CurrentActor
-	*		- UnHighlight LastActor, Highlight CurrentActor
-	*	E. Both actors valid, but LastActor == CurrentActor
-	*		- Do nothing
-	*/
-
-	if (LastActor == nullptr)
+	if (LastActor != CurrentActor)
 	{
-		// Case B
-		if (CurrentActor)
-		{
-			CurrentActor->HighlightActor();
-		}
-	}
-	else
-	{
-		if (CurrentActor)
-		{
-			// Case D
-			if (LastActor != CurrentActor)
-			{
-				LastActor->UnHighlightActor();
-				CurrentActor->HighlightActor();
-			}
-		}
-		else
-		{
-			// Case C
-			LastActor->UnHighlightActor();
-		}
+		if (LastActor) LastActor->UnHighlightActor();
+		if (CurrentActor) CurrentActor->HighlightActor();
 	}
 }
 
@@ -111,6 +81,8 @@ void AAGASPlayerController::BeginPlay()
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	InputModeData.SetHideCursorDuringCapture(false);
 	SetInputMode(InputModeData);
+
+	NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
 }
 
 void AAGASPlayerController::SetupInputComponent()
@@ -135,6 +107,22 @@ void AAGASPlayerController::Move(const FInputActionValue& Value)
 	{
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+	}
+}
+
+void AAGASPlayerController::AutoRun()
+{
+	if (APawn* ControlledPawn = GetPawn())
+	{
+		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
+		const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
+		ControlledPawn->AddMovementInput(Direction);
+
+		const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
+		if (DistanceToDestination <= AutoRunAcceptanceRadius)
+		{
+			bAutoRunning = false;
+		}
 	}
 }
 
@@ -164,21 +152,30 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 	}
 	else
 	{
-		APawn* ControlledPawn = GetPawn();
+		const APawn* ControlledPawn = GetPawn();
 		if (FollowTime <= ShortPressThreshold && ControlledPawn)
 		{
-			UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestination);
-			if (NavPath == nullptr) return;
+			FNavLocation CachedDestinationNavLocation;
+			const FVector QueryExtent = FVector(250.f, 250.f, 200.f);
+			const FNavAgentProperties& NavAgentProperties = GetNavAgentPropertiesRef();
+			// ProjectPointToNavigation finds the closest point on the nav mesh to the clicked location,
+			// used for areas that do not have nav mesh (i.e. under an item)
+			const bool bNavLocationFound = NavSystem->ProjectPointToNavigation(CachedDestination, CachedDestinationNavLocation, QueryExtent, &NavAgentProperties);
 
-			Spline->ClearSplinePoints();
-			for (const FVector& PointLoc : NavPath->PathPoints)
+			if (bNavLocationFound)
 			{
-				Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
-				DrawDebugSphere(GetWorld(), PointLoc, 8.f, 8, FColor::Green, false, 5.f);
-			}
+				UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestinationNavLocation);
+				if (NavPath == nullptr || NavPath->PathPoints.Num() <= 0) return;
 
-			bAutoRunning = true;
-			
+				Spline->ClearSplinePoints();
+				for (const FVector& PointLoc : NavPath->PathPoints)
+				{
+					Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+				}
+
+				CachedDestination = NavPath->PathPoints.Last();
+				bAutoRunning = true;
+			}
 		}
 		
 		FollowTime = 0.f;
@@ -205,7 +202,7 @@ void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Inst
 		FollowTime += GetWorld()->GetDeltaSeconds();
 
 		FHitResult Hit;
-		if (GetHitResultUnderCursor(ECC_Visibility, false, Hit))
+		if (GetHitResultUnderCursor(ECC_Navigation, false, Hit))
 		{
 			CachedDestination = Hit.ImpactPoint;
 		}

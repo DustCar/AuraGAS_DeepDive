@@ -8,7 +8,7 @@
 
 void UAGASAbilitySystemComponent::AbilityActorInfoSet()
 {
-	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &ThisClass::EffectApplied);
+	OnGameplayEffectAppliedDelegateToSelf.AddUObject(this, &ThisClass::ClientEffectApplied);
 }
 
 void UAGASAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities)
@@ -54,7 +54,7 @@ void UAGASAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 	}
 }
 
-void UAGASAbilitySystemComponent::EffectApplied(UAbilitySystemComponent* AbilitySystemComponent,
+void UAGASAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,
                                                 const FGameplayEffectSpec& EffectSpec, FActiveGameplayEffectHandle ActiveEffectHandle)
 {
 	FGameplayTagContainer TagContainer;

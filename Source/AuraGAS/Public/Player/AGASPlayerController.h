@@ -6,6 +6,9 @@
 #include "GameFramework/PlayerController.h"
 #include "AGASPlayerController.generated.h"
 
+#define ECC_Navigation ECC_GameTraceChannel1
+
+class UNavigationSystemV1;
 class USplineComponent;
 class UAGASAbilitySystemComponent;
 struct FInputActionInstance;
@@ -43,6 +46,7 @@ private:
 
 	void Move(const FInputActionValue& Value);
 
+	FHitResult CursorHit;
 	void CursorTrace();
 	TScriptInterface<IAGASTargetInterface> LastActor;
 	TScriptInterface<IAGASTargetInterface> CurrentActor;
@@ -56,6 +60,9 @@ private:
 
 	UAGASAbilitySystemComponent* GetASC();
 
+	UPROPERTY()
+	UNavigationSystemV1* NavSystem = nullptr;
+
 	FVector CachedDestination = FVector::ZeroVector;
 	float FollowTime = 0.f;
 	float ShortPressThreshold = 0.5f;
@@ -67,5 +74,7 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+
+	void AutoRun();
 	
 };
