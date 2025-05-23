@@ -38,8 +38,8 @@ void AAGASEffectActor::ApplyEffectToTarget(AActor* TargetActor, const TSubclassO
 	if (bIsInfinite && InfiniteEffectRemovalPolicy ==  EEffectRemovalPolicy::RemoveOnEndOverlap)
 	{
 		auto& AffectedActor = ActiveInfiniteEffects.FindOrAdd(TargetActor->GetUniqueID());
-		auto& InstigatorActorArray = AffectedActor.FindOrAdd(GetUniqueID());
-		InstigatorActorArray.Add(ActiveEffectHandle);
+		auto& InstigatorActorEffectsArray = AffectedActor.FindOrAdd(GetUniqueID());
+		InstigatorActorEffectsArray.Add(ActiveEffectHandle);
 	}
 
 	if (bDestroyOnEffectApplication)
