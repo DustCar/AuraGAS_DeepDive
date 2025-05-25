@@ -6,6 +6,7 @@
 #include "AGASGameplayAbility.h"
 #include "AGASGA_CastProjectile.generated.h"
 
+class AAGASProjectile;
 /**
  * 
  */
@@ -16,4 +17,8 @@ class AURAGAS_API UAGASGA_CastProjectile : public UAGASGameplayAbility
 
 protected:
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<AAGASProjectile> ProjectileClass;
+
 };

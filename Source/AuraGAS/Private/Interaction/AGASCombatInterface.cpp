@@ -8,3 +8,8 @@ int32 IAGASCombatInterface::GetPlayerLevel()
 {
 	return 0;
 }
+
+FVector IAGASCombatInterface::GetCombactSocketLocation()
+{
+	return FVector();
+}

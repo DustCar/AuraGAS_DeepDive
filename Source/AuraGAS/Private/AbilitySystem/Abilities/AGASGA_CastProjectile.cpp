@@ -3,7 +3,9 @@
 
 #include "AbilitySystem/Abilities/AGASGA_CastProjectile.h"
 
-#include "Kismet/KismetSystemLibrary.h"
+#include "Actor/AGASProjectile.h"
+#include "Interaction/AGASCombatInterface.h"
+
 
 void UAGASGA_CastProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
@@ -11,5 +13,31 @@ void UAGASGA_CastProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
-	UKismetSystemLibrary::PrintString(this, FString("ActivateAbility (C++)"), true, true, FLinearColor::Yellow, 3.f);
+	if (!HasAuthority(&ActivationInfo))
+	{
+		return;
+	}
+
+	IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(GetAvatarActorFromActorInfo());
+	if (CombatInterface)
+	{
+		const FVector SocketLocation = CombatInterface->GetCombactSocketLocation();
+		FTransform SpawnTransform;
+		SpawnTransform.SetLocation(SocketLocation);
+		// TODO: Set the Projectile Rotation
+		
+		AAGASProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAGASProjectile>(
+			ProjectileClass,
+			SpawnTransform,
+			GetOwningActorFromActorInfo(),
+			Cast<APawn>(GetAvatarActorFromActorInfo()),
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+		);
+
+		// TODO: Give the Projectile a Gameplay Effect Spec for causing Damage
+
+		Projectile->FinishSpawning(SpawnTransform);
+	}
+	
+	
 }

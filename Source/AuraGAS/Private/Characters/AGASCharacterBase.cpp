@@ -27,6 +27,12 @@ void AAGASCharacterBase::BeginPlay()
 	
 }
 
+FVector AAGASCharacterBase::GetCombactSocketLocation()
+{
+	check(WeaponMesh)
+	return WeaponMesh->GetSocketLocation(WeaponTipSocketName);
+}
+
 void AAGASCharacterBase::InitializeAbilityActorInfo()
 {
 	
