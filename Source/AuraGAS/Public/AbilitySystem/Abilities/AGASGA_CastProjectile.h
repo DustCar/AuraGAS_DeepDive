@@ -21,4 +21,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AAGASProjectile> ProjectileClass;
 
+private:
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnProjectile();
+	
 };

@@ -7,17 +7,21 @@
 #include "Interaction/AGASCombatInterface.h"
 
 
+
+
 void UAGASGA_CastProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
                                              const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
                                              const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+	
+}
 
-	if (!HasAuthority(&ActivationInfo))
-	{
-		return;
-	}
-
+void UAGASGA_CastProjectile::SpawnProjectile()
+{
+	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
+	if (!bIsServer) return;
+	
 	IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(GetAvatarActorFromActorInfo());
 	if (CombatInterface)
 	{
@@ -38,6 +42,4 @@ void UAGASGA_CastProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 
 		Projectile->FinishSpawning(SpawnTransform);
 	}
-	
-	
 }
