@@ -32,8 +32,6 @@ public:
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_PlayerState() override;
 	
-	FHitResult CursorHit;
-
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
@@ -48,6 +46,7 @@ private:
 
 	void Move(const FInputActionValue& Value);
 
+	FHitResult CursorHit;
 	void CursorTrace();
 	TScriptInterface<IAGASTargetInterface> LastActor;
 	TScriptInterface<IAGASTargetInterface> CurrentActor;
@@ -77,5 +76,9 @@ private:
 	TObjectPtr<USplineComponent> Spline;
 
 	void AutoRun();
+	
+public:
+	
+	FORCEINLINE FHitResult GetCursorHit() { return CursorHit; }
 	
 };
