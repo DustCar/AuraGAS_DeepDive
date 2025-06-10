@@ -17,7 +17,7 @@ void UAGASGA_CastProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	
 }
 
-void UAGASGA_CastProjectile::SpawnProjectile()
+void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLocation)
 {
 	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
 	if (!bIsServer) return;
@@ -26,9 +26,12 @@ void UAGASGA_CastProjectile::SpawnProjectile()
 	if (CombatInterface)
 	{
 		const FVector SocketLocation = CombatInterface->GetCombactSocketLocation();
+		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+		Rotation.Pitch = 0.f;
+		
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
-		// TODO: Set the Projectile Rotation
+		SpawnTransform.SetRotation(Rotation.Quaternion());
 		
 		AAGASProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAGASProjectile>(
 			ProjectileClass,

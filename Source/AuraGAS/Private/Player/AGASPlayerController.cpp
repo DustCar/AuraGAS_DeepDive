@@ -91,6 +91,7 @@ void AAGASPlayerController::SetupInputComponent()
 
 	UAGASInputComponent* AGASInputComponent = CastChecked<UAGASInputComponent>(InputComponent);
 	AGASInputComponent->BindAction(AGASInputActions->InputMove, ETriggerEvent::Triggered, this, &ThisClass::Move);
+	AGASInputComponent->BindAction(AGASInputActions->InputShift, ETriggerEvent::Triggered, this, &ThisClass::ShiftPressed);
 	AGASInputComponent->BindAbilityActions(AGASInputActions, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
@@ -145,12 +146,10 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 		return;
 	}
 
-	if (bTargeting)
-	{
-		if (GetASC() == nullptr) return;
-		GetASC()->AbilityInputTagReleased(InputTag);
-	}
-	else
+	if (GetASC() == nullptr) return;
+	GetASC()->AbilityInputTagReleased(InputTag);
+
+	if (!bTargeting && !bShiftKeyDown)
 	{
 		const APawn* ControlledPawn = GetPawn();
 		if (FollowTime <= ShortPressThreshold && ControlledPawn)
@@ -192,7 +191,7 @@ void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Inst
 		return;
 	}
 
-	if (bTargeting)
+	if (bTargeting || bShiftKeyDown)
 	{
 		if (GetASC() == nullptr) return;
 		GetASC()->AbilityInputTagHeld(InputTag);

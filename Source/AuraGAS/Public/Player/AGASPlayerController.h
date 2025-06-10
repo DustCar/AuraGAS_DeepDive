@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "GameFramework/PlayerController.h"
 #include "AGASPlayerController.generated.h"
 
@@ -45,6 +46,8 @@ private:
 	TObjectPtr<UAGASInputConfig> AGASInputActions;
 
 	void Move(const FInputActionValue& Value);
+	void ShiftPressed(const FInputActionValue& Value) { bShiftKeyDown = Value.Get<bool>(); }
+	bool bShiftKeyDown = false;
 
 	FHitResult CursorHit;
 	void CursorTrace();
