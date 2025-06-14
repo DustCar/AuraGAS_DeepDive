@@ -12,6 +12,7 @@ class UGameplayAbility;
 class UGameplayEffect;
 class UAGASAttributeSet;
 class UAGASAbilitySystemComponent;
+class UMotionWarpingComponent;
 
 UCLASS(Abstract)
 class AURAGAS_API AAGASCharacterBase : public ACharacter, public IAbilitySystemInterface, public IAGASCombatInterface
@@ -33,7 +34,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName WeaponTipSocketName;
 
-	virtual FVector GetCombactSocketLocation() override;
+	virtual FVector GetCombatSocketLocation() override;
 
 	// Using just our version of ASC since we will not be implementing multiple types of ASC in this project
 	UPROPERTY()
@@ -57,6 +58,9 @@ protected:
 	void InitializeDefaultStats() const;
 
 	void AddCharacterAbilities();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UMotionWarpingComponent> MotionWarpingComp;
 
 private:
 

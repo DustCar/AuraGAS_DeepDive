@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "MotionWarpingComponent.h"
 
 
 AAGASCharacterBase::AAGASCharacterBase()
@@ -17,6 +18,8 @@ AAGASCharacterBase::AAGASCharacterBase()
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
 	WeaponMesh->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
 	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>("MotionWarping");
 }
 
 UAbilitySystemComponent* AAGASCharacterBase::GetAbilitySystemComponent() const
@@ -31,7 +34,7 @@ void AAGASCharacterBase::BeginPlay()
 	
 }
 
-FVector AAGASCharacterBase::GetCombactSocketLocation()
+FVector AAGASCharacterBase::GetCombatSocketLocation()
 {
 	check(WeaponMesh)
 	return WeaponMesh->GetSocketLocation(WeaponTipSocketName);
