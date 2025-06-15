@@ -8,6 +8,7 @@
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "AuraGAS/AuraGAS.h"
 #include "Components/SplineComponent.h"
 #include "Input/AGASInputConfig.h"
 #include "Input/AGASInputComponent.h"

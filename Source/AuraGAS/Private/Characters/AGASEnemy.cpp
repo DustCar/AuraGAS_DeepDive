@@ -51,4 +51,6 @@ void AAGASEnemy::InitializeAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	AbilitySystemComponent->AbilityActorInfoSet();
+	// TODO: temporary stats placeholder for testing
+	InitializeDefaultStats();
 }

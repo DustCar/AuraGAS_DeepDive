@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/AGASGA_CastProjectile.h"
 
+#include "AbilitySystemComponent.h"
 #include "Actor/AGASProjectile.h"
 #include "Interaction/AGASCombatInterface.h"
 
@@ -42,7 +43,10 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 		);
 
 		// TODO: Give the Projectile a Gameplay Effect Spec for causing Damage
-
+		const UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
+		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), SourceASC->MakeEffectContext());
+		Projectile->DamageEffectSpecHandle = SpecHandle;
+		
 		Projectile->FinishSpawning(SpawnTransform);
 	}
 }

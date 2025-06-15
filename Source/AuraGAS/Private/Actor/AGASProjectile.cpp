@@ -3,7 +3,10 @@
 
 #include "Actor/AGASProjectile.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "AuraGAS/AuraGAS.h"
 #include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -17,6 +20,7 @@ AAGASProjectile::AAGASProjectile()
 
 	Sphere = CreateDefaultSubobject<USphereComponent>("Sphere");
 	SetRootComponent(Sphere);
+	Sphere->SetCollisionObjectType(ECC_Projectile);
 	Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Sphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Sphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
@@ -27,7 +31,6 @@ AAGASProjectile::AAGASProjectile()
 	ProjectileMovement->InitialSpeed = 550.f;
 	ProjectileMovement->MaxSpeed = 550.f;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
-
 }
 
 void AAGASProjectile::BeginPlay()
@@ -39,7 +42,15 @@ void AAGASProjectile::BeginPlay()
 
 	if (LoopingSound)
 	{
-		LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(LoopingSound, GetRootComponent());
+		LoopingSoundComponent = UGameplayStatics::SpawnSoundAttached(
+			LoopingSound,
+			GetRootComponent(),
+			NAME_None,
+			FVector(ForceInit),
+			FRotator::ZeroRotator,
+			EAttachLocation::KeepRelativeOffset,
+			true
+		);
 	}
 }
 
@@ -57,10 +68,16 @@ void AAGASProjectile::Destroyed()
 void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (OtherActor == GetInstigator()) return;
+	
 	HandleSpecialEffectsOnImpact();
 
 	if (HasAuthority())
 	{
+		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
+		{
+			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data);
+		}
 		Destroy();
 	}
 	else
@@ -79,10 +96,5 @@ void AAGASProjectile::HandleSpecialEffectsOnImpact()
 	if (ImpactEffect)
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
-	}
-
-	if (LoopingSound)
-	{
-		LoopingSoundComponent->Stop();
 	}
 }

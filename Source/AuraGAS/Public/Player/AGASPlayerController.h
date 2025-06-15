@@ -7,7 +7,6 @@
 #include "GameFramework/PlayerController.h"
 #include "AGASPlayerController.generated.h"
 
-#define ECC_Navigation ECC_GameTraceChannel1
 
 class UNavigationSystemV1;
 class USplineComponent;
