@@ -6,6 +6,9 @@
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAttributeSet.h"
 #include "AuraGAS/AuraGAS.h"
+#include "Components/WidgetComponent.h"
+#include "UI/Widget/AGASUserWidget.h"
+#include "UI/WidgetController/AGASProgressBarWidgetController.h"
 
 
 AAGASEnemy::AAGASEnemy()
@@ -21,6 +24,9 @@ AAGASEnemy::AAGASEnemy()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
 	AttributeSet = CreateDefaultSubobject<UAGASAttributeSet>("AttributeSet");
+
+	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
+	HealthBar->SetupAttachment(GetRootComponent());
 }
 
 void AAGASEnemy::HighlightActor()
@@ -45,6 +51,8 @@ void AAGASEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	InitializeAbilityActorInfo();
+
+	InitializeOverheadHealthBar();
 }
 
 void AAGASEnemy::InitializeAbilityActorInfo()
@@ -53,4 +61,23 @@ void AAGASEnemy::InitializeAbilityActorInfo()
 	AbilitySystemComponent->AbilityActorInfoSet();
 	// TODO: temporary stats placeholder for testing
 	InitializeDefaultStats();
+}
+
+void AAGASEnemy::InitializeOverheadHealthBar()
+{
+	checkf(OverheadHPBarWidgetControllerClass, TEXT("WidgetControllerClass not set in BP_EnemyBase."))
+
+	if (OverheadHPBarWidgetController == nullptr)
+	{
+		OverheadHPBarWidgetController = NewObject<UAGASProgressBarWidgetController>(this, OverheadHPBarWidgetControllerClass);
+		FWidgetControllerParams WCParams(nullptr, nullptr, AbilitySystemComponent, AttributeSet);
+		OverheadHPBarWidgetController->SetWidgetControllerParams(WCParams);
+		OverheadHPBarWidgetController->BindCallbacksToDependencies();
+	}
+
+	if (UAGASUserWidget* AGASHealthBarWidget = Cast<UAGASUserWidget>(HealthBar->GetUserWidgetObject()))
+	{
+		AGASHealthBarWidget->SetWidgetController(OverheadHPBarWidgetController);
+		if (HasAuthority()) OverheadHPBarWidgetController->BroadcastInitialValues();
+	}
 }

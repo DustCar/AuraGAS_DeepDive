@@ -10,6 +10,9 @@
 class UAGASAttributeSet;
 class UAGASAbilitySystemComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+
+
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams
 {
