@@ -4,6 +4,7 @@
 #include "Characters/AGASEnemy.h"
 
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/AGASAttributeSet.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Components/WidgetComponent.h"
@@ -59,8 +60,8 @@ void AAGASEnemy::InitializeAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	AbilitySystemComponent->AbilityActorInfoSet();
-	// TODO: temporary stats placeholder for testing
-	InitializeDefaultStats();
+
+	UAGASAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
 }
 
 void AAGASEnemy::InitializeOverheadHealthBar()
