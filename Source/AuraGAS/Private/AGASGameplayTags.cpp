@@ -26,6 +26,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_2, "InputTag.2")
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_3, "InputTag.3")
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_4, "InputTag.4")
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Damage, "Damage")
+
 AGASGameplayTags::AGASGameplayTags()
 {
 }

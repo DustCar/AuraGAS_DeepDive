@@ -72,7 +72,7 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, ManaPoints)
 
 	/**
-	 * Main Stats Accessors
+	 * Main Attributes Accessors
 	 */
 	ATTRIBUTE_ACCESSORS(ThisClass, Strength)
 	ATTRIBUTE_ACCESSORS(ThisClass, Intelligence)
@@ -80,7 +80,7 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, Vigor)
 
 	/**
-	 * Secondary Stats Accessors
+	 * Secondary Attributes Accessors
 	 */
 	ATTRIBUTE_ACCESSORS(ThisClass, Armor)
 	ATTRIBUTE_ACCESSORS(ThisClass, ArmorPenetration)
@@ -92,6 +92,11 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, ManaRegeneration)
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxHealthPoints)
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxManaPoints)
+
+	/**
+	 * Meta Attributes Accessors
+	 */
+	ATTRIBUTE_ACCESSORS(ThisClass, IncomingDamage)
 	
 protected:
 	/**
@@ -112,21 +117,21 @@ protected:
 	//~ End Vital attribute rep notifies
 
 	/**
-	 * Main Stats
+	 * Primary Attributes
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Strength, Category = "MainStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Strength, Category = "PrimaryAttributes")
 	FGameplayAttributeData Strength;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Intelligence, Category = "MainStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Intelligence, Category = "PrimaryAttributes")
 	FGameplayAttributeData Intelligence;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Resilience, Category = "MainStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Resilience, Category = "PrimaryAttributes")
 	FGameplayAttributeData Resilience;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Vigor, Category = "MainStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Vigor, Category = "PrimaryAttributes")
 	FGameplayAttributeData Vigor;
 
-	//~ Begin Main stat rep notifies
+	//~ Begin Primary Attributes rep notifies
 	UFUNCTION()
 	void OnRep_Strength(const FGameplayAttributeData& OldStrength) const;
 
@@ -138,42 +143,42 @@ protected:
 
 	UFUNCTION()
 	void OnRep_Vigor(const FGameplayAttributeData& OldVigor) const;
-	//~ End Main stat rep notifies
+	//~ End Primary Attributes rep notifies
 
 	/**
-	 * Secondary Stats
+	 * Secondary Attributes 
 	 */
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Armor, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Armor, Category = "SecondaryAttributes")
 	FGameplayAttributeData Armor;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ArmorPenetration, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ArmorPenetration, Category = "SecondaryAttributes")
 	FGameplayAttributeData ArmorPenetration;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BlockChance, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_BlockChance, Category = "SecondaryAttributes")
 	FGameplayAttributeData BlockChance;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalHitChance, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalHitChance, Category = "SecondaryAttributes")
 	FGameplayAttributeData CriticalHitChance;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalHitDamage, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalHitDamage, Category = "SecondaryAttributes")
 	FGameplayAttributeData CriticalHitDamage;
 	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalHitResistance, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_CriticalHitResistance, Category = "SecondaryAttributes")
 	FGameplayAttributeData CriticalHitResistance;
 	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthRegeneration, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_HealthRegeneration, Category = "SecondaryAttributes")
 	FGameplayAttributeData HealthRegeneration;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ManaRegeneration, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ManaRegeneration, Category = "SecondaryAttributes")
 	FGameplayAttributeData ManaRegeneration;
 
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealthPoints, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealthPoints, Category = "SecondaryAttributes")
 	FGameplayAttributeData MaxHealthPoints;
 	
-	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxManaPoints, Category = "SecondaryStats")
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxManaPoints, Category = "SecondaryAttributes")
 	FGameplayAttributeData MaxManaPoints;
 	
-	//~ Begin Secondary Stats rep notifies
+	//~ Begin Secondary Attributes rep notifies
 	UFUNCTION()
 	void OnRep_Armor(const FGameplayAttributeData& OldArmor) const;
     
@@ -203,7 +208,14 @@ protected:
     
     UFUNCTION()
     void OnRep_MaxManaPoints(const FGameplayAttributeData& OldMaxManaPoints) const;
-	//~ End Secondary Stats rep notifies
+	//~ End Secondary Attributes rep notifies
+
+	/**
+	 *	Meta Attributes
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "MetaAttributes")
+	FGameplayAttributeData IncomingDamage;
+
 
 private:
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectPropertiesAdvanced& Props);
