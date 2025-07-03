@@ -4,6 +4,7 @@
 #include "AbilitySystem/AGASAttributeSet.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AGASGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
@@ -110,6 +111,14 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		{
 			const float NewHealth = GetHealthPoints() - LocalIncomingDamage;
             SetHealthPoints(FMath::Clamp(NewHealth, 0.f, GetMaxHealthPoints()));
+
+			const bool bFatal = NewHealth <= 0.f;
+			if (!bFatal)
+			{
+				FGameplayTagContainer TagContainer;
+				TagContainer.AddTag(TAG_Effects_HitReact);
+				Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+			}
 		}
 	}
 }

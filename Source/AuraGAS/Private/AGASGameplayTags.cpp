@@ -28,6 +28,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_4, "InputTag.4")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Damage, "Damage")
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Effects_HitReact, "Effects.HitReact")
+
 AGASGameplayTags::AGASGameplayTags()
 {
 }

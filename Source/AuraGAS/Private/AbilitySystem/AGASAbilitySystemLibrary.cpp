@@ -71,3 +71,17 @@ void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributesSpecHandle.Data);
 	
 }
+
+void UAGASAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject,
+	UAGASAbilitySystemComponent* ASC)
+{
+	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (AGASGameMode == nullptr) return;
+
+	UAGASCharacterClassInfo* CharacterClassInfo = AGASGameMode->CharacterClassInfo;
+	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterClassInfo->CommonAbilities)
+	{
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass);
+		ASC->GiveAbility(AbilitySpec);
+	}
+}

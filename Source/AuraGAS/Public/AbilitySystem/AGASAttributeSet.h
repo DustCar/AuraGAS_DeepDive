@@ -72,7 +72,7 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, ManaPoints)
 
 	/**
-	 * Main Attributes Accessors
+	 * Primary Attributes Accessors
 	 */
 	ATTRIBUTE_ACCESSORS(ThisClass, Strength)
 	ATTRIBUTE_ACCESSORS(ThisClass, Intelligence)

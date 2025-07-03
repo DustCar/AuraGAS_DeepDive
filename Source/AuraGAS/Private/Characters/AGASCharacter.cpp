@@ -80,4 +80,11 @@ void AAGASCharacter::InitializeDefaultStats() const
 	ApplyEffectToSelf(DefaultVitalAttributes, 1.f);
 }
 
+void AAGASCharacter::AddCharacterAbilities()
+{
+	if (!HasAuthority()) return;
+
+	AbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
+}
+
 

@@ -3,11 +3,13 @@
 
 #include "Characters/AGASEnemy.h"
 
+#include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/AGASAttributeSet.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Components/WidgetComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "UI/Widget/AGASUserWidget.h"
 #include "UI/WidgetController/AGASProgressBarWidgetController.h"
 
@@ -51,9 +53,16 @@ int32 AAGASEnemy::GetPlayerLevel()
 void AAGASEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	InitializeAbilityActorInfo();
+	UAGASAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
 
 	InitializeOverheadHealthBar();
+
+	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Effects_HitReact, EGameplayTagEventType::NewOrRemoved).AddUObject(
+		this,
+		&ThisClass::HitReactTagChanged
+	);
 }
 
 void AAGASEnemy::InitializeAbilityActorInfo()
@@ -81,4 +90,10 @@ void AAGASEnemy::InitializeOverheadHealthBar()
 		AGASHealthBarWidget->SetWidgetController(OverheadHPBarWidgetController);
 		if (HasAuthority()) OverheadHPBarWidgetController->BroadcastInitialValues();
 	}
+}
+
+void AAGASEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bHitReacting = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
 }

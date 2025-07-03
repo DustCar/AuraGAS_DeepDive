@@ -7,6 +7,7 @@
 #include "AGASCharacterClassInfo.generated.h"
 
 class UGameplayEffect;
+class UGameplayAbility;
 
 UENUM(BlueprintType)
 enum class ECharacterClass : uint8
@@ -43,6 +44,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "CommonClassDefaults")
 	TSubclassOf<UGameplayEffect> VitalAttributes;
+
+	UPROPERTY(EditDefaultsOnly, Category = "CommonClassDefaults")
+	TArray<TSubclassOf<UGameplayAbility>> CommonAbilities;
 
 	FCharacterClassDefaultInfo GetClassDefaultInfo(ECharacterClass CharacterClass);
 };

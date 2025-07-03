@@ -11,13 +11,6 @@
 
 
 
-void UAGASGA_CastProjectile::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
-                                             const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo,
-                                             const FGameplayEventData* TriggerEventData)
-{
-	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
-	
-}
 
 void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLocation)
 {

@@ -25,8 +25,12 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAGASAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
+	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+
 protected:
 	virtual void BeginPlay() override;
+	virtual void InitializeAbilityActorInfo();
+	virtual void AddCharacterAbilities();
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
@@ -43,16 +47,11 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UAGASAttributeSet> AttributeSet;
 
-	virtual void InitializeAbilityActorInfo();
-	
-
-	void AddCharacterAbilities();
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComp;
 
 private:
 
-	UPROPERTY(EditAnywhere, Category = "Abilities")
-	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 };

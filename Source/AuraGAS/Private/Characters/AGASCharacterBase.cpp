@@ -31,6 +31,10 @@ UAbilitySystemComponent* AAGASCharacterBase::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+UAnimMontage* AAGASCharacterBase::GetHitReactMontage_Implementation()
+{
+	return HitReactMontage;
+}
 
 void AAGASCharacterBase::BeginPlay()
 {
@@ -51,8 +55,6 @@ void AAGASCharacterBase::InitializeAbilityActorInfo()
 
 void AAGASCharacterBase::AddCharacterAbilities()
 {
-	if (!HasAuthority()) return;
-
-	AbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
+	
 }
 
