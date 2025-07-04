@@ -50,6 +50,12 @@ int32 AAGASEnemy::GetPlayerLevel()
 }
 
 
+void AAGASEnemy::Die()
+{
+	SetLifeSpan(CorpseLifeSpan);
+	Super::Die();
+}
+
 void AAGASEnemy::BeginPlay()
 {
 	Super::BeginPlay();

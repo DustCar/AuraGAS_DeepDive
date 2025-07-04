@@ -27,13 +27,17 @@ public:
 
 	//~ Begin Combat Interface
 	virtual int32 GetPlayerLevel() override;
+	virtual void Die() override;
 	//~ End Combat Interface
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	bool bHitReacting = false;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	float BaseWalkSpeed = 250.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	float CorpseLifeSpan = 5.f;
 
 protected:
 	virtual void BeginPlay() override;

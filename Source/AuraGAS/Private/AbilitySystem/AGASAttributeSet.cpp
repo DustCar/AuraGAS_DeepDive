@@ -7,6 +7,7 @@
 #include "AGASGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "GameFramework/Character.h"
+#include "Interaction/AGASCombatInterface.h"
 #include "Net/UnrealNetwork.h"
 
 UAGASAttributeSet::UAGASAttributeSet()
@@ -113,7 +114,16 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
             SetHealthPoints(FMath::Clamp(NewHealth, 0.f, GetMaxHealthPoints()));
 
 			const bool bFatal = NewHealth <= 0.f;
-			if (!bFatal)
+			if (bFatal)
+			{
+				
+				IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(Props.TargetProperties->AvatarActor);
+				if (CombatInterface)
+				{
+					CombatInterface->Die();
+				}
+			}
+			else
 			{
 				FGameplayTagContainer TagContainer;
 				TagContainer.AddTag(TAG_Effects_HitReact);

@@ -36,6 +36,31 @@ UAnimMontage* AAGASCharacterBase::GetHitReactMontage_Implementation()
 	return HitReactMontage;
 }
 
+void AAGASCharacterBase::Die()
+{
+	WeaponMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	MulticastHandleDeath();
+}
+
+void AAGASCharacterBase::MulticastHandleDeath_Implementation()
+{
+	WeaponMesh->SetSimulatePhysics(true);
+	WeaponMesh->SetEnableGravity(true);
+	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	WeaponMesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+
+	GetMesh()->SetSimulatePhysics(true);
+	GetMesh()->SetEnableGravity(true);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+	
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Dissolve();
+}
+
 void AAGASCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
@@ -46,6 +71,23 @@ FVector AAGASCharacterBase::GetCombatSocketLocation()
 {
 	check(WeaponMesh)
 	return WeaponMesh->GetSocketLocation(WeaponTipSocketName);
+}
+
+void AAGASCharacterBase::Dissolve()
+{
+	if (IsValid(DissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* DynamicMatInst = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicMatInst);
+		StartDissolveTimeline(DynamicMatInst);
+	}
+
+	if (IsValid(WeaponDissolveMaterialInstance))
+	{
+		UMaterialInstanceDynamic* WeaponDynamicMatInst = UMaterialInstanceDynamic::Create(WeaponDissolveMaterialInstance, this);
+		WeaponMesh->SetMaterial(0, WeaponDynamicMatInst);
+		StartWeaponDissolveTimeline(WeaponDynamicMatInst);
+	}
 }
 
 void AAGASCharacterBase::InitializeAbilityActorInfo()
