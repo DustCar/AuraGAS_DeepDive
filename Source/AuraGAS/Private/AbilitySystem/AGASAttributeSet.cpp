@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "Net/UnrealNetwork.h"
+#include "Player/AGASPlayerController.h"
 
 UAGASAttributeSet::UAGASAttributeSet()
 {
@@ -97,6 +98,26 @@ void UAGASAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 	Props.TargetProperties->AbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.TargetProperties->AvatarActor);
 }
 
+void UAGASAttributeSet::ShowFloatingText(const FEffectPropertiesAdvanced& Props, const float Damage) const
+{
+	if (Props.SourceProperties->Character != Props.TargetProperties->Character)
+	{
+		if (auto AGASPC = Cast<AAGASPlayerController>(Props.SourceProperties->Character->Controller))
+		{
+			AGASPC->ShowDamageNumber(Damage, Props.TargetProperties->Character);
+		}
+		
+		/* Separate code in case we want damage to display to all clients */
+		// for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+		// {
+		// 	if (auto AGASPC = Cast<AAGASPlayerController>(It->Get()))
+		// 	{
+		// 		AGASPC->ShowDamageNumber(Damage, Props.TargetProperties->Character);
+		// 	}
+		// }
+	}
+}
+
 void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
 {
 	Super::PostGameplayEffectExecute(Data);
@@ -108,28 +129,29 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	{
 		const float LocalIncomingDamage = GetIncomingDamage();
 		SetIncomingDamage(0.f);
-		if (LocalIncomingDamage > 0.f)
-		{
-			const float NewHealth = GetHealthPoints() - LocalIncomingDamage;
-            SetHealthPoints(FMath::Clamp(NewHealth, 0.f, GetMaxHealthPoints()));
+		if (LocalIncomingDamage < 0.f) return;
+		
+		const float NewHealth = GetHealthPoints() - LocalIncomingDamage;
+        SetHealthPoints(FMath::Clamp(NewHealth, 0.f, GetMaxHealthPoints()));
 
-			const bool bFatal = NewHealth <= 0.f;
-			if (bFatal)
+		const bool bFatal = NewHealth <= 0.f;
+		if (bFatal)
+		{
+			
+			IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(Props.TargetProperties->AvatarActor);
+			if (CombatInterface)
 			{
-				
-				IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(Props.TargetProperties->AvatarActor);
-				if (CombatInterface)
-				{
-					CombatInterface->Die();
-				}
-			}
-			else
-			{
-				FGameplayTagContainer TagContainer;
-				TagContainer.AddTag(TAG_Effects_HitReact);
-				Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+				CombatInterface->Die();
 			}
 		}
+		else
+		{
+			FGameplayTagContainer TagContainer;
+			TagContainer.AddTag(TAG_Effects_HitReact);
+			Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+		}
+
+		ShowFloatingText(Props, LocalIncomingDamage);
 	}
 }
 

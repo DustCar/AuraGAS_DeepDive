@@ -8,6 +8,7 @@
 #include "AGASPlayerController.generated.h"
 
 
+class UAGASDamageTextComponent;
 class UNavigationSystemV1;
 class USplineComponent;
 class UAGASAbilitySystemComponent;
@@ -31,6 +32,9 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_PlayerState() override;
+
+	UFUNCTION(Client, Reliable)
+	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -74,10 +78,13 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float AutoRunAcceptanceRadius = 50.f;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY()
 	TObjectPtr<USplineComponent> Spline;
 
 	void AutoRun();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UAGASDamageTextComponent> DamageTextComponentClass;
 	
 public:
 	

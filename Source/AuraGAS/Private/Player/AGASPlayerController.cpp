@@ -15,6 +15,8 @@
 #include "Interaction/AGASTargetInterface.h"
 #include "Player/AGASPlayerState.h"
 #include "UI/HUD/AGASHUD.h"
+#include "GameFramework/Character.h"
+#include "UI/Widget/AGASDamageTextComponent.h"
 
 AAGASPlayerController::AAGASPlayerController()
 {
@@ -215,14 +217,16 @@ void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Inst
 	}
 }
 
-UAGASAbilitySystemComponent* AAGASPlayerController::GetASC()
+void AAGASPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
 {
-	if (AGASAbilitySystemComponent == nullptr)
+	if (IsValid(TargetCharacter) && DamageTextComponentClass)
 	{
-		AGASAbilitySystemComponent = Cast<UAGASAbilitySystemComponent>(GetPlayerState<AAGASPlayerState>()->GetAbilitySystemComponent());
+		UAGASDamageTextComponent* DamageText = NewObject<UAGASDamageTextComponent>(TargetCharacter, DamageTextComponentClass);
+		DamageText->RegisterComponent();
+		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		DamageText->SetDamageText(DamageAmount);
 	}
-
-	return AGASAbilitySystemComponent;
 }
 
 void AAGASPlayerController::InitializeHUD()
@@ -234,4 +238,14 @@ void AAGASPlayerController::InitializeHUD()
 	{
 		AGASHUD->InitOverlay(this, AGASPlayerState, Cast<UAGASAbilitySystemComponent>(AGASPlayerState->GetAbilitySystemComponent()), AGASPlayerState->GetAttributeSet());
 	}
+}
+
+UAGASAbilitySystemComponent* AAGASPlayerController::GetASC()
+{
+	if (AGASAbilitySystemComponent == nullptr)
+	{
+		AGASAbilitySystemComponent = Cast<UAGASAbilitySystemComponent>(GetPlayerState<AAGASPlayerState>()->GetAbilitySystemComponent());
+	}
+
+	return AGASAbilitySystemComponent;
 }
