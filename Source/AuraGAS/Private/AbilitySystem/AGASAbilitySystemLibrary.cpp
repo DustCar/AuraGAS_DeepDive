@@ -50,13 +50,11 @@ UAGASAttributeMenuWidgetController* UAGASAbilitySystemLibrary::GetAttributeMenuW
 void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject,
 	ECharacterClass CharacterClass, float Level, UAGASAbilitySystemComponent* ASC)
 {
-	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-	if (AGASGameMode == nullptr) return;
+	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	
+	const FCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
 
-	UAGASCharacterClassInfo* CharacterClassInfo = AGASGameMode->CharacterClassInfo;
-	FCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
-
-	AActor* AvatarActor = ASC->GetAvatarActor();
+	const AActor* AvatarActor = ASC->GetAvatarActor();
 	
 	FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
 	EffectContext.AddSourceObject(AvatarActor);
@@ -75,13 +73,19 @@ void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 void UAGASAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject,
 	UAGASAbilitySystemComponent* ASC)
 {
-	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-	if (AGASGameMode == nullptr) return;
-
-	UAGASCharacterClassInfo* CharacterClassInfo = AGASGameMode->CharacterClassInfo;
+	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	
 	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterClassInfo->CommonAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass);
 		ASC->GiveAbility(AbilitySpec);
 	}
+}
+
+UAGASCharacterClassInfo* UAGASAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
+{
+	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (AGASGameMode == nullptr) return nullptr;
+
+	return AGASGameMode->CharacterClassInfo;
 }

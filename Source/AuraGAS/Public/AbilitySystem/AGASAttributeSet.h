@@ -54,7 +54,7 @@ struct FEffectPropertiesAdvanced
  * 
  */
 UCLASS()
-class AURAGAS_API UAGASAttributeSet : public UAttributeSet
+class AURAGAS_API  UAGASAttributeSet : public UAttributeSet
 {
 	GENERATED_BODY()
 
@@ -97,8 +97,7 @@ public:
 	 * Meta Attributes Accessors
 	 */
 	ATTRIBUTE_ACCESSORS(ThisClass, IncomingDamage)
-	
-protected:
+
 	/**
 	 * Vital Attributes
 	 */
@@ -107,14 +106,6 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ManaPoints, Category = "VitalAttributes")
 	FGameplayAttributeData ManaPoints;
-	
-	//~ Begin Vital attribute rep notifies
-	UFUNCTION()
-	void OnRep_HealthPoints(const FGameplayAttributeData& OldHealthPoints) const;
-
-	UFUNCTION()
-	void OnRep_ManaPoints(const FGameplayAttributeData& OldManaPoints) const;
-	//~ End Vital attribute rep notifies
 
 	/**
 	 * Primary Attributes
@@ -130,20 +121,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_Vigor, Category = "PrimaryAttributes")
 	FGameplayAttributeData Vigor;
-
-	//~ Begin Primary Attributes rep notifies
-	UFUNCTION()
-	void OnRep_Strength(const FGameplayAttributeData& OldStrength) const;
-
-	UFUNCTION()
-	void OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence) const;
-
-	UFUNCTION()
-	void OnRep_Resilience(const FGameplayAttributeData& OldResilience) const;
-
-	UFUNCTION()
-	void OnRep_Vigor(const FGameplayAttributeData& OldVigor) const;
-	//~ End Primary Attributes rep notifies
 
 	/**
 	 * Secondary Attributes 
@@ -177,6 +154,36 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_MaxManaPoints, Category = "SecondaryAttributes")
 	FGameplayAttributeData MaxManaPoints;
+
+	/**
+	 *	Meta Attributes
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "MetaAttributes")
+	FGameplayAttributeData IncomingDamage;
+	
+protected:
+	
+	//~ Begin Vital attribute rep notifies
+	UFUNCTION()
+	void OnRep_HealthPoints(const FGameplayAttributeData& OldHealthPoints) const;
+
+	UFUNCTION()
+	void OnRep_ManaPoints(const FGameplayAttributeData& OldManaPoints) const;
+	//~ End Vital attribute rep notifies
+	
+	//~ Begin Primary Attributes rep notifies
+	UFUNCTION()
+	void OnRep_Strength(const FGameplayAttributeData& OldStrength) const;
+
+	UFUNCTION()
+	void OnRep_Intelligence(const FGameplayAttributeData& OldIntelligence) const;
+
+	UFUNCTION()
+	void OnRep_Resilience(const FGameplayAttributeData& OldResilience) const;
+
+	UFUNCTION()
+	void OnRep_Vigor(const FGameplayAttributeData& OldVigor) const;
+	//~ End Primary Attributes rep notifies
 	
 	//~ Begin Secondary Attributes rep notifies
 	UFUNCTION()
@@ -209,13 +216,6 @@ protected:
     UFUNCTION()
     void OnRep_MaxManaPoints(const FGameplayAttributeData& OldMaxManaPoints) const;
 	//~ End Secondary Attributes rep notifies
-
-	/**
-	 *	Meta Attributes
-	 */
-	UPROPERTY(BlueprintReadOnly, Category = "MetaAttributes")
-	FGameplayAttributeData IncomingDamage;
-
 
 private:
 	
