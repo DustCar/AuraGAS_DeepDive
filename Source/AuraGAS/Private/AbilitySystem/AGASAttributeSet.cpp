@@ -67,8 +67,8 @@ void UAGASAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 {
 	// Source = cause of the effect, Target = target of the effect (owner of this AS)
 
-	Props.EffectContext = Data.EffectSpec.GetContext();
-	Props.SourceProperties->AbilitySystemComponent = Props.EffectContext.GetOriginalInstigatorAbilitySystemComponent();
+	Props.EffectContextHandle = Data.EffectSpec.GetContext();
+	Props.SourceProperties->AbilitySystemComponent = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
 
 	if (!IsValid(Props.SourceProperties->AbilitySystemComponent)) return;
 	

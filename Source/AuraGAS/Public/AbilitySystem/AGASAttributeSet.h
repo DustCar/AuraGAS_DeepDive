@@ -44,7 +44,7 @@ struct FEffectPropertiesAdvanced
 		TargetProperties = MakeShared<FEffectProperties>();
 	}
 
-	FGameplayEffectContextHandle EffectContext;
+	FGameplayEffectContextHandle EffectContextHandle;
 
 	TSharedPtr<FEffectProperties> SourceProperties;
 
