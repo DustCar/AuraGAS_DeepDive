@@ -52,6 +52,7 @@ void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 	ECharacterClass CharacterClass, float Level, UAGASAbilitySystemComponent* ASC)
 {
 	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (CharacterClassInfo == nullptr) return;
 	
 	FCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
 
@@ -75,6 +76,7 @@ void UAGASAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContext
 	UAGASAbilitySystemComponent* ASC)
 {
 	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (CharacterClassInfo == nullptr) return;
 	
 	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterClassInfo->CommonAbilities)
 	{
