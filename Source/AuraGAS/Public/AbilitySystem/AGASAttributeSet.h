@@ -220,7 +220,7 @@ protected:
 private:
 	
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectPropertiesAdvanced& Props);
-	void ShowFloatingText(const FEffectPropertiesAdvanced& Props, float Damage) const;
+	void ShowFloatingText(const FEffectPropertiesAdvanced& Props, float Damage, const bool bCriticalHit, const bool bBlockedHit) const;
 };
 
 

@@ -19,7 +19,20 @@ public:
 	/* Returns the actual struct used for serialization */
 	virtual UScriptStruct* GetScriptStruct() const override
 	{
-		return FAGASGameplayEffectContext::StaticStruct();
+		return StaticStruct();
+	}
+
+	/** Creates a copy of this context, used to duplicate for later modifications */
+	virtual FAGASGameplayEffectContext* Duplicate() const override
+	{
+		FAGASGameplayEffectContext* NewContext = new FAGASGameplayEffectContext();
+		*NewContext = *this;
+		if (GetHitResult())
+		{
+			// Does a deep copy of the hit result
+			NewContext->AddHitResult(*GetHitResult(), true);
+		}
+		return NewContext;
 	}
 
 	/* Custom serialization */
@@ -33,5 +46,15 @@ protected:
 	UPROPERTY()
 	bool bIsBlockedHit = false;
 	
+};
+
+template<>
+struct TStructOpsTypeTraits<FAGASGameplayEffectContext> : public TStructOpsTypeTraitsBase2<FAGASGameplayEffectContext>
+{
+	enum
+	{
+		WithNetSerializer = true,
+		WithCopy = true,
+	};
 };
 

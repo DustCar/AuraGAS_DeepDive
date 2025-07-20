@@ -4,6 +4,7 @@
 #include "AbilitySystem/ExecCalcs/ExecCalc_Damage.h"
 
 #include "AbilitySystemComponent.h"
+#include "AGASAbilityTypes.h"
 #include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/AGASAttributeSet.h"
@@ -70,6 +71,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	EvaluateParams.SourceTags = SourceTags;
 	EvaluateParams.TargetTags = TargetTags;
 
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
+
 	// Get Damage set by caller magnitude
 	float Damage = Spec.GetSetByCallerMagnitude(TAG_Damage);
 
@@ -92,9 +95,9 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	float EffectiveCriticalHitChance = SourceCriticalHitChance * ((100 - TargetCriticalHitResistance * CritResistCoefficient) / 100.f);
 	const bool bCriticalHit = FMath::FRandRange(UE_SMALL_NUMBER, 100.f) < EffectiveCriticalHitChance;
+	UAGASAbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCriticalHit);
 	if (bCriticalHit)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("CRITICAL HIT!"))
 		Damage = Damage * 2 + SourceCriticalHitDamage;
 	}
 	else
@@ -106,10 +109,10 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		TargetBlockChance = FMath::Max<float>(0.f, TargetBlockChance);
 
 		const bool bBlocked = FMath::FRandRange(UE_SMALL_NUMBER, 100.f) < TargetBlockChance;
+		UAGASAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
 		if (bBlocked)
 		{
 			Damage *= 0.5;
-			UE_LOG(LogTemp, Warning, TEXT("Attack Blocked!"))
 		}
 
 		// Calculate Armor

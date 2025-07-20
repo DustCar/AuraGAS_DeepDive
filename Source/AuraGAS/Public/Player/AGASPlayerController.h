@@ -34,7 +34,7 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	UFUNCTION(Client, Reliable)
-	void ShowDamageNumber(float DamageAmount, ACharacter* TargetCharacter);
+	void ShowDamageNumber(const float DamageAmount, ACharacter* TargetCharacter, const bool bCriticalHit, const bool bBlockedHit);
 	
 protected:
 	virtual void BeginPlay() override;

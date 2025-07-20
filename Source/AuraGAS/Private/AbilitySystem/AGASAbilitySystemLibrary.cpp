@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
 
+#include "AGASAbilityTypes.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "GameMode/AGASGameModeBase.h"
 #include "Kismet/GameplayStatics.h"
@@ -52,9 +53,9 @@ void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 {
 	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
 	
-	const FCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+	FCharacterClassDefaultInfo ClassDefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
 
-	const AActor* AvatarActor = ASC->GetAvatarActor();
+	AActor* AvatarActor = ASC->GetAvatarActor();
 	
 	FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
 	EffectContext.AddSourceObject(AvatarActor);
@@ -88,4 +89,41 @@ UAGASCharacterClassInfo* UAGASAbilitySystemLibrary::GetCharacterClassInfo(const 
 	if (AGASGameMode == nullptr) return nullptr;
 
 	return AGASGameMode->CharacterClassInfo;
+}
+
+bool UAGASAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->IsBlockedHit();
+	}
+
+	return false;
+}
+
+bool UAGASAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->IsCriticalHit();
+	}
+
+	return false;
+}
+
+void UAGASAbilitySystemLibrary::SetIsBlockedHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetIsBlockedHit(bInIsBlockedHit);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle,
+	bool bInIsCriticalHit)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetIsCriticalHit(bInIsCriticalHit);
+	}
 }

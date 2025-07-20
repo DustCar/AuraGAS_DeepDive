@@ -7,6 +7,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AGASAbilitySystemLibrary.generated.h"
 
+struct FGameplayEffectContextHandle;
 class UAGASAbilitySystemComponent;
 class UAGASAttributeMenuWidgetController;
 class UAGASOverlayWidgetController;
@@ -34,4 +35,16 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|CharacterClassDefaults", meta = (WorldContext = "WorldContextObject"))
 	static UAGASCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static bool IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static bool IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle);
+
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static void SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit);
+
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static void SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit);
 };

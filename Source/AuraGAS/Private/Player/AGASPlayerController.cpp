@@ -217,7 +217,7 @@ void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Inst
 	}
 }
 
-void AAGASPlayerController::ShowDamageNumber_Implementation(float DamageAmount, ACharacter* TargetCharacter)
+void AAGASPlayerController::ShowDamageNumber_Implementation(const float DamageAmount, ACharacter* TargetCharacter, const bool bCriticalHit, const bool bBlockedHit)
 {
 	if (IsValid(TargetCharacter) && DamageTextComponentClass)
 	{
@@ -225,7 +225,7 @@ void AAGASPlayerController::ShowDamageNumber_Implementation(float DamageAmount, 
 		DamageText->RegisterComponent();
 		DamageText->AttachToComponent(TargetCharacter->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-		DamageText->SetDamageText(DamageAmount);
+		DamageText->SetDamageText(DamageAmount, bCriticalHit, bBlockedHit);
 	}
 }
 

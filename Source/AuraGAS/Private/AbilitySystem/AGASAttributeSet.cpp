@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AGASGameplayTags.h"
 #include "GameplayEffectExtension.h"
+#include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "GameFramework/Character.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "Net/UnrealNetwork.h"
@@ -98,13 +99,13 @@ void UAGASAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData
 	Props.TargetProperties->AbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.TargetProperties->AvatarActor);
 }
 
-void UAGASAttributeSet::ShowFloatingText(const FEffectPropertiesAdvanced& Props, const float Damage) const
+void UAGASAttributeSet::ShowFloatingText(const FEffectPropertiesAdvanced& Props, const float Damage, const bool bCriticalHit, const bool bBlockedHit) const
 {
 	if (Props.SourceProperties->Character != Props.TargetProperties->Character)
 	{
 		if (auto AGASPC = Cast<AAGASPlayerController>(Props.SourceProperties->Character->Controller))
 		{
-			AGASPC->ShowDamageNumber(Damage, Props.TargetProperties->Character);
+			AGASPC->ShowDamageNumber(Damage, Props.TargetProperties->Character, bCriticalHit, bBlockedHit);
 		}
 		
 		/* Separate code in case we want damage to display to all clients */
@@ -150,8 +151,10 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			TagContainer.AddTag(TAG_Effects_HitReact);
 			Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
 		}
-
-		ShowFloatingText(Props, LocalIncomingDamage);
+		
+		const bool bCriticalHit = UAGASAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+		const bool bBlocked = UAGASAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
+		ShowFloatingText(Props, LocalIncomingDamage, bCriticalHit, bBlocked);
 	}
 }
 
