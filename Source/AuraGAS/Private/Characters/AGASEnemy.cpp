@@ -85,6 +85,7 @@ void AAGASEnemy::InitializeOverheadHealthBar()
 
 	if (OverheadHPBarWidgetController == nullptr)
 	{
+		// Create a new progress bar widget controller and set it
 		OverheadHPBarWidgetController = NewObject<UAGASProgressBarWidgetController>(this, OverheadHPBarWidgetControllerClass);
 		FWidgetControllerParams WCParams(nullptr, nullptr, AbilitySystemComponent, AttributeSet);
 		OverheadHPBarWidgetController->SetWidgetControllerParams(WCParams);

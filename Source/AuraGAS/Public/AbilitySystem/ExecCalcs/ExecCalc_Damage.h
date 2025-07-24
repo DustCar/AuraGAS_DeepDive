@@ -18,4 +18,15 @@ public:
 	UExecCalc_Damage();
 
 	virtual void Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams, FGameplayEffectCustomExecutionOutput& OutExecutionOutput) const override;
+
+private:
+
+	UPROPERTY()
+	FGameplayTagContainer AllDamageTypes;
+
+	UPROPERTY()
+	FGameplayTagContainer AllResistanceTypes;
+
+	UPROPERTY()
+	TMap<FGameplayTag, FGameplayTag> DamageToResistMap;
 };

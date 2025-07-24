@@ -27,6 +27,16 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_3, "InputTag.3")
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_4, "InputTag.4")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Damage, "Damage")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Fire, "Damage.Fire")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Lightning, "Damage.Lightning")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Arcane, "Damage.Arcane")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Physical, "Damage.Physical")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance, "Resistance")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Fire, "Resistance.Fire")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Lightning, "Resistance.Lightning")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Arcane, "Resistance.Arcane")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Physical, "Resistance.Physical")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Effects_HitReact, "Effects.HitReact")
 

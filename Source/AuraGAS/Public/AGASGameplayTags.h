@@ -9,11 +9,13 @@
  *	class used to declare and define native gameplay tags through macros
  */
 
+// Primary Attributes Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Primary_Strength)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Primary_Intelligence)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Primary_Resilience)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Primary_Vigor)
 
+// Secondary Attributes Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_Armor)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_ArmorPenetration)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_BlockChance)
@@ -25,6 +27,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_ManaRegeneration)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_MaxHealthPoints)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_MaxManaPoints)
 
+// Input Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_LMB)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_RMB)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_1)
@@ -32,8 +35,21 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_2)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_3)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_4)
 
+// Damage Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Fire)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Lightning)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Arcane)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Physical)
 
+// Resistance Tags
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Fire)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Lightning)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Arcane)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Physical)
+
+// Other Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Effects_HitReact)
 
 class AURAGAS_API AGASGameplayTags

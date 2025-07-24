@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AGASGameplayAbility.h"
+#include "AGASDamageGameplayAbility.h"
 #include "AGASGA_CastProjectile.generated.h"
 
 class AAGASProjectile;
@@ -11,7 +11,7 @@ class AAGASProjectile;
  * 
  */
 UCLASS()
-class AURAGAS_API UAGASGA_CastProjectile : public UAGASGameplayAbility
+class AURAGAS_API UAGASGA_CastProjectile : public UAGASDamageGameplayAbility
 {
 	GENERATED_BODY()
 
@@ -22,8 +22,5 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<AAGASProjectile> ProjectileClass;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	TSubclassOf<UGameplayEffect> DamageEffectClass;
 	
 };

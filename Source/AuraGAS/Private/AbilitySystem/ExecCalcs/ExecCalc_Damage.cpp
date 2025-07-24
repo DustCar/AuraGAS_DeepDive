@@ -47,6 +47,14 @@ UExecCalc_Damage::UExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitChanceDef);
 	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitDamageDef);
 	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitResistanceDef);
+
+	AllDamageTypes = UGameplayTagsManager::Get().RequestGameplayTagChildren(TAG_Damage);
+	AllResistanceTypes = UGameplayTagsManager::Get().RequestGameplayTagChildren(TAG_Resistance);
+
+	for (int32 i = 0; i < AllDamageTypes.Num(); i++)
+	{
+		DamageToResistMap.Add(AllDamageTypes.GetByIndex(i), AllResistanceTypes.GetByIndex(i));
+	}
 }
 
 void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
@@ -73,8 +81,13 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 
-	// Get Damage set by caller magnitude
-	float Damage = Spec.GetSetByCallerMagnitude(TAG_Damage);
+	// Loop through all the Damage Types and add it to Damage
+	float Damage = 0.f;
+	for (const auto& TagPair : DamageToResistMap)
+	{
+		
+		Damage += Spec.GetSetByCallerMagnitude(TagPair.Key, false);
+	}
 
 	// Critical Hits ignore block and armor, and do double damage plus Crit Damage
 	float SourceCriticalHitChance = 0.f;
@@ -92,10 +105,12 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	const FRealCurve* CritResistCurve = CharacterClassInfo->DamageCalculationCoefficients->FindCurve(FName("CriticalHitResistance"), FString());
 	const float CritResistCoefficient = CritResistCurve->Eval(TargetCombatInterface->GetPlayerLevel());
-
+	
 	float EffectiveCriticalHitChance = SourceCriticalHitChance * ((100 - TargetCriticalHitResistance * CritResistCoefficient) / 100.f);
 	const bool bCriticalHit = FMath::FRandRange(UE_SMALL_NUMBER, 100.f) < EffectiveCriticalHitChance;
 	UAGASAbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCriticalHit);
+
+	// Determine if a critical is hit and if so then ignore block chance and damage resist
 	if (bCriticalHit)
 	{
 		Damage = Damage * 2 + SourceCriticalHitDamage;

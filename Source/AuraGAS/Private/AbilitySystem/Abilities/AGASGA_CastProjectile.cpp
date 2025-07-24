@@ -47,8 +47,13 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 		
 		const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
 
-		const float ScaledDamage = Damage.GetValueAtLevel(GetAbilityLevel());
-		SpecHandle.Data->SetSetByCallerMagnitude(TAG_Damage, ScaledDamage);
+		// loop through all damage types that the ability has and set its magnitude
+		for (auto Pair : DamageTypes)
+		{
+			const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
+			SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, ScaledDamage);
+		}
+		
 		Projectile->DamageEffectSpecHandle = SpecHandle;
 		
 		Projectile->FinishSpawning(SpawnTransform);
