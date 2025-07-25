@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemComponent.h"
 #include "UObject/Object.h"
 #include "AGASWidgetController.generated.h"
 

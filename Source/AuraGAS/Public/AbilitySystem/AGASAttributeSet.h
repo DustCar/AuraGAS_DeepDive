@@ -94,6 +94,14 @@ public:
 	ATTRIBUTE_ACCESSORS(ThisClass, MaxManaPoints)
 
 	/**
+	 * Resistance Attributes Accessors
+	 */
+	ATTRIBUTE_ACCESSORS(ThisClass, FireResistance)
+	ATTRIBUTE_ACCESSORS(ThisClass, LightningResistance)
+	ATTRIBUTE_ACCESSORS(ThisClass, ArcaneResistance)
+	ATTRIBUTE_ACCESSORS(ThisClass, PhysicalResistance)
+
+	/**
 	 * Meta Attributes Accessors
 	 */
 	ATTRIBUTE_ACCESSORS(ThisClass, IncomingDamage)
@@ -156,6 +164,21 @@ public:
 	FGameplayAttributeData MaxManaPoints;
 
 	/**
+	 * Resistance Attributes
+	 */
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_FireResistance, Category = "SecondaryAttributes")
+	FGameplayAttributeData FireResistance;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_LightningResistance, Category = "SecondaryAttributes")
+	FGameplayAttributeData LightningResistance;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_ArcaneResistance, Category = "SecondaryAttributes")
+	FGameplayAttributeData ArcaneResistance;
+
+	UPROPERTY(BlueprintReadOnly, ReplicatedUsing = OnRep_PhysicalResistance, Category = "SecondaryAttributes")
+	FGameplayAttributeData PhysicalResistance;
+
+	/**
 	 *	Meta Attributes
 	 */
 	UPROPERTY(BlueprintReadOnly, Category = "MetaAttributes")
@@ -216,6 +239,20 @@ protected:
     UFUNCTION()
     void OnRep_MaxManaPoints(const FGameplayAttributeData& OldMaxManaPoints) const;
 	//~ End Secondary Attributes rep notifies
+
+	//~ Begin Resistance Attributes rep notifies
+	UFUNCTION()
+	void OnRep_FireResistance(const FGameplayAttributeData& OldFireResistance) const;
+
+	UFUNCTION()
+	void OnRep_LightningResistance(const FGameplayAttributeData& OldLightningResistance) const;
+
+	UFUNCTION()
+	void OnRep_ArcaneResistance(const FGameplayAttributeData& OldArcaneResistance) const;
+
+	UFUNCTION()
+	void OnRep_PhysicalResistance(const FGameplayAttributeData& OldPhysicalResistance) const;
+	//~ End Resistance Attributes rep notifies
 
 private:
 	
