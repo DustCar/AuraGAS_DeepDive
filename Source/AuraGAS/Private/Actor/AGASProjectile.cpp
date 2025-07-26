@@ -69,8 +69,11 @@ void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == GetInstigator()) return;
-	
-	HandleSpecialEffectsOnImpact();
+
+	if (!bHit)
+	{
+		HandleSpecialEffectsOnImpact();
+	}
 
 	if (HasAuthority())
 	{

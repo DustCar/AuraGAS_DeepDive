@@ -61,7 +61,11 @@ void AAGASEnemy::BeginPlay()
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	InitializeAbilityActorInfo();
-	UAGASAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+
+	if (HasAuthority())
+	{
+		UAGASAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+	}
 
 	InitializeOverheadHealthBar();
 
@@ -76,7 +80,10 @@ void AAGASEnemy::InitializeAbilityActorInfo()
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	AbilitySystemComponent->AbilityActorInfoSet();
 
-	UAGASAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
+	if (HasAuthority())
+	{
+		UAGASAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
+	}
 }
 
 void AAGASEnemy::InitializeOverheadHealthBar()

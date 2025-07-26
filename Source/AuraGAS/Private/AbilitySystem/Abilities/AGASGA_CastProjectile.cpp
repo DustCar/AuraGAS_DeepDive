@@ -4,7 +4,6 @@
 #include "AbilitySystem/Abilities/AGASGA_CastProjectile.h"
 
 #include "AbilitySystemComponent.h"
-#include "AGASGameplayTags.h"
 #include "Actor/AGASProjectile.h"
 #include "Interaction/AGASCombatInterface.h"
 
@@ -22,7 +21,6 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 	{
 		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
 		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
-		Rotation.Pitch = 0.f;
 		
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
@@ -36,7 +34,7 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 		);
 
-		// TODO: Give the Projectile a Gameplay Effect Spec for causing Damage
+		// Set the projectile's GameplayEffectContextHandle
 		const UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
 		FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
 		EffectContextHandle.SetAbility(this);

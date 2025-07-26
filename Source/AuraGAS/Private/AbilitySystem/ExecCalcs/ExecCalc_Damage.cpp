@@ -20,6 +20,15 @@ struct AGASDamageStatics
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalHitChance)
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalHitDamage)
 	DECLARE_ATTRIBUTE_CAPTUREDEF(CriticalHitResistance)
+
+	// Damage resistances
+	DECLARE_ATTRIBUTE_CAPTUREDEF(FireResistance)
+	DECLARE_ATTRIBUTE_CAPTUREDEF(LightningResistance)
+	DECLARE_ATTRIBUTE_CAPTUREDEF(ArcaneResistance)
+	DECLARE_ATTRIBUTE_CAPTUREDEF(PhysicalResistance)
+
+	// Map to pair ResistanceTag to ResistanceGECaptureDef to be used in Execute()
+	TMap<FGameplayTag, FGameplayEffectAttributeCaptureDefinition> TagsToCaptureDefs;
 	
 	AGASDamageStatics()
 	{
@@ -29,6 +38,25 @@ struct AGASDamageStatics
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAGASAttributeSet, CriticalHitChance, Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAGASAttributeSet, CriticalHitDamage, Source, false);
 		DEFINE_ATTRIBUTE_CAPTUREDEF(UAGASAttributeSet, CriticalHitResistance, Target, false);
+
+		// Damage resistances
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAGASAttributeSet, FireResistance, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAGASAttributeSet, LightningResistance, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAGASAttributeSet, ArcaneResistance, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UAGASAttributeSet, PhysicalResistance, Target, false);
+
+		// Add pairings to TagsToCaptureDefs
+		TagsToCaptureDefs.Add(TAG_Attributes_Secondary_Armor, ArmorDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Secondary_ArmorPenetration, ArmorPenetrationDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Secondary_BlockChance, BlockChanceDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Secondary_CriticalHitChance, CriticalHitChanceDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Secondary_CriticalHitDamage, CriticalHitDamageDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Secondary_CriticalHitResistance, CriticalHitResistanceDef);
+		
+		TagsToCaptureDefs.Add(TAG_Resistance_Fire, FireResistanceDef);
+		TagsToCaptureDefs.Add(TAG_Resistance_Lightning, LightningResistanceDef);
+		TagsToCaptureDefs.Add(TAG_Resistance_Arcane, ArcaneResistanceDef);
+		TagsToCaptureDefs.Add(TAG_Resistance_Physical, PhysicalResistanceDef);
 	}
 	
 };
@@ -41,6 +69,7 @@ static const AGASDamageStatics& DamageStatics()
 
 UExecCalc_Damage::UExecCalc_Damage()
 {
+	// Add capture defs to RelevantAttributeToCapture
 	RelevantAttributesToCapture.Add(DamageStatics().ArmorDef);
 	RelevantAttributesToCapture.Add(DamageStatics().ArmorPenetrationDef);
 	RelevantAttributesToCapture.Add(DamageStatics().BlockChanceDef);
@@ -48,9 +77,15 @@ UExecCalc_Damage::UExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitDamageDef);
 	RelevantAttributesToCapture.Add(DamageStatics().CriticalHitResistanceDef);
 
+	RelevantAttributesToCapture.Add(DamageStatics().FireResistanceDef);
+	RelevantAttributesToCapture.Add(DamageStatics().LightningResistanceDef);
+	RelevantAttributesToCapture.Add(DamageStatics().ArcaneResistanceDef);
+	RelevantAttributesToCapture.Add(DamageStatics().PhysicalResistanceDef);
+
 	AllDamageTypes = UGameplayTagsManager::Get().RequestGameplayTagChildren(TAG_Damage);
 	AllResistanceTypes = UGameplayTagsManager::Get().RequestGameplayTagChildren(TAG_Resistance);
 
+	// Add DamageType to Resistance tag pairings to DamageToResistMap
 	for (int32 i = 0; i < AllDamageTypes.Num(); i++)
 	{
 		DamageToResistMap.Add(AllDamageTypes.GetByIndex(i), AllResistanceTypes.GetByIndex(i));
@@ -85,8 +120,25 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	float Damage = 0.f;
 	for (const auto& TagPair : DamageToResistMap)
 	{
+		const FGameplayTag DamageTypeTag = TagPair.Key;
+		const FGameplayTag ResistanceTypeTag = TagPair.Value;
+
+		// Get DamageTypeValue by set by caller magnitude using its tag
+		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
+
+		// check if resistance tag is available in TagsToCaptureDefs then save that capture def
+		checkf(DamageStatics().TagsToCaptureDefs.Contains(ResistanceTypeTag), TEXT("TagsToCaptureDefs doesn't contain Tag: [%s] in ExecCalc_Damage"), *ResistanceTypeTag.ToString())
+		const FGameplayEffectAttributeCaptureDefinition ResCaptureDef = DamageStatics().TagsToCaptureDefs[ResistanceTypeTag];
+
+		// Get value of captured resistance attribute
+		float ResistanceTypeValue = 0.f;
+		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(ResCaptureDef, EvaluateParams, ResistanceTypeValue);
+		ResistanceTypeValue = FMath::Clamp(ResistanceTypeValue, 0.f, 100.f);
+
+		// Reduce current damage value by each percent of damage resist the target has
+		DamageTypeValue *= (100.f - ResistanceTypeValue) / 100.f;
 		
-		Damage += Spec.GetSetByCallerMagnitude(TagPair.Key, false);
+		Damage += DamageTypeValue;
 	}
 
 	// Critical Hits ignore block and armor, and do double damage plus Crit Damage
