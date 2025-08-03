@@ -7,7 +7,6 @@
 #include "AbilitySystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "AuraGAS/AuraGAS.h"
-#include "Components/AudioComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"

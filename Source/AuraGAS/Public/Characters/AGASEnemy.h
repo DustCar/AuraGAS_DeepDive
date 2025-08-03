@@ -8,9 +8,11 @@
 #include "Interaction/AGASTargetInterface.h"
 #include "AGASEnemy.generated.h"
 
+class AAGASAIController;
 struct FGameplayTag;
 class UWidgetComponent;
 class UAGASProgressBarWidgetController;
+class UBehaviorTree;
 
 UCLASS()
 class AURAGAS_API AAGASEnemy : public AAGASCharacterBase, public IAGASTargetInterface
@@ -19,6 +21,7 @@ class AURAGAS_API AAGASEnemy : public AAGASCharacterBase, public IAGASTargetInte
 
 public:
 	AAGASEnemy();
+	virtual void PossessedBy(AController* NewController) override;
 
 	//~ Begin Target Interface
 	virtual void HighlightActor() override;
@@ -57,6 +60,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
+
+	UPROPERTY()
+	TObjectPtr<AAGASAIController> AGASAIController;
 
 private:
 	

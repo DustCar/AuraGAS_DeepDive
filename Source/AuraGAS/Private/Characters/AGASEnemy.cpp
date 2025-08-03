@@ -7,7 +7,10 @@
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/AGASAttributeSet.h"
+#include "AI/AGASAIController.h"
 #include "AuraGAS/AuraGAS.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "UI/Widget/AGASUserWidget.h"
@@ -30,6 +33,15 @@ AAGASEnemy::AAGASEnemy()
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+}
+
+void AAGASEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	AGASAIController = Cast<AAGASAIController>(NewController);
+	AGASAIController->GetBlackboardComponent()->InitializeBlackboard(*EnemyBehaviorTree->BlackboardAsset);
+	AGASAIController->RunBehaviorTree(EnemyBehaviorTree);
 }
 
 void AAGASEnemy::HighlightActor()
@@ -60,6 +72,7 @@ void AAGASEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	Tags.Emplace(ACTOR_TAG_ENEMY);
 	InitializeAbilityActorInfo();
 
 	if (HasAuthority())

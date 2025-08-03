@@ -5,6 +5,7 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "AuraGAS/AuraGAS.h"
 #include "Player/AGASPlayerState.h"
 
 
@@ -16,7 +17,8 @@ AAGASCharacter::AAGASCharacter()
 void AAGASCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Tags.Emplace(ACTOR_TAG_PLAYER);
 }
 
 void AAGASCharacter::InitializeAbilityActorInfo()
