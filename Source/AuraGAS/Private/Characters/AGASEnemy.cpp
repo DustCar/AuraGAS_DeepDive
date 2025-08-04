@@ -127,6 +127,5 @@ void AAGASEnemy::InitializeOverheadHealthBar()
 void AAGASEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
 	bHitReacting = NewCount > 0;
-	// Line underneath causes some enemies to be stun locked and not able to move. Could be used for stuns instead.
-	// GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
 }
