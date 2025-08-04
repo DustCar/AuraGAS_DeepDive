@@ -25,6 +25,13 @@ enum class EEffectRemovalPolicy : uint8
 	DoNotRemove
 };
 
+UENUM(BlueprintType)
+enum class EActorDestructionPolicy : uint8
+{
+	DestroyOnEffectApplication,
+	DoNotDestroy
+};
+
 UCLASS()
 class AURAGAS_API AAGASEffectActor : public AActor
 {
@@ -48,7 +55,10 @@ protected:
 	void OnEndOverlap(AActor* TargetActor);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AppliedEffects")
-	bool bDestroyOnEffectApplication = false;
+	EActorDestructionPolicy ActorDestructionPolicy = EActorDestructionPolicy::DoNotDestroy;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AppliedEffects")
+	bool bApplyEffectsToEnemies = false;
 	
 	//~ GameplayEffect Types and Policies Begin
 	// Instant Effect

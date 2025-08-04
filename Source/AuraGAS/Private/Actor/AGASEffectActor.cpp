@@ -5,6 +5,7 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AuraGAS/AuraGAS.h"
 
 
 AAGASEffectActor::AAGASEffectActor()
@@ -42,7 +43,7 @@ void AAGASEffectActor::ApplyEffectToTarget(AActor* TargetActor, const TSubclassO
 		InstigatorActorEffectsArray.Add(ActiveEffectHandle);
 	}
 
-	if (bDestroyOnEffectApplication)
+	if (ActorDestructionPolicy == EActorDestructionPolicy::DestroyOnEffectApplication && InfiniteEffectApplicationPolicy == EEffectApplicationPolicy::DoNotApply)
 	{
 		Destroy();
 	}
@@ -50,6 +51,8 @@ void AAGASEffectActor::ApplyEffectToTarget(AActor* TargetActor, const TSubclassO
 
 void AAGASEffectActor::OnOverlap(AActor* TargetActor)
 {
+	if (TargetActor->ActorHasTag(ACTOR_TAG_ENEMY) && !bApplyEffectsToEnemies) return;
+	
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnOverlap)
 	{
 		for (const auto& InstantEffect : InstantGameplayEffectClasses)
@@ -97,6 +100,8 @@ void AAGASEffectActor::RemoveInfiniteEffectsFromActor(AActor* TargetActor)
 
 void AAGASEffectActor::OnEndOverlap(AActor* TargetActor)
 {
+	if (TargetActor->ActorHasTag(ACTOR_TAG_ENEMY) && !bApplyEffectsToEnemies) return;
+	
 	if (InstantEffectApplicationPolicy == EEffectApplicationPolicy::ApplyOnEndOverlap)
 	{
 		for (const auto& InstantEffect : InstantGameplayEffectClasses)
