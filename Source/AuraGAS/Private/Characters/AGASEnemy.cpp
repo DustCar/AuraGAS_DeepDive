@@ -47,6 +47,8 @@ void AAGASEnemy::PossessedBy(AController* NewController)
 	AGASAIController = Cast<AAGASAIController>(NewController);
 	AGASAIController->GetBlackboardComponent()->InitializeBlackboard(*EnemyBehaviorTree->BlackboardAsset);
 	AGASAIController->RunBehaviorTree(EnemyBehaviorTree);
+	AGASAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), false);
+	AGASAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), CharacterClass != ECharacterClass::Warrior);
 }
 
 void AAGASEnemy::HighlightActor()
@@ -128,4 +130,8 @@ void AAGASEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 {
 	bHitReacting = NewCount > 0;
 	GetCharacterMovement()->MaxWalkSpeed = bHitReacting ? 0.f : BaseWalkSpeed;
+
+	if (!HasAuthority()) return;
+
+	AGASAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
 }
