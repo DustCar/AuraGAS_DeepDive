@@ -6,6 +6,7 @@
 #include "AGASAbilityTypes.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "GameMode/AGASGameModeBase.h"
+#include "Interaction/AGASCombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/AGASPlayerState.h"
 #include "UI/HUD/AGASHUD.h"
@@ -72,14 +73,25 @@ void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 }
 
 void UAGASAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject,
-	UAGASAbilitySystemComponent* ASC)
+	UAGASAbilitySystemComponent* ASC, ECharacterClass CharacterClass)
 {
 	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (CharacterClassInfo == nullptr) return;
 	
-	for (TSubclassOf<UGameplayAbility> AbilityClass : CharacterClassInfo->CommonAbilities)
+	for (TSubclassOf<UGameplayAbility> CommonAbilityClass : CharacterClassInfo->CommonAbilities)
 	{
-		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass);
+		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(CommonAbilityClass);
 		ASC->GiveAbility(AbilitySpec);
+	}
+
+	const FCharacterClassDefaultInfo& DefaultInfo = CharacterClassInfo->GetClassDefaultInfo(CharacterClass);
+	for (TSubclassOf<UGameplayAbility> UniqueAbilityClass : DefaultInfo.UniqueAbilities)
+	{
+		if (IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(ASC->GetAvatarActor()))
+		{
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(UniqueAbilityClass, CombatInterface->GetPlayerLevel());
+			ASC->GiveAbility(AbilitySpec);
+		}
 	}
 }
 

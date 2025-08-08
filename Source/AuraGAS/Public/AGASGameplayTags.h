@@ -49,6 +49,9 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Lightning)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Arcane)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Physical)
 
+// Ability Tags
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Attack)
+
 // Other Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Effects_HitReact)
 

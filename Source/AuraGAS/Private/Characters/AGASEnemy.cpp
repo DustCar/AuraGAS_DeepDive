@@ -75,6 +75,16 @@ void AAGASEnemy::Die()
 	Super::Die();
 }
 
+void AAGASEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
+{
+	CombatTarget = InCombatTarget;
+}
+
+AActor* AAGASEnemy::GetCombatTarget_Implementation() const
+{
+	return CombatTarget;
+}
+
 void AAGASEnemy::BeginPlay()
 {
 	Super::BeginPlay();
@@ -84,7 +94,7 @@ void AAGASEnemy::BeginPlay()
 
 	if (HasAuthority())
 	{
-		UAGASAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent);
+		UAGASAbilitySystemLibrary::GiveStartupAbilities(this, AbilitySystemComponent, CharacterClass);
 	}
 
 	InitializeOverheadHealthBar();
