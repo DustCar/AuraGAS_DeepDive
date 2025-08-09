@@ -118,11 +118,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	// Loop through all the Damage Types and add it to Damage
 	float Damage = 0.f;
-	for (const auto& TagPair : DamageToResistMap)
+	for (const auto& [DamageTypeTag, ResistanceTypeTag] : DamageToResistMap)
 	{
-		const FGameplayTag DamageTypeTag = TagPair.Key;
-		const FGameplayTag ResistanceTypeTag = TagPair.Value;
-
 		// Get DamageTypeValue by set by caller magnitude using its tag
 		float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag, false);
 

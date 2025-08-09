@@ -112,7 +112,14 @@ void UAGASAttributeSet::ShowFloatingText(const FEffectPropertiesAdvanced& Props,
 {
 	if (Props.SourceProperties->Character != Props.TargetProperties->Character)
 	{
+		// shows damage done by player
 		if (auto AGASPC = Cast<AAGASPlayerController>(Props.SourceProperties->Character->Controller))
+		{
+			AGASPC->ShowDamageNumber(Damage, Props.TargetProperties->Character, bCriticalHit, bBlockedHit);
+		}
+
+		// shows damage done by enemy
+		if (auto AGASPC = Cast<AAGASPlayerController>(Props.TargetProperties->Character->Controller))
 		{
 			AGASPC->ShowDamageNumber(Damage, Props.TargetProperties->Character, bCriticalHit, bBlockedHit);
 		}

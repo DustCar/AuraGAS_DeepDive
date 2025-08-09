@@ -5,6 +5,7 @@
 
 #include "AGASAbilityTypes.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "Engine/OverlapResult.h"
 #include "GameMode/AGASGameModeBase.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "Kismet/GameplayStatics.h"
@@ -137,5 +138,29 @@ void UAGASAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref) FGameplayEffectCont
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		AGASEffectContext->SetIsCriticalHit(bInIsCriticalHit);
+	}
+}
+
+void UAGASAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject,
+	TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius,
+	const FVector& SphereOrigin)
+{
+	FCollisionQueryParams SphereParams;
+	SphereParams.AddIgnoredActors(ActorsToIgnore);
+
+	TArray<FOverlapResult> Overlaps;
+	if (UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull))
+	{
+		World->OverlapMultiByObjectType(Overlaps, SphereOrigin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(Radius), SphereParams);
+
+		for (FOverlapResult& Overlap : Overlaps)
+		{
+			if (!Overlap.GetActor()->Implements<UAGASCombatInterface>() || IAGASCombatInterface::Execute_IsDead(Overlap.GetActor()))
+			{
+				continue;
+			}
+
+			OutOverlappingActors.AddUnique(Overlap.GetActor());
+		}
 	}
 }

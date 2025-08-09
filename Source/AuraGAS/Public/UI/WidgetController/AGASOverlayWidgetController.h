@@ -4,15 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "AGASWidgetController.h"
+#include "GameplayTagContainer.h"
 #include "AGASOverlayWidgetController.generated.h"
 
+struct FGameplayAttribute;
 class UAGASUserWidget;
 
 USTRUCT()
 struct FUIWidgetRow : public FTableRowBase
 {
 	GENERATED_BODY()
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FGameplayTag MessageTag = FGameplayTag();
 

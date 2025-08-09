@@ -9,7 +9,3 @@ int32 IAGASCombatInterface::GetPlayerLevel()
 	return 0;
 }
 
-FVector IAGASCombatInterface::GetCombatSocketLocation()
-{
-	return FVector();
-}

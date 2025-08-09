@@ -13,13 +13,12 @@
 
 void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLocation)
 {
-	const bool bIsServer = GetAvatarActorFromActorInfo()->HasAuthority();
-	if (!bIsServer) return;
-	
-	IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(GetAvatarActorFromActorInfo());
-	if (CombatInterface)
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (AvatarActor == nullptr || !AvatarActor->HasAuthority()) return;
+
+	if (AvatarActor->Implements<UAGASCombatInterface>())
 	{
-		const FVector SocketLocation = CombatInterface->GetCombatSocketLocation();
+		const FVector SocketLocation = IAGASCombatInterface::Execute_GetCombatSocketLocation(AvatarActor);
 		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 		
 		FTransform SpawnTransform;
