@@ -46,6 +46,11 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Physical, "Resistance.Physical")
 // Ability Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Attack, "Abilities.Attack")
 
+// Montage Tags
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_Weapon, "Montage.Attack.Weapon")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_RightHand, "Montage.Attack.RightHand")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_LeftHand, "Montage.Attack.LeftHand")
+
 // Other Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Effects_HitReact, "Effects.HitReact")
 

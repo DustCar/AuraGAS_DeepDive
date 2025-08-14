@@ -84,6 +84,11 @@ AActor* AAGASCharacterBase::GetAvatar_Implementation()
 	return this;
 }
 
+TArray<FTaggedMontage> AAGASCharacterBase::GetAttackMontages_Implementation()
+{
+	return AttackMontages;
+}
+
 void AAGASCharacterBase::Dissolve()
 {
 	if (IsValid(DissolveMaterialInstance))
