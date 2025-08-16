@@ -5,6 +5,7 @@
 
 #include "AGASAbilityTypes.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "AuraGAS/AuraGAS.h"
 #include "Engine/OverlapResult.h"
 #include "GameMode/AGASGameModeBase.h"
 #include "Interaction/AGASCombatInterface.h"
@@ -163,4 +164,12 @@ void UAGASAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 			OutOverlappingActors.AddUnique(Overlap.GetActor());
 		}
 	}
+}
+
+bool UAGASAbilitySystemLibrary::IsOnSameTeam(const AActor* FirstActor, const AActor* SecondActor)
+{
+	const bool bBothPlayers = FirstActor->ActorHasTag(ACTOR_TAG_PLAYER) && SecondActor->ActorHasTag(ACTOR_TAG_PLAYER);
+	const bool bBothEnemies = FirstActor->ActorHasTag(ACTOR_TAG_ENEMY) && SecondActor->ActorHasTag(ACTOR_TAG_ENEMY);
+
+	return bBothPlayers || bBothEnemies;
 }

@@ -3,6 +3,7 @@
 
 #include "Characters/AGASCharacterBase.h"
 
+#include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "MotionWarpingComponent.h"
@@ -20,8 +21,11 @@ AAGASCharacterBase::AAGASCharacterBase()
 	GetMesh()->SetGenerateOverlapEvents(true);
 	
 	WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("WeaponMesh");
-	WeaponMesh->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
-	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (IsValid(WeaponMesh))
+	{
+		WeaponMesh->SetupAttachment(GetMesh(), FName("WeaponHandSocket"));
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>("MotionWarping");
 }
@@ -38,17 +42,23 @@ UAnimMontage* AAGASCharacterBase::GetHitReactMontage_Implementation()
 
 void AAGASCharacterBase::Die()
 {
-	WeaponMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	if (IsValid(WeaponMesh))
+	{
+		WeaponMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
+	}
 	MulticastHandleDeath();
 }
 
 void AAGASCharacterBase::MulticastHandleDeath_Implementation()
 {
-	WeaponMesh->SetSimulatePhysics(true);
-	WeaponMesh->SetEnableGravity(true);
-	WeaponMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	WeaponMesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+	if (IsValid(WeaponMesh))
+	{
+		WeaponMesh->SetSimulatePhysics(true);
+		WeaponMesh->SetEnableGravity(true);
+		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		WeaponMesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+	}
 
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
@@ -68,10 +78,22 @@ void AAGASCharacterBase::BeginPlay()
 	
 }
 
-FVector AAGASCharacterBase::GetCombatSocketLocation_Implementation()
+FVector AAGASCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
 {
-	check(WeaponMesh)
-	return WeaponMesh->GetSocketLocation(WeaponTipSocketName);
+	if (MontageTag.MatchesTagExact(TAG_Montage_Attack_Weapon) && IsValid(WeaponMesh))
+	{
+		return WeaponMesh->GetSocketLocation(WeaponTipSocketName);
+	}
+	if (MontageTag.MatchesTagExact(TAG_Montage_Attack_LeftHand))
+	{
+		return GetMesh()->GetSocketLocation(LeftHandSocketName);
+	}
+	if (MontageTag.MatchesTagExact(TAG_Montage_Attack_RightHand))
+	{
+		return GetMesh()->GetSocketLocation(RightHandSocketName);
+	}
+
+	return FVector();
 }
 
 bool AAGASCharacterBase::IsDead_Implementation() const

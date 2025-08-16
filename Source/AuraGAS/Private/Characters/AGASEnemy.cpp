@@ -23,7 +23,10 @@ AAGASEnemy::AAGASEnemy()
 
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
-	WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	if (IsValid(WeaponMesh))
+	{
+		WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	}
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAGASAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -54,13 +57,19 @@ void AAGASEnemy::PossessedBy(AController* NewController)
 void AAGASEnemy::HighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(true);
-	WeaponMesh->SetRenderCustomDepth(true);
+	if (IsValid(WeaponMesh))
+	{
+		WeaponMesh->SetRenderCustomDepth(true);
+	}
 }
 
 void AAGASEnemy::UnHighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(false);
-	WeaponMesh->SetRenderCustomDepth(false);
+	if (IsValid(WeaponMesh))
+	{
+		WeaponMesh->SetRenderCustomDepth(false);
+	}
 }
 
 int32 AAGASEnemy::GetPlayerLevel()
