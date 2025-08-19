@@ -6,6 +6,8 @@
 #include "AGASCharacterBase.h"
 #include "AGASCharacter.generated.h"
 
+struct FGameplayEffectContextHandle;
+
 UCLASS()
 class AURAGAS_API AAGASCharacter : public AAGASCharacterBase
 {
@@ -35,7 +37,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
 
-	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
 	void InitializeDefaultStats() const;
 
 
@@ -43,4 +44,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+
+	// Old function for applying effect to self
+	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
+	// New function for applying effect to self
+	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const FGameplayEffectContextHandle& EffectContextHandle, float Level = 1.0f) const;
 };

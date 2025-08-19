@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AGASDamageGameplayAbility.h"
-#include "AGASMeleeAttack.generated.h"
+#include "AGASGA_MeleeAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class AURAGAS_API UAGASMeleeAttack : public UAGASDamageGameplayAbility
+class AURAGAS_API UAGASGA_MeleeAttack : public UAGASDamageGameplayAbility
 {
 	GENERATED_BODY()
 };
