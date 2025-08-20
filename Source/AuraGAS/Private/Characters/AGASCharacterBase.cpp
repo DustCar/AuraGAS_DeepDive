@@ -111,6 +111,22 @@ TArray<FTaggedMontage> AAGASCharacterBase::GetAttackMontages_Implementation()
 	return AttackMontages;
 }
 
+FTaggedMontage AAGASCharacterBase::GetAttackMontageRandom_Implementation()
+{
+	if (AttackMontages.Num() == 0)
+	{
+		return FTaggedMontage();
+	}
+
+	// If there is only one element in the array, then return that element
+	if (AttackMontages.Num() == 1)
+	{
+		return AttackMontages[0];
+	}
+	// return a random attack montage if more than one
+	return AttackMontages[FMath::RandRange(0, AttackMontages.Num() - 1)];
+}
+
 void AAGASCharacterBase::Dissolve()
 {
 	if (IsValid(DissolveMaterialInstance))
