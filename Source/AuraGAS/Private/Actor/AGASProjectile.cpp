@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "NiagaraFunctionLibrary.h"
+#include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -67,7 +68,14 @@ void AAGASProjectile::Destroyed()
 void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == GetInstigator()) return;
+	const AActor* ThisOwner = GetOwner();
+	if (!IsValid(ThisOwner))
+	{
+		bHit = true;
+		Destroy();
+		return;
+	}
+	if (OtherActor == ThisOwner || UAGASAbilitySystemLibrary::IsOnSameTeam(ThisOwner, OtherActor)) return;
 
 	if (!bHit)
 	{
@@ -84,6 +92,9 @@ void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	}
 	else
 	{
+		// Prevent the client from duplicating the projectile and running OnSphereOverlap again
+		SetActorHiddenInGame(true);
+		Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		bHit = true;
 	}
 }
