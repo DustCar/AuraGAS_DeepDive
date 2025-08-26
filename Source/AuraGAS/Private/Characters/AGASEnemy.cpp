@@ -80,6 +80,7 @@ int32 AAGASEnemy::GetPlayerLevel()
 
 void AAGASEnemy::Die()
 {
+	 AGASAIController->GetBrainComponent()->StopLogic(TEXT("Died"));
 	SetLifeSpan(CorpseLifeSpan);
 	Super::Die();
 }

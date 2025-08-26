@@ -29,7 +29,7 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 		AAGASProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAGASProjectile>(
 			ProjectileClass,
 			SpawnTransform,
-			GetOwningActorFromActorInfo(),
+			GetAvatarActorFromActorInfo(),
 			Cast<APawn>(GetAvatarActorFromActorInfo()),
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 		);
