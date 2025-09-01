@@ -51,11 +51,13 @@ void AAGASCharacterBase::Die()
 
 void AAGASCharacterBase::MulticastHandleDeath_Implementation()
 {
+	// Implementing ragdoll physics for the weapon and the character mesh
 	if (IsValid(WeaponMesh))
 	{
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		WeaponMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
 	}
@@ -67,7 +69,9 @@ void AAGASCharacterBase::MulticastHandleDeath_Implementation()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
 	
+	// Disable capsule component collision to avoid an invisible actor
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// Runs a dissolve animation
 	Dissolve();
 	bDead = true;
 }
@@ -78,17 +82,17 @@ void AAGASCharacterBase::BeginPlay()
 	
 }
 
-FVector AAGASCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag)
+FVector AAGASCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& CombatSocketTag)
 {
-	if (MontageTag.MatchesTagExact(TAG_Montage_Attack_Weapon) && IsValid(WeaponMesh))
+	if (CombatSocketTag.MatchesTagExact(TAG_CombatSocket_Weapon) && IsValid(WeaponMesh))
 	{
 		return WeaponMesh->GetSocketLocation(WeaponTipSocketName);
 	}
-	if (MontageTag.MatchesTagExact(TAG_Montage_Attack_LeftHand))
+	if (CombatSocketTag.MatchesTagExact(TAG_CombatSocket_LeftHand))
 	{
 		return GetMesh()->GetSocketLocation(LeftHandSocketName);
 	}
-	if (MontageTag.MatchesTagExact(TAG_Montage_Attack_RightHand))
+	if (CombatSocketTag.MatchesTagExact(TAG_CombatSocket_RightHand))
 	{
 		return GetMesh()->GetSocketLocation(RightHandSocketName);
 	}
@@ -125,6 +129,23 @@ FTaggedMontage AAGASCharacterBase::GetAttackMontageRandom_Implementation()
 	}
 	// return a random attack montage if more than one
 	return AttackMontages[FMath::RandRange(0, AttackMontages.Num() - 1)];
+}
+
+UNiagaraSystem* AAGASCharacterBase::GetBloodEffect_Implementation()
+{
+	return BloodEffect;
+}
+
+USoundBase* AAGASCharacterBase::GetImpactSoundByMontageTag_Implementation(const FGameplayTag& InMontageTag)
+{
+	for (FTaggedMontage TaggedMontage : AttackMontages)
+	{
+		if (TaggedMontage.MontageTag == InMontageTag)
+		{
+			return TaggedMontage.ImpactSound;
+		}
+	}
+	return nullptr;
 }
 
 void AAGASCharacterBase::Dissolve()

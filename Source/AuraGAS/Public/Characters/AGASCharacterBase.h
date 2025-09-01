@@ -8,6 +8,7 @@
 #include "Interaction/AGASCombatInterface.h"
 #include "AGASCharacterBase.generated.h"
 
+class UNiagaraSystem;
 class UGameplayAbility;
 class UGameplayEffect;
 class UAGASAttributeSet;
@@ -26,15 +27,33 @@ public:
 	UAGASAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 	
-	// Combat Interface functions
+	/* Combat Interface functions */
+	// Returns the hit react montage
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+	
+	// Pure function that handles any death functionality
 	virtual void Die() override;
-	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& MontageTag) override;
+	
+	// Returns the location of a character's socket based on the tag passed in
+	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& CombatSocketTag) override;
+	
 	virtual bool IsDead_Implementation() const override;
+	
+	// Returns the Avatar Actor
 	virtual AActor* GetAvatar_Implementation() override;
+	
+	// Returns the whole array of attack montages a character has
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
+	
+	// Returns one attack montage at random if there are more than 1; returns just the one if not
 	virtual FTaggedMontage GetAttackMontageRandom_Implementation() override;
-	// End Combat Interface functions
+	
+	// Returns the blood effect of the actor
+	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
+	
+	// Returns impact sound of a characters attack with the specified montage tag
+	virtual USoundBase* GetImpactSoundByMontageTag_Implementation(const FGameplayTag& InMontageTag) override;
+	/* End Combat Interface functions */
 
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath();
@@ -85,6 +104,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMaterialInstance> WeaponDissolveMaterialInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+	TObjectPtr<UNiagaraSystem> BloodEffect;
 
 private:
 

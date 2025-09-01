@@ -46,10 +46,16 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Physical, "Resistance.Physical")
 // Ability Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Attack, "Abilities.Attack")
 
+// Combat Socket Tags
+UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_Weapon, "CombatSocket.Weapon")
+UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_RightHand, "CombatSocket.RightHand")
+UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_LeftHand, "CombatSocket.LeftHand")
+
 // Montage Tags
-UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_Weapon, "Montage.Attack.Weapon")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_RightHand, "Montage.Attack.RightHand")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_LeftHand, "Montage.Attack.LeftHand")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_1, "Montage.Attack.1")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_2, "Montage.Attack.2")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_3, "Montage.Attack.3")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_4, "Montage.Attack.4")
 
 // Other Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Effects_HitReact, "Effects.HitReact")

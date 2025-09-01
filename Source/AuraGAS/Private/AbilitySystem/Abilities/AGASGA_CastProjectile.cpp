@@ -19,13 +19,15 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 
 	if (AvatarActor->Implements<UAGASCombatInterface>())
 	{
-		const FVector SocketLocation = IAGASCombatInterface::Execute_GetCombatSocketLocation(AvatarActor, TAG_Montage_Attack_Weapon);
+		const FVector SocketLocation = IAGASCombatInterface::Execute_GetCombatSocketLocation(AvatarActor, TAG_CombatSocket_Weapon);
 		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 		
 		FTransform SpawnTransform;
 		SpawnTransform.SetLocation(SocketLocation);
 		SpawnTransform.SetRotation(Rotation.Quaternion());
-		
+
+		// SpawnActorDeferred is used to spawn projectile to delay the spawn call to allow us to set the
+		// GameplayEffectContextHandle and to set the damage effect spec handle
 		AAGASProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAGASProjectile>(
 			ProjectileClass,
 			SpawnTransform,
