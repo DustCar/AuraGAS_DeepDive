@@ -93,6 +93,8 @@ void AAGASPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 
 	UAGASInputComponent* AGASInputComponent = CastChecked<UAGASInputComponent>(InputComponent);
+	if (AGASInputComponent == nullptr) return;
+	
 	AGASInputComponent->BindAction(AGASInputActions->InputMove, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	AGASInputComponent->BindAction(AGASInputActions->InputShift, ETriggerEvent::Triggered, this, &ThisClass::ShiftPressed);
 	AGASInputComponent->BindAbilityActions(AGASInputActions, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);

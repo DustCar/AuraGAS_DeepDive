@@ -61,6 +61,7 @@ void AAGASProjectile::Destroyed()
 	if (!bHit && !HasAuthority())
 	{
 		HandleSpecialEffectsOnImpact();
+		bHit = true;
 	}
 	Super::Destroyed();
 }
@@ -80,6 +81,7 @@ void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 	if (!bHit)
 	{
 		HandleSpecialEffectsOnImpact();
+		bHit = true;
 	}
 
 	if (HasAuthority())

@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "MotionWarpingComponent.h"
 #include "AuraGAS/AuraGAS.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AAGASCharacterBase::AAGASCharacterBase()
@@ -51,6 +52,10 @@ void AAGASCharacterBase::Die()
 
 void AAGASCharacterBase::MulticastHandleDeath_Implementation()
 {
+	if (DeathSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
+	}
 	// Implementing ragdoll physics for the weapon and the character mesh
 	if (IsValid(WeaponMesh))
 	{
