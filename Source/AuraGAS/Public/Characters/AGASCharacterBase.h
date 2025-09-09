@@ -71,11 +71,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName WeaponTipSocketName;
-
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName LeftHandSocketName;
 	UPROPERTY(EditAnywhere, Category = "Combat")
 	FName RightHandSocketName;
+	UPROPERTY(EditAnywhere, Category = "Combat")
+	FName TailSocketName;
 
 	bool bDead = false;
 

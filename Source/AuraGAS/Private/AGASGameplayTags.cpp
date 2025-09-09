@@ -50,6 +50,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Attack, "Abilities.Attack")
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_Weapon, "CombatSocket.Weapon")
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_RightHand, "CombatSocket.RightHand")
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_LeftHand, "CombatSocket.LeftHand")
+UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_Tail, "CombatSocket.Tail")
 
 // Montage Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_1, "Montage.Attack.1")

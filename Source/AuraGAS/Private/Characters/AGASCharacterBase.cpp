@@ -101,6 +101,10 @@ FVector AAGASCharacterBase::GetCombatSocketLocation_Implementation(const FGamepl
 	{
 		return GetMesh()->GetSocketLocation(RightHandSocketName);
 	}
+	if (CombatSocketTag.MatchesTagExact(TAG_CombatSocket_Tail))
+	{
+		return GetMesh()->GetSocketLocation(TailSocketName);
+	}
 
 	return FVector();
 }
