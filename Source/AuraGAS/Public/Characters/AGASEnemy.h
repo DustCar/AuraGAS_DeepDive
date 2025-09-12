@@ -35,29 +35,29 @@ public:
 	virtual AActor* GetCombatTarget_Implementation() const override;
 	//~ End Combat Interface
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(BlueprintReadOnly, Category = "Setup|Combat")
 	bool bHitReacting = false;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|Combat")
 	float BaseWalkSpeed = 250.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|Combat")
 	float CorpseLifeSpan = 5.f;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	UPROPERTY(BlueprintReadWrite, Category = "Setup|Combat")
 	TObjectPtr<AActor> CombatTarget;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void InitializeAbilityActorInfo() override;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CharacterClassDefaults")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Setup|CharacterClassDefaults")
 	int32 Level = 1;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CharacterClassDefaults")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|CharacterClassDefaults")
 	ECharacterClass CharacterClass = ECharacterClass::Elementalist;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Setup|UI")
 	TSubclassOf<UAGASProgressBarWidgetController> OverheadHPBarWidgetControllerClass;
 
 	UPROPERTY()
@@ -66,7 +66,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UWidgetComponent> HealthBar;
 
-	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	UPROPERTY(EditDefaultsOnly, Category = "Setup|AI")
 	TObjectPtr<UBehaviorTree> EnemyBehaviorTree;
 
 	UPROPERTY()

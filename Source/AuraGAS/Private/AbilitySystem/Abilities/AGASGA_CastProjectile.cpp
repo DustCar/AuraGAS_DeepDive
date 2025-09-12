@@ -4,22 +4,18 @@
 #include "AbilitySystem/Abilities/AGASGA_CastProjectile.h"
 
 #include "AbilitySystemComponent.h"
-#include "AGASGameplayTags.h"
 #include "Actor/AGASProjectile.h"
 #include "Interaction/AGASCombatInterface.h"
 
 
-
-
-
-void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLocation)
+void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag)
 {
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 	if (AvatarActor == nullptr || !AvatarActor->HasAuthority()) return;
 
 	if (AvatarActor->Implements<UAGASCombatInterface>())
 	{
-		const FVector SocketLocation = IAGASCombatInterface::Execute_GetCombatSocketLocation(AvatarActor, TAG_CombatSocket_Weapon);
+		const FVector SocketLocation = IAGASCombatInterface::Execute_GetCombatSocketLocation(AvatarActor, SocketTag);
 		FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
 		
 		FTransform SpawnTransform;
