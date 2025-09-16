@@ -43,7 +43,11 @@ class AURAGAS_API IAGASCombatInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual int32 GetPlayerLevel();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	int32 GetCharacterLevel();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetCharacterLevel(int32 NewLevel);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FVector GetCombatSocketLocation(const FGameplayTag& CombatSocketTag);
@@ -74,4 +78,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	USoundBase* GetImpactSoundByMontageTag(const FGameplayTag& InMontageTag);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	int32 GetMinionCount();
 };

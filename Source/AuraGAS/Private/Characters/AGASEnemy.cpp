@@ -41,6 +41,9 @@ AAGASEnemy::AAGASEnemy()
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+
+	// Added so that any spawned enemy automatically gets an AI Controller on spawn
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AAGASEnemy::PossessedBy(AController* NewController)
@@ -72,9 +75,14 @@ void AAGASEnemy::UnHighlightActor()
 	}
 }
 
-int32 AAGASEnemy::GetPlayerLevel()
+int32 AAGASEnemy::GetCharacterLevel_Implementation()
 {
 	return Level;
+}
+
+void AAGASEnemy::SetCharacterLevel_Implementation(int32 NewLevel)
+{
+	Level = NewLevel;
 }
 
 

@@ -53,6 +53,9 @@ public:
 	
 	// Returns impact sound of a characters attack with the specified montage tag
 	virtual USoundBase* GetImpactSoundByMontageTag_Implementation(const FGameplayTag& InMontageTag) override;
+
+	// Returns the number of current minions
+	virtual int32 GetMinionCount_Implementation() override;
 	/* End Combat Interface functions */
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -111,6 +114,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Setup|Combat")
 	TObjectPtr<USoundBase> DeathSound;
+
+	/* Minions */
+	int32 MinionCount = 0;
 
 private:
 

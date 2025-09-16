@@ -20,7 +20,7 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	//~ Begin Combat Interface
-	virtual int32 GetPlayerLevel() override;
+	virtual int32 GetCharacterLevel_Implementation() override;
 	//~ End Combat Interface
 	
 protected:
@@ -46,7 +46,8 @@ private:
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
 
 	// Old function for applying effect to self
-	void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
+	// void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
+	
 	// New function for applying effect to self
 	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const FGameplayEffectContextHandle& EffectContextHandle, float Level = 1.0f) const;
 };

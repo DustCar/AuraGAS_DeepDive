@@ -6,6 +6,7 @@
 #include "AGASGameplayAbility.h"
 #include "AGASGA_CastSummon.generated.h"
 
+class AAGASCharacterBase;
 /**
  * 
  */
@@ -18,12 +19,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	TArray<FVector> GetSpawnLocations();
+	
+	UFUNCTION(BlueprintPure, Category = "Summoning")
+	TSubclassOf<AAGASCharacterBase> GetRandomMinionClass();
 
+	UFUNCTION(BlueprintCallable)
+	void SpawnMinion(const FVector& SpawnLocation);
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Summoning")
 	int32 NumMinions = 5;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Summoning")
-	TArray<TSubclassOf<APawn>> MinionClasses;
+	TArray<TSubclassOf<AAGASCharacterBase>> MinionClasses;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Summoning")
 	float MinSpawnDistance = 125.f;

@@ -51,6 +51,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Physical)
 
 // Ability Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Attack)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Summon)
 
 // Combat Socket Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_CombatSocket_Weapon)

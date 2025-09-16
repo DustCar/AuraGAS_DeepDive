@@ -29,11 +29,15 @@ public:
 	//~ End Target Interface
 
 	//~ Begin Combat Interface
-	virtual int32 GetPlayerLevel() override;
+	virtual int32 GetCharacterLevel_Implementation() override;
+	virtual void SetCharacterLevel_Implementation(int32 NewLevel) override;
 	virtual void Die() override;
+	//~ End Combat Interface
+
+	//~ Begin Target Interface
 	virtual void SetCombatTarget_Implementation(AActor* InCombatTarget) override;
 	virtual AActor* GetCombatTarget_Implementation() const override;
-	//~ End Combat Interface
+	//~ End Target Interface
 
 	UPROPERTY(BlueprintReadOnly, Category = "Setup|Combat")
 	bool bHitReacting = false;
@@ -51,7 +55,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void InitializeAbilityActorInfo() override;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Setup|CharacterClassDefaults")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeOnSpawn = "true"), Category = "Setup|CharacterClassDefaults")
 	int32 Level = 1;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|CharacterClassDefaults")

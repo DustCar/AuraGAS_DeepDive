@@ -157,6 +157,11 @@ USoundBase* AAGASCharacterBase::GetImpactSoundByMontageTag_Implementation(const 
 	return nullptr;
 }
 
+int32 AAGASCharacterBase::GetMinionCount_Implementation()
+{
+	return MinionCount;
+}
+
 void AAGASCharacterBase::Dissolve()
 {
 	if (IsValid(DissolveMaterialInstance))

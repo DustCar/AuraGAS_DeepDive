@@ -52,7 +52,7 @@ void AAGASCharacter::OnRep_PlayerState()
 	InitializeAbilityActorInfo();
 }
 
-int32 AAGASCharacter::GetPlayerLevel()
+int32 AAGASCharacter::GetCharacterLevel_Implementation()
 {
 	const AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
 	check(AGASPlayerState);
@@ -65,14 +65,16 @@ int32 AAGASCharacter::GetPlayerLevel()
  * with said GameplayEffectClass.
  *
  * Updated function for Character is ApplyGameplayEffectSpecToSelf that takes in a GameplayEffectContextHandle
- * param so that a single context handle can be reused.
+ * param so that a single context handle can be reused and is only used on the Player Character since enemies
+ * use the AGASAbilitySystemLibrary to initialize default attributes
  */
+/*
 void AAGASCharacter::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const
 {
-	/**
-	 * NOTE: We use GetAbilitySystemComponent() in this function since at the base level, there is no ASC yet to be
-	 * established. We have only established it in AGASPlayerState/Character and AGASEnemy
-	 */
+	
+	// NOTE: We use GetAbilitySystemComponent() in this function since at the base level, there is no ASC yet to be
+	// established. We have only established it in AGASPlayerState/Character and AGASEnemy
+	 
 	check(IsValid(GetAbilitySystemComponent()));
 	check(GameplayEffectClass);
 	FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
@@ -80,6 +82,7 @@ void AAGASCharacter::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& Gamep
 	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, ContextHandle);
 	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data, GetAbilitySystemComponent());
 }
+*/
 
 void AAGASCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass,
 	const FGameplayEffectContextHandle& EffectContextHandle, const float Level) const

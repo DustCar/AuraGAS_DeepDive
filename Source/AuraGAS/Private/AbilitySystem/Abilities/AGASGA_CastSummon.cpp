@@ -3,7 +3,9 @@
 
 #include "AbilitySystem/Abilities/AGASGA_CastSummon.h"
 
-#include "Kismet/KismetSystemLibrary.h"
+#include "Characters/AGASCharacterBase.h"
+#include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 TArray<FVector> UAGASGA_CastSummon::GetSpawnLocations()
 {
@@ -27,22 +29,58 @@ TArray<FVector> UAGASGA_CastSummon::GetSpawnLocations()
 		// this combination allows for even spread but doesn't spawn from the outermost edges
 		const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i + DeltaSpread * 0.5f, FVector::UpVector);
 		// Chooses a random location on the "lines" within spawn distance min max
-		const FVector ChosenSpawnLocation = OwnerLocation + Direction * FMath::FRandRange(MinSpawnDistance, MaxSpawnDistance);
+		FVector ChosenSpawnLocation = OwnerLocation + Direction * FMath::FRandRange(MinSpawnDistance, MaxSpawnDistance);
+
+		FHitResult Hit;
+		GetWorld()->LineTraceSingleByChannel(Hit, ChosenSpawnLocation + FVector(0.f, 0.f, 400.f), ChosenSpawnLocation - FVector(0.f, 0.f, 400.f), ECC_Visibility);
+		if (Hit.bBlockingHit)
+		{
+			ChosenSpawnLocation = Hit.Location;
+		}
+		
 		SpawnLocations.Add(ChosenSpawnLocation);
-		
-		DrawDebugSphere(GetWorld(), ChosenSpawnLocation, 10.f, 12, FColor::Cyan, false, 3.f);
-		UKismetSystemLibrary::DrawDebugArrow(
-			GetAvatarActorFromActorInfo(),
-			OwnerLocation,
-			OwnerLocation + Direction * MaxSpawnDistance,
-			4.f,
-			FLinearColor::Green,
-			3.f
-		);
-		
-		DrawDebugSphere(GetWorld(), OwnerLocation + Direction * MinSpawnDistance, 15.f, 12, FColor::Red, false, 3.f);
-		DrawDebugSphere(GetWorld(), OwnerLocation + Direction * MaxSpawnDistance, 15.f, 12, FColor::Blue, false, 3.f);
 	}
 
 	return SpawnLocations;
+}
+
+TSubclassOf<AAGASCharacterBase> UAGASGA_CastSummon::GetRandomMinionClass()
+{
+	const int32 Selection = FMath::RandRange(0, MinionClasses.Num() - 1);
+	return MinionClasses[Selection];
+}
+
+void UAGASGA_CastSummon::SpawnMinion(const FVector& SpawnLocation)
+{
+	// AvatarActor is the summoner, cast to AGASCharacterBase to obtain Level
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	const TSubclassOf<AAGASCharacterBase> MinionClass = GetRandomMinionClass();
+
+	const bool bNotValid = AvatarActor == nullptr ||
+		!AvatarActor->Implements<UAGASCombatInterface>() ||
+		!AvatarActor->HasAuthority() ||
+		MinionClass == nullptr;
+	if (bNotValid) return;
+	
+	const AAGASCharacterBase* MinionDefaultObject = MinionClass.GetDefaultObject();
+
+	FTransform MinionTransform;
+	MinionTransform.SetLocation(SpawnLocation + FVector(0.f, 0.f, MinionDefaultObject->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	MinionTransform.SetRotation(UKismetMathLibrary::FindLookAtRotation(AvatarActor->GetActorLocation(), SpawnLocation).Quaternion());
+	
+	// the Location is adjusted by half the height of the character's capsule height so that they spawn snapped to the floor.
+	// Rotation is obtained by targeting the summoner's location then "moving" towards the minion's location.
+	// Instigator for the spawn actor is the summoner. I think this means that the summoner can take credit for damage the
+	// spawned actor does
+	AAGASCharacterBase* SpawnedCharacter = GetWorld()->SpawnActorDeferred<AAGASCharacterBase>(
+		MinionClass,
+		MinionTransform,
+		AvatarActor,
+		Cast<APawn>(AvatarActor),
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding
+	);
+
+	IAGASCombatInterface::Execute_SetCharacterLevel(SpawnedCharacter, IAGASCombatInterface::Execute_GetCharacterLevel(AvatarActor));
+
+	SpawnedCharacter->FinishSpawning(MinionTransform);
 }

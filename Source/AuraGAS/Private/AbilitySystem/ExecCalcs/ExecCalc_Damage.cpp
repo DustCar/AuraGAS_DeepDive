@@ -101,8 +101,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
 	AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
-	IAGASCombatInterface* SourceCombatInterface = Cast<IAGASCombatInterface>(SourceAvatar);
-	IAGASCombatInterface* TargetCombatInterface = Cast<IAGASCombatInterface>(TargetAvatar);
+	// IAGASCombatInterface* SourceCombatInterface = Cast<IAGASCombatInterface>(SourceAvatar);
+	// IAGASCombatInterface* TargetCombatInterface = Cast<IAGASCombatInterface>(TargetAvatar);
 
 	const UAGASCharacterClassInfo* CharacterClassInfo = UAGASAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
 
@@ -153,7 +153,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	TargetCriticalHitResistance = FMath::Clamp(TargetCriticalHitResistance, 0.f, 100.f);
 
 	const FRealCurve* CritResistCurve = CharacterClassInfo->DamageCalculationCoefficients->FindCurve(FName("CriticalHitResistance"), FString());
-	const float CritResistCoefficient = CritResistCurve->Eval(TargetCombatInterface->GetPlayerLevel());
+	const float CritResistCoefficient = CritResistCurve->Eval(IAGASCombatInterface::Execute_GetCharacterLevel(TargetAvatar));
 	
 	float EffectiveCriticalHitChance = SourceCriticalHitChance * ((100 - TargetCriticalHitResistance * CritResistCoefficient) / 100.f);
 	const bool bCriticalHit = FMath::FRandRange(UE_SMALL_NUMBER, 100.f) < EffectiveCriticalHitChance;
@@ -185,7 +185,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		TargetArmor = FMath::Max<float>(0.f, TargetArmor);
 
 		const FRealCurve* ArmorPenCurve = CharacterClassInfo->DamageCalculationCoefficients->FindCurve(FName("ArmorPenetration"), FString());
-		const float ArmorPenCoefficient = ArmorPenCurve->Eval(SourceCombatInterface->GetPlayerLevel());
+		const float ArmorPenCoefficient = ArmorPenCurve->Eval(IAGASCombatInterface::Execute_GetCharacterLevel(SourceAvatar));
 
 		// Calculate ArmorPen
 		float SourceArmorPenetration = 0.f;
@@ -196,7 +196,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		const float EffectiveArmor = TargetArmor * ((100 - SourceArmorPenetration * ArmorPenCoefficient) / 100.f);
 
 		const FRealCurve* EffectiveArmorCurve = CharacterClassInfo->DamageCalculationCoefficients->FindCurve(FName("EffectiveArmor"), FString());
-		const float EffectiveArmorCoefficient = EffectiveArmorCurve->Eval(TargetCombatInterface->GetPlayerLevel());
+		const float EffectiveArmorCoefficient = EffectiveArmorCurve->Eval(IAGASCombatInterface::Execute_GetCharacterLevel(TargetAvatar));
 		// Armor ignores a percentage of Damage
 		Damage *= (100 - EffectiveArmor * EffectiveArmorCoefficient) / 100.f;
 	}

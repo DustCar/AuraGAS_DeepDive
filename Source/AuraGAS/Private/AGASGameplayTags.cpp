@@ -45,6 +45,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Physical, "Resistance.Physical")
 
 // Ability Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Attack, "Abilities.Attack")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Summon, "Abilities.Summon")
 
 // Combat Socket Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_Weapon, "CombatSocket.Weapon")
