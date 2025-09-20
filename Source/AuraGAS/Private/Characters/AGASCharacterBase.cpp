@@ -43,6 +43,14 @@ UAnimMontage* AAGASCharacterBase::GetHitReactMontage_Implementation()
 
 void AAGASCharacterBase::Die()
 {
+	// If character was summoned, decrement their summoner's minion count
+	if (bWasSummoned && IsValid(GetInstigator()))
+	{
+		// Had to use Instigator since that returned the actual character that spawned the minion
+		// Owner would return the AIController instead
+		APawn* OwnerPawn = GetInstigator();
+		Execute_AddToMinionCount(OwnerPawn, -1);
+	}
 	if (IsValid(WeaponMesh))
 	{
 		WeaponMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
@@ -161,6 +169,17 @@ int32 AAGASCharacterBase::GetMinionCount_Implementation()
 {
 	return MinionCount;
 }
+
+void AAGASCharacterBase::AddToMinionCount_Implementation(int32 Amount)
+{
+	MinionCount += Amount;
+}
+
+void AAGASCharacterBase::SetWasSummoned(bool bInWasSummoned)
+{
+	bWasSummoned = bInWasSummoned;
+}
+
 
 void AAGASCharacterBase::Dissolve()
 {

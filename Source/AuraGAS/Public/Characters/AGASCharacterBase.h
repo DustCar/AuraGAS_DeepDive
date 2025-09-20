@@ -56,6 +56,9 @@ public:
 
 	// Returns the number of current minions
 	virtual int32 GetMinionCount_Implementation() override;
+
+	// Add a positive or negative amount to minion count
+	virtual void AddToMinionCount_Implementation(int32 Amount) override;
 	/* End Combat Interface functions */
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -63,6 +66,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Setup|Combat")
 	TArray<FTaggedMontage> AttackMontages;
+
+	void SetWasSummoned(bool bInWasSummoned);
 
 protected:
 	virtual void BeginPlay() override;
@@ -117,6 +122,9 @@ protected:
 
 	/* Minions */
 	int32 MinionCount = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bWasSummoned = false;
 
 private:
 

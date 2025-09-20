@@ -80,6 +80,7 @@ void UAGASGA_CastSummon::SpawnMinion(const FVector& SpawnLocation)
 		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding
 	);
 
+	SpawnedCharacter->SetWasSummoned(true);
 	IAGASCombatInterface::Execute_SetCharacterLevel(SpawnedCharacter, IAGASCombatInterface::Execute_GetCharacterLevel(AvatarActor));
 
 	SpawnedCharacter->FinishSpawning(MinionTransform);
