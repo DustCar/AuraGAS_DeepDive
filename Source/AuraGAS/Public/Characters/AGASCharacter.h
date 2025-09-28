@@ -6,6 +6,8 @@
 #include "AGASCharacterBase.h"
 #include "AGASCharacter.generated.h"
 
+class USpringArmComponent;
+class UCameraComponent;
 struct FGameplayEffectContextHandle;
 
 UCLASS()
@@ -22,6 +24,9 @@ public:
 	//~ Begin Combat Interface
 	virtual int32 GetCharacterLevel_Implementation() override;
 	//~ End Combat Interface
+
+	USpringArmComponent* GetSpringArmComponent() { return SpringArm; }
+	UCameraComponent* GetCameraComponent() { return CameraComponent; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -36,6 +41,12 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultVitalAttributes;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup|Camera")
+	TObjectPtr<USpringArmComponent> SpringArm;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup|Camera")
+	TObjectPtr<UCameraComponent> CameraComponent;
 
 	void InitializeDefaultStats() const;
 

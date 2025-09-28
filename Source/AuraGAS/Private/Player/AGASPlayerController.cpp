@@ -9,13 +9,15 @@
 #include "NavigationSystem.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Characters/AGASCharacter.h"
 #include "Components/SplineComponent.h"
 #include "Input/AGASInputConfig.h"
 #include "Input/AGASInputComponent.h"
 #include "Interaction/AGASTargetInterface.h"
 #include "Player/AGASPlayerState.h"
 #include "UI/HUD/AGASHUD.h"
-#include "GameFramework/Character.h"
 #include "UI/Widget/AGASDamageTextComponent.h"
 
 AAGASPlayerController::AAGASPlayerController()
@@ -97,22 +99,35 @@ void AAGASPlayerController::SetupInputComponent()
 	
 	AGASInputComponent->BindAction(AGASInputActions->InputMove, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	AGASInputComponent->BindAction(AGASInputActions->InputShift, ETriggerEvent::Triggered, this, &ThisClass::ShiftPressed);
+	AGASInputComponent->BindAction(AGASInputActions->InputRotateCamera, ETriggerEvent::Triggered, this, &ThisClass::RotateCamera);
 	AGASInputComponent->BindAbilityActions(AGASInputActions, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void AAGASPlayerController::Move(const FInputActionValue& Value)
 {
 	const FVector2D InputAxisVector = Value.Get<FVector2D>();
-	const FRotator Rotation = GetControlRotation(); // camera rotation, in our case since its top down 3rd person
-	const FRotator YawRotation(0.f, Rotation.Yaw, 0.0f); // rotator parallel to ground
+	
 
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-	if (APawn* ControlledPawn = GetPawn<APawn>())
+	if (AAGASCharacter* ControlledPawn = GetPawn<AAGASCharacter>())
 	{
+		const FRotator Rotation = ControlledPawn->GetCameraComponent()->GetComponentRotation(); // camera rotation, in our case since its top down 3rd person
+		const FRotator YawRotation(0.f, Rotation.Yaw, 0.0f); // rotator parallel to ground
+
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
+	}
+}
+
+void AAGASPlayerController::RotateCamera(const FInputActionValue& Value)
+{
+	const float HorizontalMouseMovement = Value.Get<float>();
+
+	if (AAGASCharacter* ControlledPawn = GetPawn<AAGASCharacter>())
+	{
+		ControlledPawn->GetSpringArmComponent()->AddRelativeRotation(FRotator(0.f, HorizontalMouseMovement * 5.f, 0.f));
 	}
 }
 
@@ -144,46 +159,42 @@ void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Valu
 
 void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
-	if (!InputTag.MatchesTagExact(TAG_InputTag_LMB))
-	{
-		if (GetASC() == nullptr) return;
-		GetASC()->AbilityInputTagReleased(InputTag);
-		return;
-	}
-
 	if (GetASC() == nullptr) return;
 	GetASC()->AbilityInputTagReleased(InputTag);
 
-	if (!bTargeting && !bShiftKeyDown)
+	if (InputTag.MatchesTagExact(TAG_InputTag_LMB))
 	{
-		const APawn* ControlledPawn = GetPawn();
-		if (FollowTime <= ShortPressThreshold && ControlledPawn)
+		if (!bTargeting && !bShiftKeyDown)
 		{
-			FNavLocation CachedDestinationNavLocation;
-			const FVector QueryExtent = FVector(250.f, 250.f, 200.f);
-			const FNavAgentProperties& NavAgentProperties = GetNavAgentPropertiesRef();
-			// ProjectPointToNavigation finds the closest point on the nav mesh to the clicked location,
-			// used for areas that do not have nav mesh (i.e. under an item)
-			const bool bNavLocationFound = NavSystem->ProjectPointToNavigation(CachedDestination, CachedDestinationNavLocation, QueryExtent, &NavAgentProperties);
-
-			if (bNavLocationFound)
+			const APawn* ControlledPawn = GetPawn();
+			if (FollowTime <= ShortPressThreshold && ControlledPawn)
 			{
-				UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestinationNavLocation);
-				if (NavPath == nullptr || NavPath->PathPoints.Num() <= 0) return;
+				FNavLocation CachedDestinationNavLocation;
+				const FVector QueryExtent = FVector(250.f, 250.f, 200.f);
+				const FNavAgentProperties& NavAgentProperties = GetNavAgentPropertiesRef();
+				// ProjectPointToNavigation finds the closest point on the nav mesh to the clicked location,
+				// used for areas that do not have nav mesh (i.e. under an item)
+				const bool bNavLocationFound = NavSystem->ProjectPointToNavigation(CachedDestination, CachedDestinationNavLocation, QueryExtent, &NavAgentProperties);
 
-				Spline->ClearSplinePoints();
-				for (const FVector& PointLoc : NavPath->PathPoints)
+				if (bNavLocationFound)
 				{
-					Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
-				}
+					UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestinationNavLocation);
+					if (NavPath == nullptr || NavPath->PathPoints.Num() <= 0) return;
 
-				CachedDestination = NavPath->PathPoints.Last();
-				bAutoRunning = true;
+					Spline->ClearSplinePoints();
+					for (const FVector& PointLoc : NavPath->PathPoints)
+					{
+						Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+					}
+
+					CachedDestination = NavPath->PathPoints.Last();
+					bAutoRunning = true;
+				}
 			}
-		}
 		
-		FollowTime = 0.f;
-		bTargeting = false;
+			FollowTime = 0.f;
+			bTargeting = false;
+		}
 	}
 }
 

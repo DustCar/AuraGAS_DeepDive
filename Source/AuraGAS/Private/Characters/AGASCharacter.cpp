@@ -6,12 +6,23 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "Player/AGASPlayerState.h"
 
 
 AAGASCharacter::AAGASCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
+	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->bInheritPitch = false;
+	SpringArm->bInheritRoll = false;
+	SpringArm->bInheritYaw = false;
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
+	CameraComponent->SetupAttachment(SpringArm);
 }
 
 void AAGASCharacter::BeginPlay()
