@@ -5,6 +5,7 @@
 
 #include "AGASGameplayTags.h"
 #include "EnhancedInputSubsystems.h"
+#include "KismetTraceUtils.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
@@ -12,10 +13,12 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Characters/AGASCharacter.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/SplineComponent.h"
 #include "Input/AGASInputConfig.h"
 #include "Input/AGASInputComponent.h"
 #include "Interaction/AGASTargetInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Player/AGASPlayerState.h"
 #include "UI/HUD/AGASHUD.h"
 #include "UI/Widget/AGASDamageTextComponent.h"
@@ -25,6 +28,11 @@ AAGASPlayerController::AAGASPlayerController()
 	bReplicates = true;
 
 	Spline = CreateDefaultSubobject<USplineComponent>("Spline");
+
+	// Camera Occlusion
+	CapsulePercentageForTrace = 1.0f;
+	bDebugLineTraces = true;
+	bIsOcclusionEnabled = true;
 }
 
 void AAGASPlayerController::PlayerTick(float DeltaTime)
@@ -88,6 +96,13 @@ void AAGASPlayerController::BeginPlay()
 	SetInputMode(InputModeData);
 
 	NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+
+	if (IsValid(GetPawn()))
+	{
+		ActiveSpringArm = Cast<USpringArmComponent>(GetPawn()->GetComponentByClass(USpringArmComponent::StaticClass()));
+		ActiveCamera = Cast<UCameraComponent>(GetPawn()->GetComponentByClass(UCameraComponent::StaticClass()));
+		ActiveCapsuleComponent = Cast<UCapsuleComponent>(GetPawn()->GetComponentByClass(UCapsuleComponent::StaticClass()));
+	}
 }
 
 void AAGASPlayerController::SetupInputComponent()
@@ -240,6 +255,157 @@ void AAGASPlayerController::ShowDamageNumber_Implementation(const float DamageAm
 		DamageText->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		DamageText->SetDamageText(DamageAmount, bCriticalHit, bBlockedHit);
 	}
+}
+
+void AAGASPlayerController::SyncOccludedActors()
+{
+	if (!ShouldCheckCameraOcclusion()) return;
+
+	// Camera is currently colliding, show all current occluded actors
+	// and do not perform further occlusion
+	if (ActiveSpringArm->bDoCollisionTest)
+	{
+		ForceShowOccludedActors();
+		return;
+	}
+
+	FVector Start = ActiveCamera->GetComponentLocation();
+	FVector End = GetPawn()->GetActorLocation() - (ActiveCamera->GetForwardVector() * DistanceFromActor);
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> CollisionObjectTypes;
+	CollisionObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECC_WorldStatic));
+
+	TArray<AActor*> ActorsToIgnore; // TODO: Add configuration to ignore actor types
+	TArray<FHitResult> OutHits;
+
+	auto ShouldDebug = bDebugLineTraces ? EDrawDebugTrace::ForDuration : EDrawDebugTrace::None;
+
+	bool bGotHits = UKismetSystemLibrary::CapsuleTraceMultiForObjects(
+		GetWorld(), Start, End, ActiveCapsuleComponent->GetScaledCapsuleRadius() * CapsulePercentageForTrace,
+		ActiveCapsuleComponent->GetScaledCapsuleHalfHeight() * CapsulePercentageForTrace * 0.5f, CollisionObjectTypes,
+		true, ActorsToIgnore, ShouldDebug, OutHits, true);
+
+	if (bGotHits)
+	{
+		// Debug CapsuleTrace
+		// DrawDebugCapsuleTraceMulti(GetWorld(), Start, End, ActiveCapsuleComponent->GetScaledCapsuleRadius() * CapsulePercentageForTrace,
+		// 	ActiveCapsuleComponent->GetScaledCapsuleHalfHeight() * CapsulePercentageForTrace * 0.5f, ShouldDebug, bGotHits, OutHits,
+		// 	FLinearColor::Green, FLinearColor::Blue, 1.0f);
+		
+		// The list of actors hit by the line trace, that means that they are occluded from view
+		TSet<const AActor*> ActorsJustOccluded;
+
+		// Hide actors that are occluded by the camera
+		for (FHitResult Hit : OutHits)
+		{
+			if (Hit.GetActor()->GetComponentByClass(UStaticMeshComponent::StaticClass()) == nullptr) continue;
+			
+			const TObjectPtr<AActor> HitActor = Cast<AActor>(Hit.GetActor());
+			HideOccludedActor(HitActor);
+			ActorsJustOccluded.Add(HitActor);
+		}
+
+		for (auto& Elem : OccludedActors)
+		{
+			if (!ActorsJustOccluded.Contains(Elem.Value.Actor) && Elem.Value.bIsOccluded)
+			{
+				ShowOccludedActor(Elem.Value);
+
+				if (bDebugLineTraces)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Actor %s was occluded, but it's not occluded anymore with the new hits."),
+						*Elem.Value.Actor->GetName());
+				}
+			}
+		}
+	}
+	else
+	{
+		ForceShowOccludedActors();
+	}
+}
+
+bool AAGASPlayerController::HideOccludedActor(const AActor* Actor)
+{
+	FCameraOccludedActor* ExistingOccludedActor = OccludedActors.Find(Actor);
+
+	if (ExistingOccludedActor && ExistingOccludedActor->bIsOccluded)
+	{
+		if (bDebugLineTraces) UE_LOG(LogTemp, Warning, TEXT("Actor %s was already occluded. Ignoring."),
+			*Actor->GetName());
+		return false;
+	}
+
+	if (ExistingOccludedActor && IsValid(ExistingOccludedActor->Actor))
+	{
+		ExistingOccludedActor->bIsOccluded = true;
+		OnHideOccludedActor(*ExistingOccludedActor);
+
+		if (bDebugLineTraces) UE_LOG(LogTemp, Warning, TEXT("Actor %s exists, but was not occluded. Occluding it now."),
+			*Actor->GetName());
+	}
+	else
+	{
+		UStaticMeshComponent* StaticMesh = Cast<UStaticMeshComponent>(Actor->GetComponentByClass(UStaticMeshComponent::StaticClass()));
+
+		FCameraOccludedActor OccludedActor;
+		OccludedActor.Actor = Actor;
+		OccludedActor.StaticMesh = StaticMesh;
+		OccludedActor.Materials = StaticMesh->GetMaterials();
+		OccludedActor.bIsOccluded = true;
+		OccludedActors.Add(Actor, OccludedActor);
+		OnHideOccludedActor(OccludedActor);
+
+		if (bDebugLineTraces) UE_LOG(LogTemp, Warning, TEXT("Actor %s does not exist, creating and occluding it now."),
+			*Actor->GetName());
+	}
+
+	return true;
+}
+
+void AAGASPlayerController::ForceShowOccludedActors()
+{
+	for (auto& Elem : OccludedActors)
+	{
+		if (Elem.Value.bIsOccluded)
+		{
+			ShowOccludedActor(Elem.Value);
+
+			if (bDebugLineTraces) UE_LOG(LogTemp, Warning, TEXT("Actor %s was occluded, force to show again."),
+			*Elem.Value.Actor->GetName());
+		}
+	}
+}
+
+void AAGASPlayerController::ShowOccludedActor(FCameraOccludedActor& OccludedActor)
+{
+	if (!IsValid(OccludedActor.Actor))
+	{
+		OccludedActors.Remove(OccludedActor.Actor);
+	}
+
+	OccludedActor.bIsOccluded = false;
+	OnShowOccludedActor(OccludedActor);
+}
+
+bool AAGASPlayerController::OnHideOccludedActor(const FCameraOccludedActor& OccludedActor) const
+{
+	for (int i = 0; i < OccludedActor.StaticMesh->GetNumMaterials(); ++i)
+	{
+		OccludedActor.StaticMesh->SetMaterial(i, FadeMaterial);
+	}
+
+	return true;
+}
+
+bool AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& OccludedActor) const
+{
+	for (int matIdx = 0; matIdx < OccludedActor.Materials.Num(); ++matIdx)
+	{
+		OccludedActor.StaticMesh->SetMaterial(matIdx, OccludedActor.Materials[matIdx]);
+	}
+
+	return true;
 }
 
 void AAGASPlayerController::InitializeHUD()
