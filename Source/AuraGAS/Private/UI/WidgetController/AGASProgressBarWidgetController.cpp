@@ -23,6 +23,7 @@ void UAGASProgressBarWidgetController::BindCallbacksToDependencies()
 				if (Data.NewValue == 0 && bFirstBroadcast)
 				{
 					OnMaxHealthPointsChanged.Broadcast(AGASAttributeSet->GetMaxHealthPoints());
+					bFirstBroadcast = false;
 				}
 				else
 				{

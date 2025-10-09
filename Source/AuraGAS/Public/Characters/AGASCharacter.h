@@ -24,9 +24,6 @@ public:
 	//~ Begin Combat Interface
 	virtual int32 GetCharacterLevel_Implementation() override;
 	//~ End Combat Interface
-
-	USpringArmComponent* GetSpringArmComponent() { return SpringArm; }
-	UCameraComponent* GetCameraComponent() { return CameraComponent; }
 	
 protected:
 	virtual void BeginPlay() override;

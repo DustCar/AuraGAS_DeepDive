@@ -5,7 +5,7 @@
 
 #include "AGASGameplayTags.h"
 #include "EnhancedInputSubsystems.h"
-#include "KismetTraceUtils.h"
+#include "KismetTraceUtils.h" // Debug capsule trace
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
@@ -123,9 +123,10 @@ void AAGASPlayerController::Move(const FInputActionValue& Value)
 	const FVector2D InputAxisVector = Value.Get<FVector2D>();
 	
 
-	if (AAGASCharacter* ControlledPawn = GetPawn<AAGASCharacter>())
+	if (APawn* ControlledPawn = GetPawn())
 	{
-		const FRotator Rotation = ControlledPawn->GetCameraComponent()->GetComponentRotation(); // camera rotation, in our case since its top down 3rd person
+		if (ActiveCamera == nullptr) return;
+		const FRotator Rotation = ActiveCamera->GetComponentRotation(); // camera rotation, in our case since its top down 3rd person
 		const FRotator YawRotation(0.f, Rotation.Yaw, 0.0f); // rotator parallel to ground
 
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
@@ -140,9 +141,9 @@ void AAGASPlayerController::RotateCamera(const FInputActionValue& Value)
 {
 	const float HorizontalMouseMovement = Value.Get<float>();
 
-	if (AAGASCharacter* ControlledPawn = GetPawn<AAGASCharacter>())
+	if (ActiveSpringArm)
 	{
-		ControlledPawn->GetSpringArmComponent()->AddRelativeRotation(FRotator(0.f, HorizontalMouseMovement * 5.f, 0.f));
+		ActiveSpringArm->AddRelativeRotation(FRotator(0.f, HorizontalMouseMovement * 5.f, 0.f));
 	}
 }
 

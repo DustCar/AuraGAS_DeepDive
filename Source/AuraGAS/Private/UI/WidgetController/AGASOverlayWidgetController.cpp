@@ -24,16 +24,16 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	 * delegate.
 	 */
 	
-	// binds HealthPointsChanged to HP attribute
+	// binds HealthPointsChanged broadcast to HP attribute change delegate via lambda
 	BindAttributeChange(AGASAttributeSet->GetHealthPointsAttribute(), OnHealthPointsChanged);
 
-	// binds MaxHealthPointsChanged to max HP attribute
+	// binds MaxHealthPointsChanged broadcast to max HP attribute change delegate via lambda
 	BindAttributeChange(AGASAttributeSet->GetMaxHealthPointsAttribute(), OnMaxHealthPointsChanged);
 
-	// binds ManaPointsChanged to MP attribute
+	// binds ManaPointsChanged broadcast to MP attribute change delegate via lambda
 	BindAttributeChange(AGASAttributeSet->GetManaPointsAttribute(), OnManaPointsChanged);
 
-	// binds MaxManaPointsChanged to max MP attribute
+	// binds MaxManaPointsChanged broadcast to max MP attribute change delegate via lambda
 	BindAttributeChange(AGASAttributeSet->GetMaxManaPointsAttribute(), OnMaxManaPointsChanged);
 
 	// use of lambda allows us to avoid declaring multiple callbacks for simpler code like this and the attribute changes
