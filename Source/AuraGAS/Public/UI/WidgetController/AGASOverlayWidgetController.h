@@ -7,6 +7,7 @@
 #include "GameplayTagContainer.h"
 #include "AGASOverlayWidgetController.generated.h"
 
+class UAGASAbilityInfo;
 struct FGameplayAttribute;
 class UAGASUserWidget;
 
@@ -64,9 +65,14 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WidgetData")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WidgetData")
+	TObjectPtr<UAGASAbilityInfo> AbilityInfo;
+
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
 
+	// callback function to bind to FAbilitiesGiven delegate from AGASAbilitySystemComponent
+	void OnInitializedStartupAbilities();
 private:
 	/**
 	 *	Function that binds a gameplay attribute to the ASC gameplay attribute change delegate and

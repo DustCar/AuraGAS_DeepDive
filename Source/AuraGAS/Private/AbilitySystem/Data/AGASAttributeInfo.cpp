@@ -3,8 +3,10 @@
 
 #include "AbilitySystem/Data/AGASAttributeInfo.h"
 
+#include "AuraGAS/AGASLogChannels.h"
+
 FAttributeInfo UAGASAttributeInfo::FindAttributeInfoForTag(const FGameplayTag& AttributeTag,
-	const bool bLogNotFoundVerbose) const
+                                                           const bool bLogNotFoundVerbose) const
 {
 	for (const FAttributeInfo& Info : AttributeInformation)
 	{
@@ -16,7 +18,7 @@ FAttributeInfo UAGASAttributeInfo::FindAttributeInfoForTag(const FGameplayTag& A
 
 	if (bLogNotFoundVerbose)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Can't find Info for AttributeTag [%s] on AttributeInfo [%s]."), *AttributeTag.ToString(), *GetNameSafe(this));
+		UE_LOG(LogAGAS, Error, TEXT("Can't find Info for AttributeTag [%s] on AttributeInfo [%s]."), *AttributeTag.ToString(), *GetNameSafe(this));
 	}
 
 	return FAttributeInfo();

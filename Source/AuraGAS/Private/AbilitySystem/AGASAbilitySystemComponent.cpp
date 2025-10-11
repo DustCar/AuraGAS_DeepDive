@@ -22,6 +22,9 @@ void UAGASAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 			GiveAbility(AbilitySpec);
 		}
 	}
+
+	bStartupAbilitiesGiven = true;
+	AbilitiesGivenSignature.Broadcast();
 }
 
 void UAGASAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)

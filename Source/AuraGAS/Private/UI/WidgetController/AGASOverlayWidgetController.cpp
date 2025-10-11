@@ -36,6 +36,16 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	// binds MaxManaPointsChanged broadcast to max MP attribute change delegate via lambda
 	BindAttributeChange(AGASAttributeSet->GetMaxManaPointsAttribute(), OnMaxManaPointsChanged);
 
+	// check to see if abilities are already given and call callback immediately if so, if not then bind the callback to delegate
+	if (AbilitySystemComponent->bStartupAbilitiesGiven)
+	{
+		OnInitializedStartupAbilities();
+	}
+	else
+	{
+		AbilitySystemComponent->AbilitiesGivenSignature.AddUObject(this, &ThisClass::OnInitializedStartupAbilities);
+	}
+
 	// use of lambda allows us to avoid declaring multiple callbacks for simpler code like this and the attribute changes
 	// I will leave the attribute change callbacks up for now, but may change it to lambdas if functionality stays
 	AbilitySystemComponent->EffectAssetTags.AddLambda(
@@ -55,7 +65,7 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 }
 
 void UAGASOverlayWidgetController::BindAttributeChange(const FGameplayAttribute& Attribute,
-	FOnAttributeChangedSignature& AttributeDelegate) const
+                                                       FOnAttributeChangedSignature& AttributeDelegate) const
 {
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		Attribute).AddLambda(
@@ -64,4 +74,10 @@ void UAGASOverlayWidgetController::BindAttributeChange(const FGameplayAttribute&
 				AttributeDelegate.Broadcast(Data.NewValue);
 			}
 		);
+}
+
+void UAGASOverlayWidgetController::OnInitializedStartupAbilities()
+{
+	// TODO: Get information about all given abilities, loop up their ability info, and broadcast it to widgets
+	if (!AbilitySystemComponent->bStartupAbilitiesGiven) return;
 }
