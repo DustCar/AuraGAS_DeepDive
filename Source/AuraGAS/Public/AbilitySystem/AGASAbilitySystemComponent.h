@@ -8,6 +8,9 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /*Asset Tags*/)
 DECLARE_MULTICAST_DELEGATE(FAbilitiesGiven)
+// a delegate that will be used to loop through the players activatable abilities
+// placed in ASC to allow for safe iteration using AbilityListLock
+DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&)
 
 /**
  * 
@@ -29,8 +32,15 @@ public:
 
 	void AbilityInputTagHeld(const FGameplayTag& InputTag);
 	void AbilityInputTagReleased(const FGameplayTag& InputTag);
+	// callback for ForEachAbility delegate
+	void ForEachAbility(const FForEachAbility& Delegate);
+
+	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
+	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	
 protected:
+
+	virtual void OnRep_ActivateAbilities() override;
 	
 	// Callback function that is called when a GE is applied (delegate: OnGameplayEffectAppliedDelegateToSelf)
 	UFUNCTION(Client, Reliable)

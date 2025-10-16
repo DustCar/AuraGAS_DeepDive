@@ -31,7 +31,7 @@ void AAGASHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAGASAbility
 	UAGASOverlayWidgetController* OLWidgetController = GetOverlayWidgetController(WidgetControllerParams);
 
 	OverlayWidget->SetWidgetController(OLWidgetController);
-	OLWidgetController->BroadcastInitialValues();
+	//OLWidgetController->BroadcastInitialValues();
 	
 	Widget->AddToViewport();
 }

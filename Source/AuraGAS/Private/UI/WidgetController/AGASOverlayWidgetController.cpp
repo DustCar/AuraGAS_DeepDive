@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAttributeSet.h"
+#include "AbilitySystem/Data/AGASAbilityInfo.h"
 
 // initially broadcast the starter values of attributes to delegates
 void UAGASOverlayWidgetController::BroadcastInitialValues()
@@ -13,6 +14,13 @@ void UAGASOverlayWidgetController::BroadcastInitialValues()
 	OnMaxHealthPointsChanged.Broadcast(AGASAttributeSet->GetMaxHealthPoints());
 	OnManaPointsChanged.Broadcast(AGASAttributeSet->GetManaPoints());
 	OnMaxManaPointsChanged.Broadcast(AGASAttributeSet->GetMaxManaPoints());
+
+	// place the automatic call here since BroadcastInitialValues is blueprint callable, and we'll be calling this
+	// within the overlay WBP in Event Construct since our Widget Controller Set seems to be getting called late
+	if (AbilitySystemComponent->bStartupAbilitiesGiven)
+	{
+		OnInitializedStartupAbilities();
+	}
 }
 
 // bind our own callbacks to the attribute change delegates on ASC
@@ -36,12 +44,8 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	// binds MaxManaPointsChanged broadcast to max MP attribute change delegate via lambda
 	BindAttributeChange(AGASAttributeSet->GetMaxManaPointsAttribute(), OnMaxManaPointsChanged);
 
-	// check to see if abilities are already given and call callback immediately if so, if not then bind the callback to delegate
-	if (AbilitySystemComponent->bStartupAbilitiesGiven)
-	{
-		OnInitializedStartupAbilities();
-	}
-	else
+	// check to see if abilities are already given, if not then bind the callback to delegate
+	if (!AbilitySystemComponent->bStartupAbilitiesGiven)
 	{
 		AbilitySystemComponent->AbilitiesGivenSignature.AddUObject(this, &ThisClass::OnInitializedStartupAbilities);
 	}
@@ -80,4 +84,14 @@ void UAGASOverlayWidgetController::OnInitializedStartupAbilities()
 {
 	// TODO: Get information about all given abilities, loop up their ability info, and broadcast it to widgets
 	if (!AbilitySystemComponent->bStartupAbilitiesGiven) return;
+
+	FForEachAbility AbilitiesDelegate;
+	AbilitiesDelegate.BindLambda([this](const FGameplayAbilitySpec& AbilitySpec)
+	{
+		FAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(UAGASAbilitySystemComponent::GetAbilityTagFromSpec(AbilitySpec));
+		Info.InputTag = UAGASAbilitySystemComponent::GetInputTagFromSpec(AbilitySpec);
+		AbilityInfoDelegate.Broadcast(Info);
+	});
+
+	AbilitySystemComponent->ForEachAbility(AbilitiesDelegate);
 }
