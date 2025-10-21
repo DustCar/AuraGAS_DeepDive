@@ -55,6 +55,9 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Summon)
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Fire_FireBolt)
 
+// Cooldown Tags
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Cooldown_Fire_FireBolt)
+
 // Combat Socket Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_CombatSocket_Weapon)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_CombatSocket_RightHand)

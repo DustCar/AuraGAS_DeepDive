@@ -49,6 +49,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Summon, "Abilities.Summon")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Fire_FireBolt, "Abilities.Fire.FireBolt")
 
+// Cooldown Tags
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBolt, "Cooldown.Fire.FireBolt")
+
 // Combat Socket Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_Weapon, "CombatSocket.Weapon")
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_RightHand, "CombatSocket.RightHand")
