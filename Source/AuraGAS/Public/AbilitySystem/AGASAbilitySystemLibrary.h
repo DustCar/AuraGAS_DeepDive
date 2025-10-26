@@ -53,4 +53,7 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayMechanics")
 	static bool IsOnSameTeam(const AActor* FirstActor, const AActor* SecondActor);
+
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|XPPoints")
+	static int32 GetXPPointsRewarded(const UObject* WorldContextObject, const ECharacterClass CharacterClass, const int32 CharacterLevel);
 };

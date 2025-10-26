@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
+#include "AbilitySystem/Data/AGASCharacterClassInfo.h"
 #include "GameFramework/Character.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "AGASCharacterBase.generated.h"
@@ -25,7 +26,6 @@ public:
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAGASAttributeSet* GetAttributeSet() const { return AttributeSet; }
-
 	
 	/* Combat Interface functions */
 	// Returns the hit react montage
@@ -59,6 +59,8 @@ public:
 
 	// Add a positive or negative amount to minion count
 	virtual void AddToMinionCount_Implementation(int32 Amount) override;
+
+	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	/* End Combat Interface functions */
 
 	UFUNCTION(NetMulticast, Reliable)
@@ -87,6 +89,9 @@ protected:
 	FName TailSocketName;
 
 	bool bDead = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|CharacterClassDefaults")
+	ECharacterClass CharacterClass;
 
 	// Using just our version of ASC since we will not be implementing multiple types of ASC in this project
 	UPROPERTY()

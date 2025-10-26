@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "AGASCharacterBase.h"
-#include "AbilitySystem/Data/AGASCharacterClassInfo.h"
 #include "Interaction/AGASTargetInterface.h"
 #include "AGASEnemy.generated.h"
 
@@ -57,9 +56,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (ExposeOnSpawn = "true"), Category = "Setup|CharacterClassDefaults")
 	int32 Level = 1;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|CharacterClassDefaults")
-	ECharacterClass CharacterClass = ECharacterClass::Elementalist;
 
 	UPROPERTY(EditAnywhere, Category = "Setup|UI")
 	TSubclassOf<UAGASProgressBarWidgetController> OverheadHPBarWidgetControllerClass;

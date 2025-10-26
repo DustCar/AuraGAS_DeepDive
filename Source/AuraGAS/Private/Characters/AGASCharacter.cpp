@@ -23,6 +23,8 @@ AAGASCharacter::AAGASCharacter()
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArm);
+
+	CharacterClass = ECharacterClass::Elementalist;
 }
 
 void AAGASCharacter::BeginPlay()

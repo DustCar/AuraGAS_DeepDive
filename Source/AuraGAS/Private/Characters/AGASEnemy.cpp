@@ -44,6 +44,8 @@ AAGASEnemy::AAGASEnemy()
 
 	// Added so that any spawned enemy automatically gets an AI Controller on spawn
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+
+	CharacterClass = ECharacterClass::Elementalist;
 }
 
 void AAGASEnemy::PossessedBy(AController* NewController)

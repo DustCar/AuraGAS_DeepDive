@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "ScalableFloat.h"
 #include "AGASCharacterClassInfo.generated.h"
 
 class UGameplayEffect;
@@ -28,6 +29,9 @@ struct FCharacterClassDefaultInfo
 
 	UPROPERTY(EditDefaultsOnly, Category = "ClassDefaults")
 	TArray<TSubclassOf<UGameplayAbility>> UniqueAbilities;
+
+	UPROPERTY(EditDefaultsOnly, Category = "ClassDefaults")
+	FScalableFloat XPPointsRewarded = FScalableFloat();
 };
 /**
  * 

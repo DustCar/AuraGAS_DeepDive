@@ -30,8 +30,8 @@ struct FUIWidgetRow : public FTableRowBase
 };
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMessageWidgetRowSignature, FUIWidgetRow, Row);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAbilityInfoSignature, const FAbilityInfo&, Info);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageWidgetRowSent, FUIWidgetRow, Row);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoSent, const FAbilityInfo&, Info);
 
 
 /**
@@ -47,23 +47,25 @@ public:
 	virtual void BindCallbacksToDependencies() override;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnAttributeChangedSignature OnHealthPointsChanged;
+	FOnAttributeChanged OnHealthPointsChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnAttributeChangedSignature OnMaxHealthPointsChanged;
+	FOnAttributeChanged OnMaxHealthPointsChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnAttributeChangedSignature OnManaPointsChanged;
+	FOnAttributeChanged OnManaPointsChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnAttributeChangedSignature OnMaxManaPointsChanged;
+	FOnAttributeChanged OnMaxManaPointsChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
-	FMessageWidgetRowSignature MessageWidgetRowDelegate;
+	FOnMessageWidgetRowSent MessageWidgetRowDelegate;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
-	FAbilityInfoSignature AbilityInfoDelegate;
+	FOnAbilityInfoSent AbilityInfoDelegate;
 
+	UPROPERTY(BlueprintAssignable, Category = "GAS|XP")
+	FOnAttributeChanged OnXPPointsPercentChanged;
 protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WidgetData")
@@ -77,12 +79,15 @@ protected:
 
 	// callback function to bind to FAbilitiesGiven delegate from AGASAbilitySystemComponent
 	void OnInitializedStartupAbilities();
+
+	void OnXPPointsChanged(int32 NewXPPoints) const;
+	
 private:
 	/**
 	 *	Function that binds a gameplay attribute to the ASC gameplay attribute change delegate and
 	 *	broadcasts the new value for the attribute to our custom OnAttributeChangedSignature delegate
 	 */ 
-	void BindAttributeChange(const FGameplayAttribute& Attribute, FOnAttributeChangedSignature& AttributeDelegate) const;
+	void BindAttributeChange(const FGameplayAttribute& Attribute, FOnAttributeChanged& AttributeDelegate) const;
 };
 
 template <typename T>

@@ -306,6 +306,7 @@ void AAGASPlayerController::SyncOccludedActors()
 			ActorsJustOccluded.Add(HitActor);
 		}
 
+		// Show actors that were occluded but no longer occluded after current pass
 		for (auto& Elem : OccludedActors)
 		{
 			if (!ActorsJustOccluded.Contains(Elem.Value.Actor) && Elem.Value.bIsOccluded)

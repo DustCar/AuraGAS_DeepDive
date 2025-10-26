@@ -9,7 +9,7 @@
 class UAGASAttributeSet;
 class UAGASAbilitySystemComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChangedSignature, float, NewValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChanged, float, NewValue);
 
 
 USTRUCT(BlueprintType)

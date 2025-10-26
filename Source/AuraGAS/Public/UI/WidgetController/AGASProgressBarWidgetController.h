@@ -6,7 +6,7 @@
 #include "AGASWidgetController.h"
 #include "AGASProgressBarWidgetController.generated.h"
 
-class FOnAttributeChangedSignature;
+class FOnAttributeChanged;
 /**
  * 
  */
@@ -20,10 +20,10 @@ public:
 	virtual void BroadcastInitialValues() override;
 	
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnAttributeChangedSignature OnHealthPointsChanged;
+	FOnAttributeChanged OnHealthPointsChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Attributes")
-	FOnAttributeChangedSignature OnMaxHealthPointsChanged;
+	FOnAttributeChanged OnMaxHealthPointsChanged;
 
 private:
 

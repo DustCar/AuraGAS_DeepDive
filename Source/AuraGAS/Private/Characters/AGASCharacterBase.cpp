@@ -175,6 +175,11 @@ void AAGASCharacterBase::AddToMinionCount_Implementation(int32 Amount)
 	MinionCount += Amount;
 }
 
+ECharacterClass AAGASCharacterBase::GetCharacterClass_Implementation()
+{
+	return CharacterClass;
+}
+
 void AAGASCharacterBase::SetWasSummoned(bool bInWasSummoned)
 {
 	bWasSummoned = bInWasSummoned;
