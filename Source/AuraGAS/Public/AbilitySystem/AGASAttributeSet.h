@@ -105,6 +105,7 @@ public:
 	 * Meta Attributes Accessors
 	 */
 	ATTRIBUTE_ACCESSORS(ThisClass, IncomingDamage)
+	ATTRIBUTE_ACCESSORS(ThisClass, IncomingXPPoints)
 
 	/**
 	 * Vital Attributes
@@ -183,6 +184,9 @@ public:
 	 */
 	UPROPERTY(BlueprintReadOnly, Category = "MetaAttributes")
 	FGameplayAttributeData IncomingDamage;
+
+	UPROPERTY(BlueprintReadOnly, Category = "MetaAttributes")
+	FGameplayAttributeData IncomingXPPoints;
 	
 protected:
 	
@@ -258,6 +262,7 @@ private:
 	
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectPropertiesAdvanced& Props);
 	void ShowFloatingText(const FEffectPropertiesAdvanced& Props, float Damage, const bool bCriticalHit, const bool bBlockedHit) const;
+	void SendXPPointsEvent(const FEffectPropertiesAdvanced& Props);
 };
 
 

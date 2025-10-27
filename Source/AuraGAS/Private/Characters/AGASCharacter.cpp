@@ -73,6 +73,14 @@ int32 AAGASCharacter::GetCharacterLevel_Implementation()
 	return AGASPlayerState->GetPlayerLevel();
 }
 
+void AAGASCharacter::AddToXPPointsOnPlayerState_Implementation(int32 InXPPoints)
+{
+	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
+	check(AGASPlayerState);
+
+	AGASPlayerState->AddToXPPoints(InXPPoints);
+}
+
 /**
  * Old function that was used in AGASCharacterBase.h that applies a GameplayEffectSpec to the character
  * with said GameplayEffectClass.
@@ -126,6 +134,7 @@ void AAGASCharacter::AddCharacterAbilities()
 	if (!HasAuthority()) return;
 
 	AbilitySystemComponent->AddCharacterAbilities(StartupAbilities);
+	AbilitySystemComponent->AddCharacterPassiveAbilities(StartupPassiveAbilities);
 }
 
 

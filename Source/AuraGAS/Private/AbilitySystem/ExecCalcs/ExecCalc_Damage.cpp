@@ -101,8 +101,6 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	AActor* SourceAvatar = SourceASC ? SourceASC->GetAvatarActor() : nullptr;
 	AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
-	// IAGASCombatInterface* SourceCombatInterface = Cast<IAGASCombatInterface>(SourceAvatar);
-	// IAGASCombatInterface* TargetCombatInterface = Cast<IAGASCombatInterface>(TargetAvatar);
 
 	const UAGASCharacterClassInfo* CharacterClassInfo = UAGASAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
 

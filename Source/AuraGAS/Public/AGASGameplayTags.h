@@ -27,6 +27,9 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_ManaRegeneration)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_MaxHealthPoints)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_MaxManaPoints)
 
+// Meta Attribute Tags
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Meta_IncomingXPPoints)
+
 // Input Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_LMB)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_RMB)

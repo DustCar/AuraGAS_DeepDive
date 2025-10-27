@@ -7,8 +7,10 @@
 #include "AGASGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
+#include "AuraGAS/AGASLogChannels.h"
 #include "GameFramework/Character.h"
 #include "Interaction/AGASCombatInterface.h"
+#include "Interaction/AGASPlayerInterface.h"
 #include "Net/UnrealNetwork.h"
 #include "Player/AGASPlayerController.h"
 
@@ -160,6 +162,7 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 			{
 				CombatInterface->Die();
 			}
+			SendXPPointsEvent(Props);
 		}
 		else
 		{
@@ -171,6 +174,33 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		const bool bCriticalHit = UAGASAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
 		const bool bBlocked = UAGASAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
 		ShowFloatingText(Props, LocalIncomingDamage, bCriticalHit, bBlocked);
+	}
+
+	if (Data.EvaluatedData.Attribute == GetIncomingXPPointsAttribute())
+	{
+		const float LocalIncomingXPPoints = GetIncomingXPPoints();
+		SetIncomingXPPoints(0.f);
+
+		// TODO: See if we should level up
+		if (Props.SourceProperties->AvatarActor->Implements<UAGASPlayerInterface>() && LocalIncomingXPPoints > 0.f)
+		{
+			IAGASPlayerInterface::Execute_AddToXPPointsOnPlayerState(Props.SourceProperties->AvatarActor, LocalIncomingXPPoints);
+		}
+	}
+}
+
+void UAGASAttributeSet::SendXPPointsEvent(const FEffectPropertiesAdvanced& Props)
+{
+	if (Props.TargetProperties->AvatarActor->Implements<UAGASCombatInterface>())
+	{
+		const int32 TargetLevel = IAGASCombatInterface::Execute_GetCharacterLevel(Props.TargetProperties->AvatarActor);
+		const ECharacterClass TargetClass = IAGASCombatInterface::Execute_GetCharacterClass(Props.TargetProperties->AvatarActor);
+		const int32 XPPointsReward = UAGASAbilitySystemLibrary::GetXPPointsRewarded(Props.TargetProperties->AvatarActor, TargetClass, TargetLevel);
+
+		FGameplayEventData Payload;
+		Payload.EventTag = TAG_Attributes_Meta_IncomingXPPoints;
+		Payload.EventMagnitude = XPPointsReward;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceProperties->AvatarActor, TAG_Attributes_Meta_IncomingXPPoints, Payload);
 	}
 }
 

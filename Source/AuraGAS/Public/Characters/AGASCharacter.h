@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AGASCharacterBase.h"
+#include "Interaction/AGASPlayerInterface.h"
 #include "AGASCharacter.generated.h"
 
 class USpringArmComponent;
@@ -11,7 +12,7 @@ class UCameraComponent;
 struct FGameplayEffectContextHandle;
 
 UCLASS()
-class AURAGAS_API AAGASCharacter : public AAGASCharacterBase
+class AURAGAS_API AAGASCharacter : public AAGASCharacterBase, public IAGASPlayerInterface
 {
 	GENERATED_BODY()
 
@@ -24,6 +25,10 @@ public:
 	//~ Begin Combat Interface
 	virtual int32 GetCharacterLevel_Implementation() override;
 	//~ End Combat Interface
+
+	//~ Begin Player Interface
+	virtual void AddToXPPointsOnPlayerState_Implementation(int32 InXPPoints) override;
+	//~ End Player Interface
 	
 protected:
 	virtual void BeginPlay() override;
@@ -52,6 +57,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
+
+	UPROPERTY(EditAnywhere, Category = "Abilities")
+	TArray<TSubclassOf<UGameplayAbility>> StartupPassiveAbilities;
 
 	// Old function for applying effect to self
 	// void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;

@@ -120,8 +120,9 @@ void AAGASPlayerController::SetupInputComponent()
 
 void AAGASPlayerController::Move(const FInputActionValue& Value)
 {
-	const FVector2D InputAxisVector = Value.Get<FVector2D>();
+	if (bAutoRunning) bAutoRunning = false;
 	
+	const FVector2D InputAxisVector = Value.Get<FVector2D>();
 
 	if (APawn* ControlledPawn = GetPawn())
 	{

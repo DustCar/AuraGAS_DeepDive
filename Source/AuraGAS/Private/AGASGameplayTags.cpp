@@ -21,6 +21,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_ManaRegeneration, "Attributes.Se
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_MaxHealthPoints, "Attributes.Secondary.MaxHealthPoints")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_MaxManaPoints, "Attributes.Secondary.MaxManaPoints")
 
+// Meta Attribute Tags
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Meta_IncomingXPPoints, "Attributes.Meta.IncomingXPPoints")
+
 // Input Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_LMB, "InputTag.LMB")
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_RMB, "InputTag.RMB")
