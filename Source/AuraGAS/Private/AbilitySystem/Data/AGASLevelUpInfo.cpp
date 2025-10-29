@@ -31,17 +31,18 @@ int32 UAGASLevelUpInfo::FindLevelForXP(int32 XP, const bool bLogNotFoundVerbose)
 	// so if the XP passed in is less than the current highest level then they will be that level
 	// else they would be considered passed that level since they would be greater than that requirement
 	// (i.e. if level 5 is end is 5400, and we pass in 4000 then we return 5 since start == end)
-	if (XP < LevelUpInformation[Start].LevelUpRequirement)
+	if (Start < End && XP < LevelUpInformation[Start].LevelUpRequirement)
 	{
 		return Start;
 	}
-	// if XP is greater than the highest level requirement then technically they will stop at that level despite
-	// exceeding the requirement, since there is no level 6. Unless we want to increase by one but stop leveling after
 	
 	if (bLogNotFoundVerbose)
 	{
 		UE_LOG(LogAGAS, Error, TEXT("Can't find appropriate level for desired amount of XP: [%d]"), XP)
 	}
-	
-	return Start;
+
+	// if XP is greater than the highest level requirement then technically they will stop at that level despite
+	// exceeding the requirement, since there is no level 6. Unless we want to increase by one but stop leveling after
+	// the minus one is to compensate for the "else" condition in the binary search. This keeps the level at the max possible
+	return Start - 1;
 }

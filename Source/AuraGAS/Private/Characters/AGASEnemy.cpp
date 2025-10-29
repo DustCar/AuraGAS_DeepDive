@@ -90,7 +90,7 @@ void AAGASEnemy::SetCharacterLevel_Implementation(int32 NewLevel)
 
 void AAGASEnemy::Die()
 {
-	 AGASAIController->GetBrainComponent()->StopLogic(TEXT("Died"));
+	AGASAIController->GetBrainComponent()->StopLogic(TEXT("Died"));
 	SetLifeSpan(CorpseLifeSpan);
 	Super::Die();
 }
@@ -152,7 +152,7 @@ void AAGASEnemy::InitializeOverheadHealthBar()
 	if (UAGASUserWidget* AGASHealthBarWidget = Cast<UAGASUserWidget>(HealthBar->GetUserWidgetObject()))
 	{
 		AGASHealthBarWidget->SetWidgetController(OverheadHPBarWidgetController);
-		if (HasAuthority()) OverheadHPBarWidgetController->BroadcastInitialValues();
+		/*if (HasAuthority())*/ OverheadHPBarWidgetController->BroadcastInitialValues();
 	}
 }
 

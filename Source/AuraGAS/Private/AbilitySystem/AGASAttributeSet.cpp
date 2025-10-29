@@ -7,7 +7,6 @@
 #include "AGASGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
-#include "AuraGAS/AGASLogChannels.h"
 #include "GameFramework/Character.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "Interaction/AGASPlayerInterface.h"
@@ -180,13 +179,19 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	{
 		const float LocalIncomingXPPoints = GetIncomingXPPoints();
 		SetIncomingXPPoints(0.f);
-
-		// TODO: See if we should level up
+		
 		if (Props.SourceProperties->AvatarActor->Implements<UAGASPlayerInterface>() && LocalIncomingXPPoints > 0.f)
 		{
+			// Leveling up is handled in the Player State after this interface function gets executed
 			IAGASPlayerInterface::Execute_AddToXPPointsOnPlayerState(Props.SourceProperties->AvatarActor, LocalIncomingXPPoints);
 		}
 	}
+}
+
+void UAGASAttributeSet::MaximizeVitalAttributes()
+{
+	SetHealthPoints(GetMaxHealthPoints());
+	SetManaPoints(GetMaxManaPoints());
 }
 
 void UAGASAttributeSet::SendXPPointsEvent(const FEffectPropertiesAdvanced& Props)

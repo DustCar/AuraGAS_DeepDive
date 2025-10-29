@@ -31,6 +31,12 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	AAGASPlayerState* AGASPlayerState = CastChecked<AAGASPlayerState>(PlayerState);
 
 	AGASPlayerState->OnXPPointsChangedSignature.AddUObject(this, &ThisClass::OnXPPointsChanged);
+	AGASPlayerState->OnLevelChangedSignature.AddLambda(
+		[this] (int32 NewLevel)
+		{
+			OnPlayerLevelChanged.Broadcast(NewLevel);
+		}
+	);
 
 	/**
 	 * The GameplayAttributeValueChangeDelegate is a delegate that is part of the ASC
@@ -126,5 +132,10 @@ void UAGASOverlayWidgetController::OnXPPointsChanged(int32 NewXPPoints) const
 
 		const float XPBarPercent = static_cast<float>(XPPointsForThisLevel) / static_cast<float>(DeltaLevelUpRequirement);
 		OnXPPointsPercentChanged.Broadcast(XPBarPercent);
+	}
+	// Display a full XP bar for max level
+	else if (FoundLevel > 0 && FoundLevel > MaxLevel)
+	{
+		OnXPPointsPercentChanged.Broadcast(1.0);
 	}
 }

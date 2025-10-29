@@ -13,6 +13,11 @@ void UAGASProgressBarWidgetController::BindCallbacksToDependencies()
 		[this] (const FOnAttributeChangeData& Data)
 			{
 				OnHealthPointsChanged.Broadcast(Data.NewValue);
+				if (bFirstBroadcast)
+				{
+					OnMaxHealthPointsChanged.Broadcast(AGASAttributeSet->GetMaxHealthPoints());
+					bFirstBroadcast = false;
+				}
 			}
 	);
 
@@ -20,12 +25,7 @@ void UAGASProgressBarWidgetController::BindCallbacksToDependencies()
 		AGASAttributeSet->GetMaxHealthPointsAttribute()).AddLambda(
 		[this] (const FOnAttributeChangeData& Data)
 			{
-				if (Data.NewValue == 0 && bFirstBroadcast)
-				{
-					OnMaxHealthPointsChanged.Broadcast(AGASAttributeSet->GetMaxHealthPoints());
-					bFirstBroadcast = false;
-				}
-				else
+				if (Data.NewValue > 0)
 				{
 					OnMaxHealthPointsChanged.Broadcast(Data.NewValue);
 				}
