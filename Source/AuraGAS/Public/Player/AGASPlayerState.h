@@ -44,7 +44,7 @@ public:
 	void SetSpellPoints(const int32 NewSpellPoints);
 
 	void AddToLevel(const int32 InLevel);
-	void AddToXPPoints(const int32 InXPPoints);
+	bool AddToXPPoints(const int32 InXPPoints);
 	void AddToAttributePoints(const int32 InAttributePoints);
 	void AddToSpellPoints(const int32 InSpellPoints);
 

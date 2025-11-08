@@ -62,7 +62,7 @@ void AAGASPlayerState::AddToLevel(const int32 InLevel)
 	OnLevelChangedSignature.Broadcast(Level);
 }
 
-void AAGASPlayerState::AddToXPPoints(const int32 InXPPoints)
+bool AAGASPlayerState::AddToXPPoints(const int32 InXPPoints)
 {
 	XPPoints += InXPPoints;
 
@@ -81,6 +81,8 @@ void AAGASPlayerState::AddToXPPoints(const int32 InXPPoints)
 		AttributeSet->MaximizeVitalAttributes();
 	}
 	OnXPPointsChangedSignature.Broadcast(XPPoints);
+
+	return LevelUpCount > 0;
 }
 
 void AAGASPlayerState::AddToAttributePoints(const int32 InAttributePoints)

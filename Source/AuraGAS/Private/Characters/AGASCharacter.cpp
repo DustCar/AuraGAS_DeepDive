@@ -4,6 +4,7 @@
 #include "Characters/AGASCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "NiagaraComponent.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Camera/CameraComponent.h"
@@ -15,14 +16,22 @@ AAGASCharacter::AAGASCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
+	LevelUpNiagaraComponent->SetupAttachment(RootComponent);
+	LevelUpNiagaraComponent->bAutoActivate = false;
+
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
 	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->SetUsingAbsoluteRotation(true);
+	SpringArm->bDoCollisionTest = false;
+	SpringArm->bEnableCameraLag = true;
 	SpringArm->bInheritPitch = false;
 	SpringArm->bInheritRoll = false;
 	SpringArm->bInheritYaw = false;
 
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArm);
+	CameraComponent->bUsePawnControlRotation = false;
 
 	CharacterClass = ECharacterClass::Elementalist;
 }
@@ -46,6 +55,18 @@ void AAGASCharacter::InitializeAbilityActorInfo()
 
 	// Can be called on server side only since attributes are replicated, however, it is okay to call on server and clients
 	InitializeDefaultStats();
+}
+
+void AAGASCharacter::MulticastLevelUpParticles_Implementation() const
+{
+	if (IsValid(LevelUpNiagaraComponent))
+	{
+		const FVector CameraLocation = CameraComponent->GetComponentLocation();
+		const FVector ActorLocation = GetActorLocation();
+		const FVector CameraForwardVector = ActorLocation - CameraLocation;
+		LevelUpNiagaraComponent->SetWorldRotation(CameraForwardVector.Rotation());
+		LevelUpNiagaraComponent->Activate(true);
+	}
 }
 
 void AAGASCharacter::PossessedBy(AController* NewController)
@@ -78,7 +99,10 @@ void AAGASCharacter::AddToXPPointsOnPlayerState_Implementation(int32 InXPPoints)
 	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
 	check(AGASPlayerState);
 
-	AGASPlayerState->AddToXPPoints(InXPPoints);
+	if (AGASPlayerState->AddToXPPoints(InXPPoints))
+	{
+		MulticastLevelUpParticles();
+	}
 }
 
 /**

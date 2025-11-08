@@ -7,6 +7,7 @@
 #include "Interaction/AGASPlayerInterface.h"
 #include "AGASCharacter.generated.h"
 
+class UNiagaraComponent;
 class USpringArmComponent;
 class UCameraComponent;
 struct FGameplayEffectContextHandle;
@@ -29,10 +30,12 @@ public:
 	//~ Begin Player Interface
 	virtual void AddToXPPointsOnPlayerState_Implementation(int32 InXPPoints) override;
 	//~ End Player Interface
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
 	
 protected:
 	virtual void BeginPlay() override;
-	virtual void InitializeAbilityActorInfo() override;
 	virtual void AddCharacterAbilities() override;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
@@ -54,6 +57,11 @@ protected:
 
 
 private:
+	
+	virtual void InitializeAbilityActorInfo() override;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastLevelUpParticles() const;
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupAbilities;
