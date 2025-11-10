@@ -6,7 +6,6 @@
 #include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerState.h"
 #include "Interaction/AGASModifierDependencyInterface.h"
-#include "Interaction/TestModifierInterface.h"
 #include "AGASPlayerState.generated.h"
 
 class UAGASLevelUpInfo;
@@ -21,7 +20,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32 /*StatValue*/)
  * 
  */
 UCLASS()
-class AURAGAS_API AAGASPlayerState : public APlayerState, public IAbilitySystemInterface, public IAGASModifierDependencyInterface, public ITestModifierInterface
+class AURAGAS_API AAGASPlayerState : public APlayerState, public IAbilitySystemInterface, public IAGASModifierDependencyInterface
 {
 	GENERATED_BODY()
 
