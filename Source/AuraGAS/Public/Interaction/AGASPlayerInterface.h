@@ -26,4 +26,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void AddToXPPointsOnPlayerState(int32 InXPPoints);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void AddToAttributePointsOnPlayerState(int32 InAttributePoints);
+
+	UFUNCTION(BlueprintNativeEvent)
+	int32 GetAttributePointsOnPlayerState();
 };

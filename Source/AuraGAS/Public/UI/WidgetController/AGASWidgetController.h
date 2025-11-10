@@ -10,7 +10,7 @@ class UAGASAttributeSet;
 class UAGASAbilitySystemComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAttributeChanged, float, NewValue);
-
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedWidgetController, int32, NewValue);
 
 USTRUCT(BlueprintType)
 struct FWidgetControllerParams

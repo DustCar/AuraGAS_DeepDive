@@ -34,7 +34,7 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	AGASPlayerState->OnLevelChangedSignature.AddLambda(
 		[this] (int32 NewLevel)
 		{
-			OnPlayerLevelChanged.Broadcast(NewLevel);
+			OnPlayerLevelChangedWidget.Broadcast(NewLevel);
 		}
 	);
 

@@ -3,9 +3,10 @@
 
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 
-#include "AGASGameplayTags.h"
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystem/Abilities/AGASGameplayAbility.h"
 #include "AuraGAS/AGASLogChannels.h"
+#include "Interaction/AGASPlayerInterface.h"
 
 void UAGASAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -78,6 +79,30 @@ void UAGASAbilitySystemComponent::ForEachAbility(const FForEachAbility& Delegate
 		{
 			UE_LOG(LogAGAS, Error, TEXT("Failed to execute delegate in %hs"), __FUNCTION__)
 		}
+	}
+}
+
+void UAGASAbilitySystemComponent::UpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	if (!GetAvatarActor()->Implements<UAGASPlayerInterface>()) return;
+
+	if (IAGASPlayerInterface::Execute_GetAttributePointsOnPlayerState(GetAvatarActor()) > 0)
+	{
+		ServerUpgradeAttribute(AttributeTag);
+	}
+}
+
+void UAGASAbilitySystemComponent::ServerUpgradeAttribute_Implementation(const FGameplayTag& AttributeTag)
+{
+	FGameplayEventData Payload;
+	Payload.EventTag = AttributeTag;
+	Payload.EventMagnitude = 1.0f;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetAvatarActor(), AttributeTag, Payload);
+
+	if (GetAvatarActor()->Implements<UAGASPlayerInterface>())
+	{
+		IAGASPlayerInterface::Execute_AddToAttributePointsOnPlayerState(GetAvatarActor(), -1.0f);
 	}
 }
 

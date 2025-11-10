@@ -25,6 +25,8 @@ void AAGASPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty
 
 	DOREPLIFETIME(ThisClass, Level);
 	DOREPLIFETIME(ThisClass, XPPoints);
+	DOREPLIFETIME(ThisClass, AttributePoints);
+	DOREPLIFETIME(ThisClass, SpellPoints);
 }
 
 UAbilitySystemComponent* AAGASPlayerState::GetAbilitySystemComponent() const
@@ -59,10 +61,16 @@ void AAGASPlayerState::SetSpellPoints(const int32 NewSpellPoints)
 void AAGASPlayerState::AddToLevel(const int32 InLevel)
 {
 	Level += InLevel;
+
+	// Force a recalculation of MMC_MaxHealth and MMC_MaxMana magnitudes, since they depend on level
+	OnModifierDependencyChanged.Broadcast();
+	// Top up health and mana
+	AttributeSet->MaximizeVitalAttributes();
+	
 	OnLevelChangedSignature.Broadcast(Level);
 }
 
-bool AAGASPlayerState::AddToXPPoints(const int32 InXPPoints)
+void AAGASPlayerState::AddToXPPoints(const int32 InXPPoints)
 {
 	XPPoints += InXPPoints;
 
@@ -78,11 +86,8 @@ bool AAGASPlayerState::AddToXPPoints(const int32 InXPPoints)
 			AddToSpellPoints(GainedSpellPoints);
 		}
 		AddToLevel(LevelUpCount);
-		AttributeSet->MaximizeVitalAttributes();
 	}
 	OnXPPointsChangedSignature.Broadcast(XPPoints);
-
-	return LevelUpCount > 0;
 }
 
 void AAGASPlayerState::AddToAttributePoints(const int32 InAttributePoints)

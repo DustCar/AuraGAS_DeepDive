@@ -53,6 +53,11 @@ void AAGASCharacter::InitializeAbilityActorInfo()
 	AbilitySystemComponent->InitAbilityActorInfo(AGASPlayerState, this);
 	AbilitySystemComponent->AbilityActorInfoSet();
 
+	AGASPlayerState->OnLevelChangedSignature.AddLambda([this] (const int32 NewValue)
+	{
+		MulticastLevelUpParticles();
+	});
+
 	// Can be called on server side only since attributes are replicated, however, it is okay to call on server and clients
 	InitializeDefaultStats();
 }
@@ -99,10 +104,23 @@ void AAGASCharacter::AddToXPPointsOnPlayerState_Implementation(int32 InXPPoints)
 	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
 	check(AGASPlayerState);
 
-	if (AGASPlayerState->AddToXPPoints(InXPPoints))
-	{
-		MulticastLevelUpParticles();
-	}
+	AGASPlayerState->AddToXPPoints(InXPPoints);
+}
+
+void AAGASCharacter::AddToAttributePointsOnPlayerState_Implementation(int32 InAttributePoints)
+{
+	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
+	check(AGASPlayerState);
+
+	AGASPlayerState->AddToAttributePoints(InAttributePoints);
+}
+
+int32 AAGASCharacter::GetAttributePointsOnPlayerState_Implementation()
+{
+	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
+	check(AGASPlayerState);
+
+	return AGASPlayerState->GetAttributePoints();
 }
 
 /**

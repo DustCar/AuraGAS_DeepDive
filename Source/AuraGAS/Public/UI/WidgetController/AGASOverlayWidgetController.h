@@ -32,8 +32,6 @@ struct FUIWidgetRow : public FTableRowBase
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageWidgetRowSent, FUIWidgetRow, Row);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoSent, const FAbilityInfo&, Info);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChangedWidgetController, int32, NewValue);
-
 
 /**
  * 
@@ -69,7 +67,7 @@ public:
 	FOnAttributeChanged OnXPPointsPercentChanged;
 
 	UPROPERTY(BlueprintAssignable, Category = "GAS|XP")
-	FOnPlayerStatChangedWidgetController OnPlayerLevelChanged;
+	FOnPlayerStatChangedWidgetController OnPlayerLevelChangedWidget;
 	
 protected:
 

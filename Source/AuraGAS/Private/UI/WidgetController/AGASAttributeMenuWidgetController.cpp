@@ -6,6 +6,12 @@
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAttributeSet.h"
 #include "AbilitySystem/Data/AGASAttributeInfo.h"
+#include "Player/AGASPlayerState.h"
+
+void UAGASAttributeMenuWidgetController::CallUpgradeAttribute(const FGameplayTag& AttributeTag)
+{
+	AbilitySystemComponent->UpgradeAttribute(AttributeTag);
+}
 
 // Change of implementation thanks to Frank Hochban from UDemy
 void UAGASAttributeMenuWidgetController::BroadcastAttributeInfo(const FAttributeInfo& Info) const
@@ -23,6 +29,9 @@ void UAGASAttributeMenuWidgetController::BroadcastInitialValues()
 	{
 		BroadcastAttributeInfo(Info);
 	}
+
+	AAGASPlayerState* AGASPlayerState = CastChecked<AAGASPlayerState>(PlayerState);
+	OnPlayerAttributePointsChangedWidget.Broadcast(AGASPlayerState->GetAttributePoints());
 }
 
 void UAGASAttributeMenuWidgetController::BindCallbacksToDependencies()
@@ -40,4 +49,13 @@ void UAGASAttributeMenuWidgetController::BindCallbacksToDependencies()
 			}
 		);
 	}
+	
+	AAGASPlayerState* AGASPlayerState = CastChecked<AAGASPlayerState>(PlayerState);
+	AGASPlayerState->OnAttributePointsChangedSignature.AddLambda(
+		[this] (int32 NewAttributePoints)
+		{
+			OnPlayerAttributePointsChangedWidget.Broadcast(NewAttributePoints);
+		}
+	);
+
 }

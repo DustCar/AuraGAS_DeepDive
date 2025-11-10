@@ -44,6 +44,8 @@ class AURAGAS_API IAGASCombatInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	// Despite having a getter for level in player state, we leave get character level here for all characters
+	// not just the player
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	int32 GetCharacterLevel();
 

@@ -5,6 +5,7 @@
 
 #include "AbilitySystem/AGASAttributeSet.h"
 #include "Interaction/AGASCombatInterface.h"
+#include "Interaction/AGASModifierDependencyInterface.h"
 
 UMMC_MaxMana::UMMC_MaxMana()
 {
@@ -32,4 +33,16 @@ float UMMC_MaxMana::CalculateBaseMagnitude_Implementation(const FGameplayEffectS
 	const int32 PlayerLevel = IAGASCombatInterface::Execute_GetCharacterLevel(Spec.GetContext().GetSourceObject());
 	
 	return BaseValue + AttributeMultiplier * Intelligence + LevelMultiplier * PlayerLevel;
+}
+
+FOnExternalGameplayModifierDependencyChange* UMMC_MaxMana::GetExternalModifierDependencyMulticast(
+	const FGameplayEffectSpec& Spec, UWorld* World) const
+{
+	AActor* Instigator = Spec.GetContext().GetInstigator();
+	IAGASModifierDependencyInterface* ModifierDependencyInterface = Cast<IAGASModifierDependencyInterface>(Instigator);
+	if (ModifierDependencyInterface)
+	{
+		return ModifierDependencyInterface->GetOnModifierDependencyChanged();
+	}
+	return Super::GetExternalModifierDependencyMulticast(Spec, World);
 }

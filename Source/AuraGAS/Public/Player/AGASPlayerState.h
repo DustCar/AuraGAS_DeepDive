@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerState.h"
+#include "Interaction/AGASModifierDependencyInterface.h"
+#include "Interaction/TestModifierInterface.h"
 #include "AGASPlayerState.generated.h"
 
 class UAGASLevelUpInfo;
@@ -19,7 +21,7 @@ DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32 /*StatValue*/)
  * 
  */
 UCLASS()
-class AURAGAS_API AAGASPlayerState : public APlayerState, public IAbilitySystemInterface
+class AURAGAS_API AAGASPlayerState : public APlayerState, public IAbilitySystemInterface, public IAGASModifierDependencyInterface, public ITestModifierInterface
 {
 	GENERATED_BODY()
 
@@ -44,7 +46,7 @@ public:
 	void SetSpellPoints(const int32 NewSpellPoints);
 
 	void AddToLevel(const int32 InLevel);
-	bool AddToXPPoints(const int32 InXPPoints);
+	void AddToXPPoints(const int32 InXPPoints);
 	void AddToAttributePoints(const int32 InAttributePoints);
 	void AddToSpellPoints(const int32 InSpellPoints);
 
@@ -81,10 +83,13 @@ private:
 	UFUNCTION()
 	void OnRep_SpellPoints(int32 OldSpellPoints);
 
+	FOnExternalGameplayModifierDependencyChange OnModifierDependencyChanged;
+
 public:
 	
 	FORCEINLINE int32 GetPlayerLevel() const { return Level; }
 	FORCEINLINE int32 GetXPPoints() const { return XPPoints; }
 	FORCEINLINE int32 GetAttributePoints() const { return AttributePoints; }
 	FORCEINLINE int32 GetSpellPoints() const { return SpellPoints; }
+	FORCEINLINE virtual FOnExternalGameplayModifierDependencyChange* GetOnModifierDependencyChanged() override { return &OnModifierDependencyChanged; }
 };
