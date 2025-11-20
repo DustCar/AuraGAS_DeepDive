@@ -8,7 +8,7 @@
 
 void UAGASProgressBarWidgetController::BindCallbacksToDependencies()
 {
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	AGASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		AGASAttributeSet->GetHealthPointsAttribute()).AddLambda(
 		[this] (const FOnAttributeChangeData& Data)
 			{
@@ -21,7 +21,7 @@ void UAGASProgressBarWidgetController::BindCallbacksToDependencies()
 			}
 	);
 
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	AGASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		AGASAttributeSet->GetMaxHealthPointsAttribute()).AddLambda(
 		[this] (const FOnAttributeChangeData& Data)
 			{

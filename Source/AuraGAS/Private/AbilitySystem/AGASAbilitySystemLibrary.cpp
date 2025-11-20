@@ -10,49 +10,72 @@
 #include "GameMode/AGASGameModeBase.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player/AGASPlayerController.h"
 #include "Player/AGASPlayerState.h"
 #include "UI/HUD/AGASHUD.h"
 #include "UI/WidgetController/AGASWidgetController.h"
 
+bool UAGASAbilitySystemLibrary::MakeWidgetControllerParams(const UObject* WorldContextObject, FWidgetControllerParams& OutWCParams)
+{
+	if (AAGASPlayerController* PC = CastChecked<AAGASPlayerController>(WorldContextObject->GetWorld()->GetFirstPlayerController()))
+	{
+		AAGASPlayerState* PS = PC->GetPlayerState<AAGASPlayerState>();
+		UAGASAbilitySystemComponent* ASC = PS->GetAGASAbilitySystemComponent();
+		UAGASAttributeSet* AS = PS->GetAttributeSet();
+
+		OutWCParams.PlayerState = PS;
+		OutWCParams.PlayerController = PC;
+		OutWCParams.AbilitySystemComponent = ASC;
+		OutWCParams.AttributeSet = AS;
+		return true;
+	}
+	
+	return false;
+}
+
 UAGASOverlayWidgetController* UAGASAbilitySystemLibrary::GetOverlayWidgetController(const UObject* WorldContextObject)
 {
-	if (APlayerController* PC = WorldContextObject->GetWorld()->GetFirstPlayerController())
+	FWidgetControllerParams WCParams;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams))
 	{
-		if (AAGASHUD* HUD = Cast<AAGASHUD>(PC->GetHUD()))
+		if (AAGASHUD* HUD = Cast<AAGASHUD>(WCParams.PlayerController->GetHUD()))
 		{
-			AAGASPlayerState* PS = PC->GetPlayerState<AAGASPlayerState>();
-			UAGASAbilitySystemComponent* ASC = Cast<UAGASAbilitySystemComponent>(PS->GetAbilitySystemComponent());
-			UAGASAttributeSet* AS = PS->GetAttributeSet();
-
-			const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-			return HUD->GetOverlayWidgetController(WidgetControllerParams);
+			return HUD->GetOverlayWidgetController(WCParams);
 		}
 	}
 
 	return nullptr;
 }
 
-UAGASAttributeMenuWidgetController* UAGASAbilitySystemLibrary::GetAttributeMenuWidgetController(
-	const UObject* WorldContextObject)
+UAGASAttributeMenuWidgetController* UAGASAbilitySystemLibrary::GetAttributeMenuWidgetController(const UObject* WorldContextObject)
 {
-	if (APlayerController* PC = WorldContextObject->GetWorld()->GetFirstPlayerController())
+	FWidgetControllerParams WCParams;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams))
 	{
-		if (AAGASHUD* HUD = Cast<AAGASHUD>(PC->GetHUD()))
+		if (AAGASHUD* HUD = Cast<AAGASHUD>(WCParams.PlayerController->GetHUD()))
 		{
-			AAGASPlayerState* PS = PC->GetPlayerState<AAGASPlayerState>();
-			UAGASAbilitySystemComponent* ASC = Cast<UAGASAbilitySystemComponent>(PS->GetAbilitySystemComponent());
-			UAGASAttributeSet* AS = PS->GetAttributeSet();
-
-			const FWidgetControllerParams WidgetControllerParams(PC, PS, ASC, AS);
-			return HUD->GetAttributeMenuWidgetController(WidgetControllerParams);
+			return HUD->GetAttributeMenuWidgetController(WCParams);
 		}
 	}
 
 	return nullptr;
 }
 
-void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject,
-	ECharacterClass CharacterClass, float Level, UAGASAbilitySystemComponent* ASC)
+UAGASSpellMenuWidgetController* UAGASAbilitySystemLibrary::GetSpellMenuWidgetController(const UObject* WorldContextObject)
+{
+	FWidgetControllerParams WCParams;
+	if (MakeWidgetControllerParams(WorldContextObject, WCParams))
+	{
+		if (AAGASHUD* HUD = Cast<AAGASHUD>(WCParams.PlayerController->GetHUD()))
+		{
+			return HUD->GetSpellMenuWidgetController(WCParams);
+		}
+	}
+
+	return nullptr;
+}
+
+void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAGASAbilitySystemComponent* ASC)
 {
 	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
 	
@@ -74,8 +97,7 @@ void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 	
 }
 
-void UAGASAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject,
-	UAGASAbilitySystemComponent* ASC, ECharacterClass CharacterClass)
+void UAGASAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAGASAbilitySystemComponent* ASC, ECharacterClass CharacterClass)
 {
 	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
 	if (CharacterClassInfo == nullptr) return;
@@ -143,8 +165,7 @@ void UAGASAbilitySystemLibrary::SetIsBlockedHit(UPARAM(ref) FGameplayEffectConte
 	}
 }
 
-void UAGASAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle,
-	bool bInIsCriticalHit)
+void UAGASAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit)
 {
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
@@ -152,9 +173,8 @@ void UAGASAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref) FGameplayEffectCont
 	}
 }
 
-void UAGASAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject,
-	TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius,
-	const FVector& SphereOrigin)
+void UAGASAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,
+	const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
 {
 	FCollisionQueryParams SphereParams;
 	SphereParams.AddIgnoredActors(ActorsToIgnore);

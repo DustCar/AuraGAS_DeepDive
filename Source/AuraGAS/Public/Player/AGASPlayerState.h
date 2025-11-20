@@ -32,6 +32,7 @@ public:
 
     virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	UAGASAbilitySystemComponent* GetAGASAbilitySystemComponent() const;
 	UAGASAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 	FOnPlayerStatChanged OnLevelChangedSignature;

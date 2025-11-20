@@ -6,6 +6,7 @@
 #include "UI/Widget/AGASUserWidget.h"
 #include "UI/WidgetController/AGASOverlayWidgetController.h"
 #include "UI/WidgetController/AGASAttributeMenuWidgetController.h"
+#include "UI/WidgetController/AGASSpellMenuWidgetController.h"
 
 // Get current overlay widget controller, otherwise create one
 UAGASOverlayWidgetController* AAGASHUD::GetOverlayWidgetController(const FWidgetControllerParams& WCParams)
@@ -18,8 +19,13 @@ UAGASAttributeMenuWidgetController* AAGASHUD::GetAttributeMenuWidgetController(c
 	return GetWidgetController<UAGASAttributeMenuWidgetController>(AttributeMenuWidgetController, AttributeMenuWidgetControllerClass, WCParams);
 }
 
+UAGASSpellMenuWidgetController* AAGASHUD::GetSpellMenuWidgetController(const FWidgetControllerParams& WCParams)
+{
+	return GetWidgetController<UAGASSpellMenuWidgetController>(SpellMenuWidgetController, SpellMenuWidgetControllerClass, WCParams);
+}
+
 // Creates the overlay widget and adds to viewport
-void AAGASHUD::InitOverlay(APlayerController* PC, APlayerState* PS, UAGASAbilitySystemComponent* ASC, UAGASAttributeSet* AS)
+void AAGASHUD::InitOverlay(AAGASPlayerController* PC, AAGASPlayerState* PS, UAGASAbilitySystemComponent* ASC, UAGASAttributeSet* AS)
 {
 	checkf(OverlayWidgetClass, TEXT("Overlay Widget Class uninitialized, please fill out BP_AGASHUD"))
 	checkf(OverlayWidgetControllerClass, TEXT("Overlay Widget Controller Class uninitialized, please fill out BP_AGASHUD"))

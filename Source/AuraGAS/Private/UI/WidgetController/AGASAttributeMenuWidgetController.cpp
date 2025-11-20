@@ -10,7 +10,7 @@
 
 void UAGASAttributeMenuWidgetController::CallUpgradeAttribute(const FGameplayTag& AttributeTag)
 {
-	AbilitySystemComponent->UpgradeAttribute(AttributeTag);
+	AGASAbilitySystemComponent->UpgradeAttribute(AttributeTag);
 }
 
 // Change of implementation thanks to Frank Hochban from UDemy
@@ -30,7 +30,6 @@ void UAGASAttributeMenuWidgetController::BroadcastInitialValues()
 		BroadcastAttributeInfo(Info);
 	}
 
-	AAGASPlayerState* AGASPlayerState = CastChecked<AAGASPlayerState>(PlayerState);
 	OnPlayerAttributePointsChangedWidget.Broadcast(AGASPlayerState->GetAttributePoints());
 }
 
@@ -42,7 +41,7 @@ void UAGASAttributeMenuWidgetController::BindCallbacksToDependencies()
 	// value change delegate which updates the attribute menu values by calling BroadcastAttributeInfo.
 	for (const auto& Info : AttributeInfo->AttributeInformation)
 	{
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Info.AttributeToGet).AddLambda(
+		AGASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Info.AttributeToGet).AddLambda(
 			[this, &Info] (const FOnAttributeChangeData& Data)
 			{
 				BroadcastAttributeInfo(Info);
@@ -50,7 +49,6 @@ void UAGASAttributeMenuWidgetController::BindCallbacksToDependencies()
 		);
 	}
 	
-	AAGASPlayerState* AGASPlayerState = CastChecked<AAGASPlayerState>(PlayerState);
 	AGASPlayerState->OnAttributePointsChangedSignature.AddLambda(
 		[this] (int32 NewAttributePoints)
 		{

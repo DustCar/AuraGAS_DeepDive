@@ -128,16 +128,18 @@ void AAGASPlayerController::Move(const FInputActionValue& Value)
 	{
 		if (ActiveCamera == nullptr) return;
 		const FRotator Rotation = ActiveCamera->GetComponentRotation(); // camera rotation, in our case since its top down 3rd person
-		const FRotator YawRotation(0.f, Rotation.Yaw, 0.0f); // rotator parallel to ground
+		const FRotator YawRotation(0.f, Rotation.Yaw, 0.0f); // rotator parallel to ground towards player
 
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		
+
+		// Forward uses InputAxisVector.Y since that is W, S; Right uses .X since that is A, D
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
 	}
 }
 
+// Used to allow player to look around horizontally; IA is used in tandem with RMB
 void AAGASPlayerController::RotateCamera(const FInputActionValue& Value)
 {
 	const float HorizontalMouseMovement = Value.Get<float>();
@@ -148,14 +150,20 @@ void AAGASPlayerController::RotateCamera(const FInputActionValue& Value)
 	}
 }
 
+// Function that moves the player to cached destination through the whole spline given that bAutoRunning is true
 void AAGASPlayerController::AutoRun()
 {
 	if (APawn* ControlledPawn = GetPawn())
 	{
+		// literally just returns the closest point to the player
 		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
+		// then based on that point then we get the direction pointed to that point
 		const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
+		// moves toward that point; we don't add any extra size since AutoRun is in tick so unit vector is fine
 		ControlledPawn->AddMovementInput(Direction);
 
+		// Length() turns the value Absolute in case you forget why this subtraction works no matter the values
+		// plus we got the direction from earlier anyway. This is just to check if we stop running
 		const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
 		if (DistanceToDestination <= AutoRunAcceptanceRadius)
 		{
@@ -166,12 +174,12 @@ void AAGASPlayerController::AutoRun()
 
 void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Value, FGameplayTag InputTag)
 {
-	if (InputTag.MatchesTagExact(TAG_InputTag_LMB))
+	if (InputTag.MatchesTagExact(TAG_InputTag_LMB) || InputTag.MatchesTagExact(TAG_InputTag_RMB))
 	{
 		bTargeting = CurrentActor ? true : false;
-		bAutoRunning = false;
+		// only LMB for movement
+		if (InputTag.MatchesTagExact(TAG_InputTag_LMB)) bAutoRunning = false;
 	}
-	
 }
 
 void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
@@ -187,6 +195,7 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 			if (FollowTime <= ShortPressThreshold && ControlledPawn)
 			{
 				FNavLocation CachedDestinationNavLocation;
+				// padding to be more lenient with the path finding. Larger number less precise, smaller more precise
 				const FVector QueryExtent = FVector(250.f, 250.f, 200.f);
 				const FNavAgentProperties& NavAgentProperties = GetNavAgentPropertiesRef();
 				// ProjectPointToNavigation finds the closest point on the nav mesh to the clicked location,
@@ -213,24 +222,21 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 			bTargeting = false;
 		}
 	}
+	// reset targeting for RMB as well
+	if (InputTag.MatchesTagExact(TAG_InputTag_RMB)) bTargeting = false;
 }
 
 void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Instance, FGameplayTag InputTag)
 {
-	if (!InputTag.MatchesTagExact(TAG_InputTag_LMB))
-	{
-		if (GetASC() == nullptr) return;
-		GetASC()->AbilityInputTagHeld(InputTag);
-		return;
-	}
+	// checks if we are using mouse keys for abilities since they do other things; LMB for movement, RMB for moving camera
+	const bool bMouseKeys = InputTag.MatchesTagExact(TAG_InputTag_LMB) || InputTag.MatchesTagExact(TAG_InputTag_RMB);
 
-	if (bTargeting || bShiftKeyDown)
+	// using mouse keys and not targeting or in "offensive" mode
+	if (bMouseKeys && !bTargeting && !bShiftKeyDown)
 	{
-		if (GetASC() == nullptr) return;
-		GetASC()->AbilityInputTagHeld(InputTag);
-	}
-	else
-	{
+		// place this return for RMB since we don't want RMB to be movement
+		if (InputTag.MatchesTagExact(TAG_InputTag_RMB)) return;
+		
 		FollowTime += GetWorld()->GetDeltaSeconds();
 
 		FHitResult Hit;
@@ -244,6 +250,12 @@ void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Inst
 			const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
 			ControlledPawn->AddMovementInput(WorldDirection);
 		}
+	}
+	// use ability that is tied to that input tag
+	else
+	{
+		if (GetASC() == nullptr) return;
+		GetASC()->AbilityInputTagHeld(InputTag);
 	}
 }
 
@@ -418,7 +430,7 @@ void AAGASPlayerController::InitializeHUD()
 
 	if (AAGASHUD* AGASHUD = Cast<AAGASHUD>(GetHUD()))
 	{
-		AGASHUD->InitOverlay(this, AGASPlayerState, Cast<UAGASAbilitySystemComponent>(AGASPlayerState->GetAbilitySystemComponent()), AGASPlayerState->GetAttributeSet());
+		AGASHUD->InitOverlay(this, AGASPlayerState, AGASPlayerState->GetAGASAbilitySystemComponent(), AGASPlayerState->GetAttributeSet());
 	}
 }
 
@@ -426,7 +438,7 @@ UAGASAbilitySystemComponent* AAGASPlayerController::GetASC()
 {
 	if (AGASAbilitySystemComponent == nullptr)
 	{
-		AGASAbilitySystemComponent = Cast<UAGASAbilitySystemComponent>(GetPlayerState<AAGASPlayerState>()->GetAbilitySystemComponent());
+		AGASAbilitySystemComponent = GetPlayerState<AAGASPlayerState>()->GetAGASAbilitySystemComponent();
 	}
 
 	return AGASAbilitySystemComponent;

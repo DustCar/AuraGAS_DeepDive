@@ -5,7 +5,7 @@
 
 #include "AbilitySystem/AGASAttributeSet.h"
 #include "Interaction/AGASCombatInterface.h"
-#include "Interaction/AGASModifierDependencyInterface.h"
+// #include "Interaction/AGASModifierDependencyInterface.h"
 
 UMMC_MaxMana::UMMC_MaxMana()
 {
@@ -35,14 +35,16 @@ float UMMC_MaxMana::CalculateBaseMagnitude_Implementation(const FGameplayEffectS
 	return BaseValue + AttributeMultiplier * Intelligence + LevelMultiplier * PlayerLevel;
 }
 
-FOnExternalGameplayModifierDependencyChange* UMMC_MaxMana::GetExternalModifierDependencyMulticast(
-	const FGameplayEffectSpec& Spec, UWorld* World) const
-{
-	AActor* Instigator = Spec.GetContext().GetInstigator();
-	IAGASModifierDependencyInterface* ModifierDependencyInterface = Cast<IAGASModifierDependencyInterface>(Instigator);
-	if (ModifierDependencyInterface)
-	{
-		return ModifierDependencyInterface->GetOnModifierDependencyChanged();
-	}
-	return Super::GetExternalModifierDependencyMulticast(Spec, World);
-}
+// Only one of the MMCs needs to be overriding this function since the callback function OnCustomMagnitudeExternalDependencyFired
+// that gets fired will iterate through all modifiers that rely on another attribute and recalculates them
+// FOnExternalGameplayModifierDependencyChange* UMMC_MaxMana::GetExternalModifierDependencyMulticast(
+// 	const FGameplayEffectSpec& Spec, UWorld* World) const
+// {
+// 	AActor* Instigator = Spec.GetContext().GetInstigator();
+// 	IAGASModifierDependencyInterface* ModifierDependencyInterface = Cast<IAGASModifierDependencyInterface>(Instigator);
+// 	if (ModifierDependencyInterface)
+// 	{
+// 		return ModifierDependencyInterface->GetOnModifierDependencyChanged();
+// 	}
+// 	return Super::GetExternalModifierDependencyMulticast(Spec, World);
+// }

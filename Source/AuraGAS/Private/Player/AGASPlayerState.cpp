@@ -34,6 +34,11 @@ UAbilitySystemComponent* AAGASPlayerState::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+UAGASAbilitySystemComponent* AAGASPlayerState::GetAGASAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
 void AAGASPlayerState::SetLevel(const int32 NewLevel)
 {
 	Level = NewLevel;

@@ -19,17 +19,15 @@ void UAGASOverlayWidgetController::BroadcastInitialValues()
 
 	// place the automatic call here since BroadcastInitialValues is blueprint callable, and we'll be calling this
 	// within the overlay WBP in Event Construct since our Widget Controller Set seems to be getting called late
-	if (AbilitySystemComponent->bStartupAbilitiesGiven)
+	if (AGASAbilitySystemComponent->bStartupAbilitiesGiven)
 	{
-		OnInitializedStartupAbilities();
+		BroadcastAbilityInfo();
 	}
 }
 
 // bind our own callbacks to the attribute change delegates on ASC
 void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 {
-	AAGASPlayerState* AGASPlayerState = CastChecked<AAGASPlayerState>(PlayerState);
-
 	AGASPlayerState->OnXPPointsChangedSignature.AddUObject(this, &ThisClass::OnXPPointsChanged);
 	AGASPlayerState->OnLevelChangedSignature.AddLambda(
 		[this] (int32 NewLevel)
@@ -56,14 +54,14 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 	BindAttributeChange(AGASAttributeSet->GetMaxManaPointsAttribute(), OnMaxManaPointsChanged);
 
 	// check to see if abilities are already given, if not then bind the callback to delegate
-	if (!AbilitySystemComponent->bStartupAbilitiesGiven)
+	if (!AGASAbilitySystemComponent->bStartupAbilitiesGiven)
 	{
-		AbilitySystemComponent->AbilitiesGivenSignature.AddUObject(this, &ThisClass::OnInitializedStartupAbilities);
+		AGASAbilitySystemComponent->AbilitiesGivenSignature.AddUObject(this, &ThisClass::BroadcastAbilityInfo);
 	}
 
 	// use of lambda allows us to avoid declaring multiple callbacks for simpler code like this and the attribute changes
 	// I will leave the attribute change callbacks up for now, but may change it to lambdas if functionality stays
-	AbilitySystemComponent->EffectAssetTags.AddLambda(
+	AGASAbilitySystemComponent->EffectAssetTags.AddLambda(
 		[this] (const FGameplayTagContainer& AssetTags)
 		{
 			for (const FGameplayTag& Tag : AssetTags)
@@ -83,7 +81,7 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 void UAGASOverlayWidgetController::BindAttributeChange(const FGameplayAttribute& Attribute,
                                                        FOnAttributeChanged& AttributeDelegate) const
 {
-	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
+	AGASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
 		Attribute).AddLambda(
 			[this, &AttributeDelegate] (const FOnAttributeChangeData& Data)
 			{
@@ -92,25 +90,8 @@ void UAGASOverlayWidgetController::BindAttributeChange(const FGameplayAttribute&
 		);
 }
 
-void UAGASOverlayWidgetController::OnInitializedStartupAbilities()
-{
-	// TODO: Get information about all given abilities, loop up their ability info, and broadcast it to widgets
-	if (!AbilitySystemComponent->bStartupAbilitiesGiven) return;
-
-	FForEachAbility AbilitiesDelegate;
-	AbilitiesDelegate.BindLambda([this](const FGameplayAbilitySpec& AbilitySpec)
-	{
-		FAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(UAGASAbilitySystemComponent::GetAbilityTagFromSpec(AbilitySpec));
-		Info.InputTag = UAGASAbilitySystemComponent::GetInputTagFromSpec(AbilitySpec);
-		AbilityInfoDelegate.Broadcast(Info);
-	});
-
-	AbilitySystemComponent->ForEachAbility(AbilitiesDelegate);
-}
-
 void UAGASOverlayWidgetController::OnXPPointsChanged(int32 NewXPPoints) const 
 {
-	const AAGASPlayerState* AGASPlayerState = CastChecked<AAGASPlayerState>(PlayerState);
 	const UAGASLevelUpInfo* LevelUpInfo = AGASPlayerState->LevelUpInfo;
 	checkf(LevelUpInfo, TEXT("Unable to find LevelUpInfo on the Player State. Check the Player State BP"))
 

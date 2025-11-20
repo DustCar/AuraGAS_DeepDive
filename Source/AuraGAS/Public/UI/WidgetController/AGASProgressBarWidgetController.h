@@ -10,7 +10,7 @@ class FOnAttributeChanged;
 /**
  * 
  */
-UCLASS(BlueprintType, Blueprintable)
+UCLASS()
 class AURAGAS_API UAGASProgressBarWidgetController : public UAGASWidgetController
 {
 	GENERATED_BODY()

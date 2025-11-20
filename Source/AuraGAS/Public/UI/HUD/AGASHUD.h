@@ -7,6 +7,7 @@
 #include "UI/WidgetController/AGASWidgetController.h"
 #include "AGASHUD.generated.h"
 
+class UAGASSpellMenuWidgetController;
 class UAGASAttributeMenuWidgetController;
 class UAGASWidgetController;
 class UAGASAbilitySystemComponent;
@@ -26,8 +27,9 @@ public:
 
 	UAGASOverlayWidgetController* GetOverlayWidgetController(const FWidgetControllerParams& WCParams);
 	UAGASAttributeMenuWidgetController* GetAttributeMenuWidgetController(const FWidgetControllerParams& WCParams);
+	UAGASSpellMenuWidgetController* GetSpellMenuWidgetController(const FWidgetControllerParams& WCParams);
 
-	void InitOverlay(APlayerController* PC, APlayerState* PS, UAGASAbilitySystemComponent* ASC, UAGASAttributeSet* AS);
+	void InitOverlay(AAGASPlayerController* PC, AAGASPlayerState* PS, UAGASAbilitySystemComponent* ASC, UAGASAttributeSet* AS);
 
 	template <class T>
 	T* GetWidgetController(TObjectPtr<T>& WidgetController, const TSubclassOf<UAGASWidgetController>& WidgetControllerClass,	const FWidgetControllerParams& WCParams);
@@ -56,12 +58,19 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<UAGASAttributeMenuWidgetController> AttributeMenuWidgetControllerClass;
+
+	// Spell Menu Widget Controller
+	UPROPERTY()
+	TObjectPtr<UAGASSpellMenuWidgetController> SpellMenuWidgetController;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UAGASSpellMenuWidgetController> SpellMenuWidgetControllerClass;
 };
 
 template <typename T>
 T* AAGASHUD::GetWidgetController(TObjectPtr<T>& WidgetController, const TSubclassOf<UAGASWidgetController>& WidgetControllerClass, const FWidgetControllerParams& WCParams)
 {
-	checkf(WidgetControllerClass, TEXT("WidgetControllerClass not specified in BP_AGASHUD"))
+	checkf(WidgetControllerClass, TEXT("WidgetControllerClass not specified in BP_AGASHUD: %s"), *WidgetControllerClass->GetName())
 
 	if (WidgetController == nullptr)
 	{

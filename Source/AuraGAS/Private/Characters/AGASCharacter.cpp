@@ -48,7 +48,7 @@ void AAGASCharacter::InitializeAbilityActorInfo()
 	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
 	check(AGASPlayerState);
 
-	AbilitySystemComponent = Cast<UAGASAbilitySystemComponent>(AGASPlayerState->GetAbilitySystemComponent());
+	AbilitySystemComponent = AGASPlayerState->GetAGASAbilitySystemComponent();
 	AttributeSet = AGASPlayerState->GetAttributeSet();
 	AbilitySystemComponent->InitAbilityActorInfo(AGASPlayerState, this);
 	AbilitySystemComponent->AbilityActorInfoSet();

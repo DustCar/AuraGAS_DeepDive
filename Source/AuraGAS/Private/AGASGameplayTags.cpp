@@ -31,6 +31,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_1, "InputTag.1")
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_2, "InputTag.2")
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_3, "InputTag.3")
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_4, "InputTag.4")
+UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_Passive_1, "InputTag.Passive.1")
+UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_Passive_2, "InputTag.Passive.2")
 
 // Damage Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Damage, "Damage")

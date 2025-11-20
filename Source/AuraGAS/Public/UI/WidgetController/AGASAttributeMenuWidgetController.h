@@ -15,7 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FAttributeInfoSignature, const FAttr
 /**
  * 
  */
-UCLASS(BlueprintType, Blueprintable)
+UCLASS()
 class AURAGAS_API UAGASAttributeMenuWidgetController : public UAGASWidgetController
 {
 	GENERATED_BODY()

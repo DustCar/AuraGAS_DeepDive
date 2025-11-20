@@ -7,7 +7,6 @@
 #include "GameplayTagContainer.h"
 #include "AGASOverlayWidgetController.generated.h"
 
-class UAGASAbilityInfo;
 struct FGameplayAttribute;
 class UAGASUserWidget;
 
@@ -31,12 +30,11 @@ struct FUIWidgetRow : public FTableRowBase
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMessageWidgetRowSent, FUIWidgetRow, Row);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAbilityInfoSent, const FAbilityInfo&, Info);
 
 /**
  * 
  */
-UCLASS(BlueprintType, Blueprintable)
+UCLASS()
 class AURAGAS_API UAGASOverlayWidgetController : public UAGASWidgetController
 {
 	GENERATED_BODY()
@@ -60,9 +58,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
 	FOnMessageWidgetRowSent MessageWidgetRowDelegate;
 
-	UPROPERTY(BlueprintAssignable, Category = "GAS|Messages")
-	FOnAbilityInfoSent AbilityInfoDelegate;
-
 	UPROPERTY(BlueprintAssignable, Category = "GAS|XP")
 	FOnAttributeChanged OnXPPointsPercentChanged;
 
@@ -74,14 +69,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WidgetData")
 	TObjectPtr<UDataTable> MessageWidgetDataTable;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "WidgetData")
-	TObjectPtr<UAGASAbilityInfo> AbilityInfo;
 
 	template<typename T>
 	T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
-
-	// callback function to bind to FAbilitiesGiven delegate from AGASAbilitySystemComponent
-	void OnInitializedStartupAbilities();
 
 	void OnXPPointsChanged(int32 NewXPPoints) const;
 	
