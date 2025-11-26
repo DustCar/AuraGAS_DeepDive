@@ -29,12 +29,10 @@ void UAGASOverlayWidgetController::BroadcastInitialValues()
 void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 {
 	AGASPlayerState->OnXPPointsChangedSignature.AddUObject(this, &ThisClass::OnXPPointsChanged);
-	AGASPlayerState->OnLevelChangedSignature.AddLambda(
-		[this] (int32 NewLevel)
-		{
-			OnPlayerLevelChangedWidget.Broadcast(NewLevel);
-		}
-	);
+	AGASPlayerState->OnLevelChangedSignature.AddLambda([this] (int32 NewLevel)
+	{
+		OnPlayerLevelChangedWidget.Broadcast(NewLevel);
+	});
 
 	/**
 	 * The GameplayAttributeValueChangeDelegate is a delegate that is part of the ASC
@@ -61,33 +59,30 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 
 	// use of lambda allows us to avoid declaring multiple callbacks for simpler code like this and the attribute changes
 	// I will leave the attribute change callbacks up for now, but may change it to lambdas if functionality stays
-	AGASAbilitySystemComponent->EffectAssetTags.AddLambda(
-		[this] (const FGameplayTagContainer& AssetTags)
+	AGASAbilitySystemComponent->EffectAssetTags.AddLambda([this] (const FGameplayTagContainer& AssetTags)
+	{
+		for (const FGameplayTag& Tag : AssetTags)
 		{
-			for (const FGameplayTag& Tag : AssetTags)
+			FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
+			if (Tag.MatchesTag(MessageTag))
 			{
-				FGameplayTag MessageTag = FGameplayTag::RequestGameplayTag(FName("Message"));
-				if (Tag.MatchesTag(MessageTag))
-				{
-					const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
-					MessageWidgetRowDelegate.Broadcast(*Row);
-				}
+				const FUIWidgetRow* Row = GetDataTableRowByTag<FUIWidgetRow>(MessageWidgetDataTable, Tag);
+				MessageWidgetRowDelegate.Broadcast(*Row);
 			}
 		}
-	);
+	});
 
 }
 
 void UAGASOverlayWidgetController::BindAttributeChange(const FGameplayAttribute& Attribute,
                                                        FOnAttributeChanged& AttributeDelegate) const
 {
-	AGASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		Attribute).AddLambda(
-			[this, &AttributeDelegate] (const FOnAttributeChangeData& Data)
-			{
-				AttributeDelegate.Broadcast(Data.NewValue);
-			}
-		);
+	AGASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(Attribute).AddLambda(
+		[this, &AttributeDelegate] (const FOnAttributeChangeData& Data)
+		{
+			AttributeDelegate.Broadcast(Data.NewValue);
+		}
+	);
 }
 
 void UAGASOverlayWidgetController::OnXPPointsChanged(int32 NewXPPoints) const 

@@ -4,7 +4,10 @@
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AGASGameplayTags.h"
+#include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/Abilities/AGASGameplayAbility.h"
+#include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "AuraGAS/AGASLogChannels.h"
 #include "Interaction/AGASPlayerInterface.h"
 
@@ -21,6 +24,7 @@ void UAGASAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf
 		if (const UAGASGameplayAbility* AGASAbility = Cast<UAGASGameplayAbility>(AbilitySpec.Ability))
 		{
 			AbilitySpec.DynamicAbilityTags.AddTag(AGASAbility->StartupInputTag);
+			AbilitySpec.DynamicAbilityTags.AddTag(TAG_Abilities_Status_Equipped);
 			GiveAbility(AbilitySpec);
 		}
 	}
@@ -136,6 +140,68 @@ FGameplayTag UAGASAbilitySystemComponent::GetInputTagFromSpec(const FGameplayAbi
 	return FGameplayTag();
 }
 
+FGameplayTag UAGASAbilitySystemComponent::GetStatusTagFromSpec(const FGameplayAbilitySpec& AbilitySpec)
+{
+	if (AbilitySpec.Ability == nullptr) return FGameplayTag();
+	
+	for (FGameplayTag Tag : AbilitySpec.DynamicAbilityTags)
+	{
+		if (Tag.MatchesTag(FGameplayTag::RequestGameplayTag(FName("Abilities.Status"))))
+		{
+			return Tag;
+		}
+	}
+
+	return FGameplayTag();
+}
+
+FGameplayAbilitySpec* UAGASAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		for (FGameplayTag Tag : AbilitySpec.Ability->AbilityTags)
+		{
+			if (Tag.MatchesTagExact(AbilityTag))
+			{
+				return &AbilitySpec;
+			}
+		}
+	}
+	return nullptr;
+}
+
+void UAGASAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
+{
+	UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
+	if (AbilityInfo == nullptr)
+	{
+		UE_LOG(LogAGAS, Error, TEXT("Could not find AbilityInfo on GameMode. Please check if AbilityInfo is set or check if GameMode is set."))
+		return;
+	}
+	
+	// loop through all possible abilities in the spell menu tree and update the status tags
+	// for the ones within the level requirement
+	for (const FAbilityInfo& Info : AbilityInfo->AbilityInformation)
+	{
+		if (!Info.AbilityTag.IsValid()) continue;
+		if (Level < Info.LevelRequirement) continue;
+		
+		if (GetSpecFromAbilityTag(Info.AbilityTag) == nullptr)
+		{
+			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Info.Ability, 1);
+			AbilitySpec.DynamicAbilityTags.AddTag(TAG_Abilities_Status_Eligible);
+			GiveAbility(AbilitySpec);
+			MarkAbilitySpecDirty(AbilitySpec);
+			
+			// call client RPC to update the menu for both client and server. 
+			// need a client one since UpdateAbilityStatuses will only run on server
+			ClientUpdateAbilityStatus(Info.AbilityTag, TAG_Abilities_Status_Eligible);
+		}
+	}
+}
+
 void UAGASAbilitySystemComponent::OnRep_ActivateAbilities()
 {
 	Super::OnRep_ActivateAbilities();
@@ -145,6 +211,12 @@ void UAGASAbilitySystemComponent::OnRep_ActivateAbilities()
 		bStartupAbilitiesGiven = true;
 		AbilitiesGivenSignature.Broadcast();
 	}
+}
+
+void UAGASAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag,
+	const FGameplayTag& StatusTag)
+{
+	AbilityStatusChanged.Broadcast(AbilityTag, StatusTag);
 }
 
 void UAGASAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,

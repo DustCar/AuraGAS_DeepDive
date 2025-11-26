@@ -137,6 +137,14 @@ UAGASCharacterClassInfo* UAGASAbilitySystemLibrary::GetCharacterClassInfo(const 
 	return AGASGameMode->CharacterClassInfo;
 }
 
+UAGASAbilityInfo* UAGASAbilitySystemLibrary::GetAbilityInfo(const UObject* WorldContextObject)
+{
+	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (AGASGameMode == nullptr) return nullptr;
+	
+	return AGASGameMode->AbilityInfo;
+}
+
 bool UAGASAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))

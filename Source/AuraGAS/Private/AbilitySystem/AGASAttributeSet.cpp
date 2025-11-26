@@ -166,7 +166,7 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 		else
 		{
 			FGameplayTagContainer TagContainer;
-			TagContainer.AddTag(TAG_Effects_HitReact);
+			TagContainer.AddTag(TAG_Abilities_HitReact);
 			Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
 		}
 		

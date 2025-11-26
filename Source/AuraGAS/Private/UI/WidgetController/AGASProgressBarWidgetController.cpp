@@ -9,27 +9,25 @@
 void UAGASProgressBarWidgetController::BindCallbacksToDependencies()
 {
 	AGASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		AGASAttributeSet->GetHealthPointsAttribute()).AddLambda(
-		[this] (const FOnAttributeChangeData& Data)
+		AGASAttributeSet->GetHealthPointsAttribute()).AddLambda([this] (const FOnAttributeChangeData& Data)
+		{
+			OnHealthPointsChanged.Broadcast(Data.NewValue);
+			if (bFirstBroadcast)
 			{
-				OnHealthPointsChanged.Broadcast(Data.NewValue);
-				if (bFirstBroadcast)
-				{
-					OnMaxHealthPointsChanged.Broadcast(AGASAttributeSet->GetMaxHealthPoints());
-					bFirstBroadcast = false;
-				}
+				OnMaxHealthPointsChanged.Broadcast(AGASAttributeSet->GetMaxHealthPoints());
+				bFirstBroadcast = false;
 			}
+		}
 	);
 
 	AGASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(
-		AGASAttributeSet->GetMaxHealthPointsAttribute()).AddLambda(
-		[this] (const FOnAttributeChangeData& Data)
+		AGASAttributeSet->GetMaxHealthPointsAttribute()).AddLambda([this] (const FOnAttributeChangeData& Data)
+		{
+			if (Data.NewValue > 0)
 			{
-				if (Data.NewValue > 0)
-				{
-					OnMaxHealthPointsChanged.Broadcast(Data.NewValue);
-				}
+				OnMaxHealthPointsChanged.Broadcast(Data.NewValue);
 			}
+		}
 	);
 }
 

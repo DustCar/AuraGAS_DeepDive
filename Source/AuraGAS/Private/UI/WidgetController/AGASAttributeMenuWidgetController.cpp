@@ -49,11 +49,9 @@ void UAGASAttributeMenuWidgetController::BindCallbacksToDependencies()
 		);
 	}
 	
-	AGASPlayerState->OnAttributePointsChangedSignature.AddLambda(
-		[this] (int32 NewAttributePoints)
-		{
-			OnPlayerAttributePointsChangedWidget.Broadcast(NewAttributePoints);
-		}
-	);
+	AGASPlayerState->OnAttributePointsChangedSignature.AddLambda([this] (int32 NewAttributePoints)
+	{
+		OnPlayerAttributePointsChangedWidget.Broadcast(NewAttributePoints);
+	});
 
 }

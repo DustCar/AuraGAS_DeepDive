@@ -14,7 +14,7 @@ class UAGASAbilitySystemComponent;
 
 // no need to make it DYNAMIC since we only need it in C++ and the Widget Controllers would take care of sending values
 // to widgets
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32 /*StatValue*/)
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32 /*StatValue*/);
 
 /**
  * 

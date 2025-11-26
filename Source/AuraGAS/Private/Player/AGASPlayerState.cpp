@@ -92,6 +92,12 @@ void AAGASPlayerState::AddToXPPoints(const int32 InXPPoints)
 		}
 		AddToLevel(LevelUpCount);
 	}
+	
+	if (AbilitySystemComponent)
+	{
+		AbilitySystemComponent->UpdateAbilityStatuses(NewLevel);
+	}
+	
 	OnXPPointsChangedSignature.Broadcast(XPPoints);
 }
 

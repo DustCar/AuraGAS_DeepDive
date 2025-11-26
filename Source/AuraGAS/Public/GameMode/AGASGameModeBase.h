@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "AGASGameModeBase.generated.h"
 
+class UAGASAbilityInfo;
 class UAGASCharacterClassInfo;
 /**
  * 
@@ -19,4 +20,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "CharacterClassDefaults")
 	TObjectPtr<UAGASCharacterClassInfo> CharacterClassInfo;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "AbilityInfo")
+	TObjectPtr<UAGASAbilityInfo> AbilityInfo;
 };
