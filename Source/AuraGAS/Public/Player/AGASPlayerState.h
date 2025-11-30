@@ -90,6 +90,7 @@ public:
 	FORCEINLINE int32 GetPlayerLevel() const { return Level; }
 	FORCEINLINE int32 GetXPPoints() const { return XPPoints; }
 	FORCEINLINE int32 GetAttributePoints() const { return AttributePoints; }
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE int32 GetSpellPoints() const { return SpellPoints; }
 	FORCEINLINE virtual FOnExternalGameplayModifierDependencyChange* GetOnModifierDependencyChanged() override { return &OnModifierDependencyChanged; }
 };
