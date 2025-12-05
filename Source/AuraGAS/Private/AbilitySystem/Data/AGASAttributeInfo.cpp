@@ -10,7 +10,7 @@ FAttributeInfo UAGASAttributeInfo::FindAttributeInfoForTag(const FGameplayTag& A
 {
 	for (const FAttributeInfo& Info : AttributeInformation)
 	{
-		if (Info.AttributeTag == AttributeTag)
+		if (Info.AttributeTag.MatchesTagExact(AttributeTag))
 		{
 			return Info;
 		}

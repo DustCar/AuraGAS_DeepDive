@@ -197,8 +197,34 @@ void UAGASAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
 			
 			// call client RPC to update the menu for both client and server. 
 			// need a client one since UpdateAbilityStatuses will only run on server
-			ClientUpdateAbilityStatus(Info.AbilityTag, TAG_Abilities_Status_Eligible);
+			ClientUpdateAbilityStatus(Info.AbilityTag, TAG_Abilities_Status_Eligible, 1);
 		}
+	}
+}
+
+void UAGASAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGameplayTag& AbilityTag)
+{
+	if (FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		if (GetAvatarActor()->Implements<UAGASPlayerInterface>())
+		{
+			IAGASPlayerInterface::Execute_AddToSpellPointsOnPlayerState(GetAvatarActor(), -1);
+		}
+
+	    FGameplayTag Status = GetStatusTagFromSpec(*AbilitySpec);
+	    if (Status.MatchesTagExact(TAG_Abilities_Status_Eligible))
+	    {
+		    AbilitySpec->DynamicAbilityTags.RemoveTag(TAG_Abilities_Status_Eligible);
+	    	AbilitySpec->DynamicAbilityTags.AddTag(TAG_Abilities_Status_Unlocked);
+	    	Status = TAG_Abilities_Status_Unlocked;
+	    }
+		else if (Status.MatchesTagExact(TAG_Abilities_Status_Equipped) || Status.MatchesTagExact(TAG_Abilities_Status_Unlocked))
+		{
+			AbilitySpec->Level += 1;
+		}
+		
+		ClientUpdateAbilityStatus(AbilityTag, Status, AbilitySpec->Level);
+		MarkAbilitySpecDirty(*AbilitySpec);
 	}
 }
 
@@ -214,9 +240,9 @@ void UAGASAbilitySystemComponent::OnRep_ActivateAbilities()
 }
 
 void UAGASAbilitySystemComponent::ClientUpdateAbilityStatus_Implementation(const FGameplayTag& AbilityTag,
-	const FGameplayTag& StatusTag)
+	const FGameplayTag& StatusTag, int32 AbilityLevel)
 {
-	AbilityStatusChanged.Broadcast(AbilityTag, StatusTag);
+	AbilityStatusChanged.Broadcast(AbilityTag, StatusTag, AbilityLevel);
 }
 
 void UAGASAbilitySystemComponent::ClientEffectApplied_Implementation(UAbilitySystemComponent* AbilitySystemComponent,

@@ -10,7 +10,7 @@ FAbilityInfo UAGASAbilityInfo::FindAbilityInfoForTag(const FGameplayTag& Ability
 {
 	for (const FAbilityInfo& Info : AbilityInformation)
 	{
-		if (Info.AbilityTag == AbilityTag)
+		if (Info.AbilityTag.MatchesTagExact(AbilityTag))
 		{
 			return Info;
 		}

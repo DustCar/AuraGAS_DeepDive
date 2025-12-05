@@ -6,6 +6,7 @@
 #include "AGASWidgetController.h"
 #include "AGASSpellMenuWidgetController.generated.h"
 
+struct FGameplayTag;
 class UAGASUserWidget;
 
 // delegate that can be used to send a user widget
@@ -35,5 +36,8 @@ public:
 	// will broadcast the ability button to the delegate
 	UFUNCTION(BlueprintCallable, Category = "GAS|SpellMenu")
 	void SelectedAbility(UAGASUserWidget* AbilityButton);
+	
+	UFUNCTION(BlueprintCallable, Category = "GAS|SpellMenu")
+	void OnSpendPointButtonPressed(const FGameplayTag& AbilityTag);
 
 };

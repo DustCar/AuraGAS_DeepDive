@@ -115,6 +115,14 @@ void AAGASCharacter::AddToAttributePointsOnPlayerState_Implementation(int32 InAt
 	AGASPlayerState->AddToAttributePoints(InAttributePoints);
 }
 
+void AAGASCharacter::AddToSpellPointsOnPlayerState_Implementation(int32 InSpellPoints)
+{
+	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
+	check(AGASPlayerState);
+
+	AGASPlayerState->AddToSpellPoints(InSpellPoints);
+}
+
 int32 AAGASCharacter::GetAttributePointsOnPlayerState_Implementation()
 {
 	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();

@@ -28,6 +28,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void AddToAttributePointsOnPlayerState(int32 InAttributePoints);
+	
+	UFUNCTION(BlueprintNativeEvent)
+	void AddToSpellPointsOnPlayerState(int32  InSpellPoints);
 
 	UFUNCTION(BlueprintNativeEvent)
 	int32 GetAttributePointsOnPlayerState();

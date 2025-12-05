@@ -157,7 +157,7 @@ USoundBase* AAGASCharacterBase::GetImpactSoundByMontageTag_Implementation(const 
 {
 	for (FTaggedMontage TaggedMontage : AttackMontages)
 	{
-		if (TaggedMontage.MontageTag == InMontageTag)
+		if (TaggedMontage.MontageTag.MatchesTagExact(InMontageTag))
 		{
 			return TaggedMontage.ImpactSound;
 		}

@@ -30,6 +30,7 @@ public:
 	//~ Begin Player Interface
 	virtual void AddToXPPointsOnPlayerState_Implementation(int32 InXPPoints) override;
 	virtual void AddToAttributePointsOnPlayerState_Implementation(int32 InAttributePoints) override;
+	virtual void AddToSpellPointsOnPlayerState_Implementation(int32 InSpellPoints) override;
 	virtual int32 GetAttributePointsOnPlayerState_Implementation() override;
 	//~ End Player Interface
 

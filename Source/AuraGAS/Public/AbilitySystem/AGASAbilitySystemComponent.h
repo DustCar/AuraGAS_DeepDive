@@ -11,7 +11,7 @@ DECLARE_MULTICAST_DELEGATE(FAbilitiesGiven);
 // a delegate that will be used to loop through the players activatable abilities
 // placed in ASC to allow for safe iteration using AbilityListLock
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
-DECLARE_MULTICAST_DELEGATE_TwoParams(FAbilityStatusChanged, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /*Status Tag*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /*Status Tag*/, int32 /*Ability Level*/);
 
 /**
  * 
@@ -55,6 +55,9 @@ public:
 	// player's spell menu
 	void UpdateAbilityStatuses(int32 Level);
 	
+	UFUNCTION(Server, Reliable)
+	void ServerSpendSpellPoint(const FGameplayTag& AbilityTag);
+	
 protected:
 
 	virtual void OnRep_ActivateAbilities() override;
@@ -65,5 +68,5 @@ protected:
 	
 	// Client RPC to broadcast the new status tag for a given ability that is unlockable at a certain level
 	UFUNCTION(Client, Reliable)
-	void ClientUpdateAbilityStatus(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag);
+	void ClientUpdateAbilityStatus(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel);
 };

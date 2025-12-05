@@ -18,9 +18,16 @@ void UAGASSpellMenuWidgetController::BroadcastInitialValues()
 
 void UAGASSpellMenuWidgetController::BindCallbacksToDependencies()
 {
+	// Similar to Overlay Widget Controller, we need to bind to the AbilitiesGivenSignature in case the client
+	// is broadcasting ability info before getting the abilities
+	if (!AGASAbilitySystemComponent->bStartupAbilitiesGiven)
+	{
+		AGASAbilitySystemComponent->AbilitiesGivenSignature.AddUObject(this, &ThisClass::BroadcastAbilityInfo);
+	}
+	
 	// broadcast to AbilityInfoDelegate the new statuses
 	AGASAbilitySystemComponent->AbilityStatusChanged.AddLambda(
-		[this] (const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag)
+		[this] (const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 NewLevel)
 		{
 			if (AbilityInfo)
 			{
@@ -40,5 +47,10 @@ void UAGASSpellMenuWidgetController::BindCallbacksToDependencies()
 void UAGASSpellMenuWidgetController::SelectedAbility(UAGASUserWidget* AbilityButton)
 {
 	OnAbilityButtonSelected.Broadcast(AbilityButton);
+}
+
+void UAGASSpellMenuWidgetController::OnSpendPointButtonPressed(const FGameplayTag& AbilityTag)
+{
+	AGASAbilitySystemComponent->ServerSpendSpellPoint(AbilityTag);
 }
 
