@@ -39,6 +39,7 @@ void UAGASWidgetController::BroadcastAbilityInfo()
 		FAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
 		Info.InputTag = UAGASAbilitySystemComponent::GetInputTagFromSpec(AbilitySpec);
 		Info.StatusTag = UAGASAbilitySystemComponent::GetStatusTagFromSpec(AbilitySpec);
+		Info.AbilityLevel = AbilitySpec.Level;
 		AbilityInfoDelegate.Broadcast(Info);
 	});
 

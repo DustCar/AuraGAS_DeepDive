@@ -18,4 +18,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", meta = (Categories = "InputTag"))
 	FGameplayTag StartupInputTag;
+	
+	static FString GetLockedDescription(int32 Level);
+	
 };

@@ -22,6 +22,8 @@ class AURAGAS_API UAGASAbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
+	virtual void OnGiveAbility(FGameplayAbilitySpec& AbilitySpec) override;
+	
 	// function to call after Ability Actor info is set in AbilitySystemComponent, useful for binding delegates
 	void AbilityActorInfoSet();
 
@@ -57,6 +59,9 @@ public:
 	
 	UFUNCTION(Server, Reliable)
 	void ServerSpendSpellPoint(const FGameplayTag& AbilityTag);
+	
+	UFUNCTION(BlueprintCallable)
+	bool GetAbilityDescriptionsFromTagAndLevel(const FGameplayTag& AbilityTag, int32 Level, FString& OutDescription, FString& OutNextLevelDescription);
 	
 protected:
 

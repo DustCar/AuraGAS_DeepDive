@@ -26,6 +26,18 @@ struct FAbilityInfo
 	
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag StatusTag = FGameplayTag();
+	
+	UPROPERTY(BlueprintReadOnly)
+	int32 AbilityLevel = 0;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText AbilityName = FText();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText AbilityDescription =  FText();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FText NextLevelDescription =  FText();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<const UTexture2D> Icon = nullptr;

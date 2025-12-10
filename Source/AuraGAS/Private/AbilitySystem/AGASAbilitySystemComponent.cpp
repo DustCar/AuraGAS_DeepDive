@@ -6,10 +6,29 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
+#include "AbilitySystem/Abilities/AGASDamageGameplayAbility.h"
 #include "AbilitySystem/Abilities/AGASGameplayAbility.h"
 #include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "AuraGAS/AGASLogChannels.h"
 #include "Interaction/AGASPlayerInterface.h"
+
+void UAGASAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
+{
+	Super::OnGiveAbility(AbilitySpec);
+	
+	// Only run the code on locally controlled actors since it pertains to UI
+	const bool bIsLocallyControlled = AbilityActorInfo->IsLocallyControlled();
+	if (!bIsLocallyControlled) return;
+	
+	// If ability becomes eligible (i.e. when player levels up) then we broadcast that change. 
+	// This time we do it when we give the ability to make the change more consistent rather than
+	// calling ClientUpdateStatuses in UpdateAbilityStatuses
+	const FGameplayTag StatusTag = GetStatusTagFromSpec(AbilitySpec);
+	if (StatusTag.MatchesTagExact(TAG_Abilities_Status_Eligible))
+	{
+		AbilityStatusChanged.Broadcast(GetAbilityTagFromSpec(AbilitySpec), StatusTag, AbilitySpec.Level);
+	}
+}
 
 void UAGASAbilitySystemComponent::AbilityActorInfoSet()
 {
@@ -182,7 +201,7 @@ void UAGASAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
 	}
 	
 	// loop through all possible abilities in the spell menu tree and update the status tags
-	// for the ones within the level requirement
+	// for the ones within the level requirement by giving the ability to the player
 	for (const FAbilityInfo& Info : AbilityInfo->AbilityInformation)
 	{
 		if (!Info.AbilityTag.IsValid()) continue;
@@ -193,11 +212,6 @@ void UAGASAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
 			FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(Info.Ability, 1);
 			AbilitySpec.DynamicAbilityTags.AddTag(TAG_Abilities_Status_Eligible);
 			GiveAbility(AbilitySpec);
-			MarkAbilitySpecDirty(AbilitySpec);
-			
-			// call client RPC to update the menu for both client and server. 
-			// need a client one since UpdateAbilityStatuses will only run on server
-			ClientUpdateAbilityStatus(Info.AbilityTag, TAG_Abilities_Status_Eligible, 1);
 		}
 	}
 }
@@ -226,6 +240,61 @@ void UAGASAbilitySystemComponent::ServerSpendSpellPoint_Implementation(const FGa
 		ClientUpdateAbilityStatus(AbilityTag, Status, AbilitySpec->Level);
 		MarkAbilitySpecDirty(*AbilitySpec);
 	}
+}
+
+bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FGameplayTag& AbilityTag, int32 Level, FString& OutDescription,
+	FString& OutNextLevelDescription)
+{
+	const UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
+	const FAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+	
+	if (const FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		if (UAGASGameplayAbility* AGASAbility = Cast<UAGASGameplayAbility>(AbilitySpec->Ability))
+		{
+			// Note: Previously used AbilitySpec->Level for level but is too inconsistent with client so we pass one in
+			// Note for formats: Formats are for damage abilities and will only format if ability is a damage GA, else
+			// it's normal
+			const FString FormattedDescription = UAGASDamageGameplayAbility::FormatDamageAbilityDescription(Level, Info.AbilityDescription.ToString(), AGASAbility);
+			const FString FormattedNextLvlDescription = UAGASDamageGameplayAbility::FormatDamageAbilityDescription(Level, Info.NextLevelDescription.ToString(), AGASAbility);
+			
+			OutDescription = FString::Printf(
+				TEXT(
+				"<Title>%s </>\n"
+				"<SubTitle>Level: </><Level>%d</>\n"
+				"\n"
+				"%s\n"
+				"\n"
+				"<Default>Mana </>\n"
+				"<Default>Cooldown </>\n"
+				),
+				*Info.AbilityName.ToString(),
+				Level,
+				*FormattedDescription
+			);
+			OutNextLevelDescription = FString::Printf(
+				TEXT(
+				"<Title>%s </>\n"
+				"<SubTitle>Level: </><OldValue>%d</> > <Level>%d</>\n"
+				"\n"
+				"%s\n"
+				"\n"
+				"<Default>Mana </>\n"
+				"<Default>Cooldown </>\n"
+				),
+				*Info.AbilityName.ToString(),
+				Level,
+				Level + 1,
+				*FormattedNextLvlDescription
+			);
+			return true;
+		}
+	}
+	
+	// here we consider the ability locked if no spec is found
+	OutDescription = UAGASGameplayAbility::GetLockedDescription(Info.LevelRequirement);
+	OutNextLevelDescription = FString();
+	return false;
 }
 
 void UAGASAbilitySystemComponent::OnRep_ActivateAbilities()

@@ -33,6 +33,7 @@ void UAGASSpellMenuWidgetController::BindCallbacksToDependencies()
 			{
 				FAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
 				Info.StatusTag = StatusTag;
+				Info.AbilityLevel = NewLevel;
 				AbilityInfoDelegate.Broadcast(Info);
 			}
 		}
