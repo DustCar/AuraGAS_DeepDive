@@ -21,4 +21,8 @@ public:
 	
 	static FString GetLockedDescription(int32 Level);
 	
+	int32 GetRoundedManaCost(const int32 InLevel = 1) const;
+	float GetCooldown(const int32 InLevel = 1) const;
+	
+	
 };

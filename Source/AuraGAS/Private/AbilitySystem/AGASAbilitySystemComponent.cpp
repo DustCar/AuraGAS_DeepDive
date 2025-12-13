@@ -260,31 +260,43 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 			
 			OutDescription = FString::Printf(
 				TEXT(
+				// Ability Name
 				"<Title>%s </>\n"
+				
+				// Level, Mana cost, and Cooldown
 				"<SubTitle>Level: </><Level>%d</>\n"
+				"<SubTitle>Mana: </><ManaCost>%d</>\n"
+				"<SubTitle>Cooldown: </><Cooldown>%.1f</> s\n"
+				
+				// Ability info body that gets formatted and obtained from ability info
 				"\n"
 				"%s\n"
 				"\n"
-				"<Default>Mana </>\n"
-				"<Default>Cooldown </>\n"
 				),
 				*Info.AbilityName.ToString(),
 				Level,
+				AGASAbility->GetRoundedManaCost(Level),
+				AGASAbility->GetCooldown(Level),
 				*FormattedDescription
 			);
 			OutNextLevelDescription = FString::Printf(
 				TEXT(
+				// Same as Ability description but includes the previous and next level iteration
 				"<Title>%s </>\n"
 				"<SubTitle>Level: </><OldValue>%d</> > <Level>%d</>\n"
+				"<SubTitle>Mana: </><OldValue>%d</> > <ManaCost>%d</>\n"
+				"<SubTitle>Cooldown: </><OldValue>%.1f</> > <Cooldown>%.1f</> s\n"
 				"\n"
 				"%s\n"
 				"\n"
-				"<Default>Mana </>\n"
-				"<Default>Cooldown </>\n"
 				),
 				*Info.AbilityName.ToString(),
 				Level,
 				Level + 1,
+				AGASAbility->GetRoundedManaCost(Level),
+				AGASAbility->GetRoundedManaCost(Level + 1),
+				AGASAbility->GetCooldown(Level),
+				AGASAbility->GetCooldown(Level + 1),
 				*FormattedNextLvlDescription
 			);
 			return true;
@@ -292,7 +304,15 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 	}
 	
 	// here we consider the ability locked if no spec is found
-	OutDescription = UAGASGameplayAbility::GetLockedDescription(Info.LevelRequirement);
+	// also, clear ability description if spell globe does not have an ability assigned
+	if (AbilityTag.IsValid())
+	{
+		OutDescription = UAGASGameplayAbility::GetLockedDescription(Info.LevelRequirement);
+	}
+	else
+	{
+		OutDescription = FString();
+	}
 	OutNextLevelDescription = FString();
 	return false;
 }
