@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
-#include "AGASGameModeBase.generated.h"
+#include "Engine/GameInstance.h"
+#include "AGASGameInstance.generated.h"
 
 class UAGASAbilityInfo;
 class UAGASCharacterClassInfo;
@@ -12,7 +12,7 @@ class UAGASCharacterClassInfo;
  * 
  */
 UCLASS()
-class AURAGAS_API AAGASGameModeBase : public AGameModeBase
+class AURAGAS_API UAGASGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 

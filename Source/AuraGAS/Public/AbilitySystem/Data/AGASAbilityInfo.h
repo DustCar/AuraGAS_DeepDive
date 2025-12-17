@@ -27,6 +27,9 @@ struct FAbilityInfo
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag StatusTag = FGameplayTag();
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FGameplayTag TypeTag = FGameplayTag();
+	
 	UPROPERTY(BlueprintReadOnly)
 	int32 AbilityLevel = 0;
 	

@@ -1,4 +1,4 @@
 // Copyright Dustin Carmelo
 
 
-#include "GameMode/AGASGameModeBase.h"
+#include "Game/AGASGameModeBase.h"

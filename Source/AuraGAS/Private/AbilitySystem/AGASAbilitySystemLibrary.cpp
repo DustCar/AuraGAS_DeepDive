@@ -7,7 +7,7 @@
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Engine/OverlapResult.h"
-#include "GameMode/AGASGameModeBase.h"
+#include "Game/AGASGameInstance.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/AGASPlayerController.h"
@@ -131,18 +131,18 @@ int32 UAGASAbilitySystemLibrary::GetXPPointsRewarded(const UObject* WorldContext
 
 UAGASCharacterClassInfo* UAGASAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
-	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-	if (AGASGameMode == nullptr) return nullptr;
+	UAGASGameInstance* AGASGameInstance = Cast<UAGASGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
+	if (AGASGameInstance == nullptr) return nullptr;
 
-	return AGASGameMode->CharacterClassInfo;
+	return AGASGameInstance->CharacterClassInfo;
 }
 
 UAGASAbilityInfo* UAGASAbilitySystemLibrary::GetAbilityInfo(const UObject* WorldContextObject)
 {
-	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
-	if (AGASGameMode == nullptr) return nullptr;
-	
-	return AGASGameMode->AbilityInfo;
+	UAGASGameInstance* AGASGameInstance = Cast<UAGASGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
+	if (AGASGameInstance == nullptr) return nullptr;
+
+	return AGASGameInstance->AbilityInfo;
 }
 
 bool UAGASAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
