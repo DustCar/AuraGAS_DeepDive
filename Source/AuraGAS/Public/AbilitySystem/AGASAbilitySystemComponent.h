@@ -12,6 +12,8 @@ DECLARE_MULTICAST_DELEGATE(FAbilitiesGiven);
 // placed in ASC to allow for safe iteration using AbilityListLock
 DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /*Status Tag*/, int32 /*Ability Level*/);
+DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnAbilityEquippedNative, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /*Old Input Tag*/, const FGameplayTag& /*New Input Tag*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnAbilityUnequippedNative, const FGameplayTag& /*Ability Tag*/);
 
 /**
  * 
@@ -31,6 +33,10 @@ public:
 	FAbilitiesGiven AbilitiesGivenSignature;
 	// needed to let the widget controllers know to update the UI (used by: SpellMenuWC)
 	FAbilityStatusChanged AbilityStatusChanged;
+	
+	// delegate for SpellMenuWC to bind to, to process ability changes and send the info to WBPs
+	FOnAbilityEquippedNative OnAbilityEquipped;
+	FOnAbilityUnequippedNative OnAbilityUnequipped;
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities);
@@ -63,6 +69,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool GetAbilityDescriptionsFromTagAndLevel(const FGameplayTag& AbilityTag, int32 Level, FString& OutDescription, FString& OutNextLevelDescription);
 	
+	UFUNCTION(Server, Reliable)
+	void ServerEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& NewInputTag);
+	
+	
 protected:
 
 	virtual void OnRep_ActivateAbilities() override;
@@ -74,4 +84,15 @@ protected:
 	// Client RPC to broadcast the new status tag for a given ability that is unlockable at a certain level
 	UFUNCTION(Client, Reliable)
 	void ClientUpdateAbilityStatus(const FGameplayTag& AbilityTag, const FGameplayTag& StatusTag, int32 AbilityLevel);
+	
+private:
+	FGameplayAbilitySpec* GetSpecFromInputTag(const FGameplayTag& InputTag);
+	void ClearAbilityInputTag(FGameplayAbilitySpec* Spec);
+	
+	UFUNCTION(Client, Reliable)
+	void ClientBroadcastOnAbilityEquipped(const FGameplayTag& AbilityTag, const FGameplayTag& OldInputTag, const FGameplayTag& NewInputTag);
+	
+	UFUNCTION(Client, Reliable)
+	void ClientBroadcastOnAbilityUnequipped(const FGameplayTag& AbilityTag);
+	
 };

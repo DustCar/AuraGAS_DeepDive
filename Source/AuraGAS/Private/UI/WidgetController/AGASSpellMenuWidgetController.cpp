@@ -3,6 +3,7 @@
 
 #include "UI/WidgetController/AGASSpellMenuWidgetController.h"
 
+#include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "Player/AGASPlayerState.h"
@@ -43,6 +44,41 @@ void UAGASSpellMenuWidgetController::BindCallbacksToDependencies()
 	{
 		OnPlayerSpellPointsChangedWidget.Broadcast(NewSpellPoints);
 	});
+	
+	AGASAbilitySystemComponent->OnAbilityEquipped.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& OldInputTag, const FGameplayTag& NewInputTag)
+	{
+		// before equipping the ability to a new input tag, we will clear the old input tag that the ability was assigned to
+		// IF it was previously equipped already
+		if (OldInputTag.IsValid())
+		{
+			FAbilityInfo OldAbilityInfo;
+			OldAbilityInfo.AbilityTag = FGameplayTag();
+			OldAbilityInfo.InputTag = OldInputTag;
+			AbilityInfoDelegate.Broadcast(OldAbilityInfo);
+		}
+		
+		// create a new ability info with an updated input tag for the ability and broadcast it to AbilityInfoDelegate
+		FAbilityInfo NewAbilityInfo = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+		NewAbilityInfo.InputTag = NewInputTag;
+		NewAbilityInfo.StatusTag = TAG_Abilities_Status_Equipped;
+		const FGameplayAbilitySpec* AbilitySpec = AGASAbilitySystemComponent->GetSpecFromAbilityTag(AbilityTag);
+		NewAbilityInfo.AbilityLevel = AbilitySpec->Level;
+		AbilityInfoDelegate.Broadcast(NewAbilityInfo);
+		
+		OnEquippedAbility.Broadcast();
+	});
+	
+	AGASAbilitySystemComponent->OnAbilityUnequipped.AddLambda([this](const FGameplayTag& AbilityTag)
+	{
+		// here we will accomplish the similar functionality that we did in OnAbilityEquipped but now with no InputTag
+		// and setting it to unlocked rather than equipped
+		FAbilityInfo NewAbilityInfo = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+		NewAbilityInfo.InputTag = FGameplayTag();
+		NewAbilityInfo.StatusTag = TAG_Abilities_Status_Unlocked;
+		const FGameplayAbilitySpec* AbilitySpec = AGASAbilitySystemComponent->GetSpecFromAbilityTag(AbilityTag);
+		NewAbilityInfo.AbilityLevel = AbilitySpec->Level;
+		AbilityInfoDelegate.Broadcast(NewAbilityInfo);
+	});
 }
 
 void UAGASSpellMenuWidgetController::SelectedAbility(UAGASUserWidget* AbilityButton)
@@ -53,5 +89,10 @@ void UAGASSpellMenuWidgetController::SelectedAbility(UAGASUserWidget* AbilityBut
 void UAGASSpellMenuWidgetController::OnSpendPointButtonPressed(const FGameplayTag& AbilityTag)
 {
 	AGASAbilitySystemComponent->ServerSpendSpellPoint(AbilityTag);
+}
+
+void UAGASSpellMenuWidgetController::EquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& NewInputTag)
+{
+	AGASAbilitySystemComponent->ServerEquipAbility(AbilityTag, NewInputTag);
 }
 

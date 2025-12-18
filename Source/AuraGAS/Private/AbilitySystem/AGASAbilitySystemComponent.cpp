@@ -177,7 +177,6 @@ FGameplayTag UAGASAbilitySystemComponent::GetStatusTagFromSpec(const FGameplayAb
 FGameplayAbilitySpec* UAGASAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
 {
 	FScopedAbilityListLock ActiveScopeLock(*this);
-	
 	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
 	{
 		for (FGameplayTag Tag : AbilitySpec.Ability->AbilityTags)
@@ -188,6 +187,20 @@ FGameplayAbilitySpec* UAGASAbilitySystemComponent::GetSpecFromAbilityTag(const F
 			}
 		}
 	}
+	return nullptr;
+}
+
+FGameplayAbilitySpec* UAGASAbilitySystemComponent::GetSpecFromInputTag(const FGameplayTag& InputTag)
+{
+	FScopedAbilityListLock ActiveScopeLock(*this);
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			return &AbilitySpec;
+		}
+	}
+	
 	return nullptr;
 }
 
@@ -315,6 +328,67 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 	}
 	OutNextLevelDescription = FString();
 	return false;
+}
+
+void UAGASAbilitySystemComponent::ServerEquipAbility_Implementation(const FGameplayTag& AbilityTag,
+	const FGameplayTag& NewInputTag)
+{
+	FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag);
+	if (AbilitySpec)
+	{
+		const FGameplayTag StatusTag = GetStatusTagFromSpec(*AbilitySpec);
+		const bool bStatusValid = StatusTag.MatchesTagExact(TAG_Abilities_Status_Equipped) || StatusTag.MatchesTagExact(TAG_Abilities_Status_Unlocked);
+		
+		if (bStatusValid)
+		{
+			// first we have to clear any ability that is currently equipped in the NewInputTag globe
+			// we'll "unequip" the ability by removing the input tag from its Dynamic tags and changing its Status to unlocked
+			FGameplayAbilitySpec* CurrentEquippedAbilitySpec = GetSpecFromInputTag(NewInputTag);
+			if (CurrentEquippedAbilitySpec)
+			{
+				const FGameplayTag& CurrentEquippedAbilityTag = GetAbilityTagFromSpec(*CurrentEquippedAbilitySpec);
+				CurrentEquippedAbilitySpec->DynamicAbilityTags.RemoveTag(NewInputTag);
+				CurrentEquippedAbilitySpec->DynamicAbilityTags.RemoveTag(TAG_Abilities_Status_Equipped);
+				CurrentEquippedAbilitySpec->DynamicAbilityTags.AddTag(TAG_Abilities_Status_Unlocked);
+				MarkAbilitySpecDirty(*CurrentEquippedAbilitySpec);
+				
+				ClientBroadcastOnAbilityUnequipped(CurrentEquippedAbilityTag);
+			}
+			
+			// cache the old input tag for broadcast
+			const FGameplayTag OldInputTag = GetInputTagFromSpec(*AbilitySpec);
+			// we'll clear the input tag for the current ability spec that we are trying to equip then we set the new one
+			ClearAbilityInputTag(AbilitySpec);
+			AbilitySpec->DynamicAbilityTags.AddTag(NewInputTag);
+			// make sure to change the status of the ability spec to be equipped rather than unlocked if first time
+			if (StatusTag.MatchesTagExact(TAG_Abilities_Status_Unlocked))
+			{
+				AbilitySpec->DynamicAbilityTags.RemoveTag(TAG_Abilities_Status_Unlocked);
+				AbilitySpec->DynamicAbilityTags.AddTag(TAG_Abilities_Status_Equipped);
+			}
+			MarkAbilitySpecDirty(*AbilitySpec);
+			
+			ClientBroadcastOnAbilityEquipped(AbilityTag, OldInputTag, NewInputTag);
+		}
+	}
+}
+
+void UAGASAbilitySystemComponent::ClearAbilityInputTag(FGameplayAbilitySpec* Spec)
+{
+	const FGameplayTag InputTag = GetInputTagFromSpec(*Spec);
+	Spec->DynamicAbilityTags.RemoveTag(InputTag);
+	MarkAbilitySpecDirty(*Spec);
+}
+
+void UAGASAbilitySystemComponent::ClientBroadcastOnAbilityEquipped_Implementation(const FGameplayTag& AbilityTag,
+                                                                                  const FGameplayTag& OldInputTag, const FGameplayTag& NewInputTag)
+{
+	OnAbilityEquipped.Broadcast(AbilityTag, OldInputTag, NewInputTag);
+}
+
+void UAGASAbilitySystemComponent::ClientBroadcastOnAbilityUnequipped_Implementation(const FGameplayTag& AbilityTag)
+{
+	OnAbilityUnequipped.Broadcast(AbilityTag);
 }
 
 void UAGASAbilitySystemComponent::OnRep_ActivateAbilities()
