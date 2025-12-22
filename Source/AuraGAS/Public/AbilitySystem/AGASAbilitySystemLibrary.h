@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AGASAbilityTypes.h"
 #include "Data/AGASCharacterClassInfo.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AGASAbilitySystemLibrary.generated.h"
@@ -59,6 +60,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
 	static void SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|DamageEffect")
+	static FGameplayEffectContextHandle ApplyDamageEffectToTarget(const FDamageEffectParams& InParams);
 
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayMechanics", meta = (WorldContext = "WorldContextObject"))
 	static void GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors, const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin);

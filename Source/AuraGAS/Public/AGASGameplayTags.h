@@ -47,12 +47,24 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Lightning)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Arcane)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Physical)
 
+// Debuff Tags
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Burn)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Stun)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Arcane)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Physical)
+
+// Debuff Tags: Params
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Params_Chance)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Params_Damage)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Params_Frequency)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Params_Duration)
+
 // Resistance Tags
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Fire)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Lightning)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Arcane)
-UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Resistance_Physical)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Resistance)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Resistance_Fire)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Resistance_Lightning)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Resistance_Arcane)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Resistance_Physical)
 
 // Ability Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Attack)
@@ -60,15 +72,18 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Summon)
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_HitReact)
 
+// Ability Tags: Status
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Status_Locked)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Status_Eligible)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Status_Unlocked)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Status_Equipped)
 
+// Ability Tags: Types
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Type_Offensive)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Type_Passive)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Type_None)
 
+// Ability Tags: Aura
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Fire_FireBolt)
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Lightning_Electrocute)
@@ -96,4 +111,5 @@ class AURAGAS_API AGASGameplayTags
 public:
 	AGASGameplayTags();
 	~AGASGameplayTags();
+	
 };

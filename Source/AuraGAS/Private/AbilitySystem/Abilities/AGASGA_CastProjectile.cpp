@@ -30,25 +30,7 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 		ESpawnActorCollisionHandlingMethod::AlwaysSpawn
 	);
 
-	// Set the projectile's GameplayEffectContextHandle
-	const UAbilitySystemComponent* SourceASC = GetAbilitySystemComponentFromActorInfo_Checked();
-	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
-	EffectContextHandle.SetAbility(this);
-	EffectContextHandle.AddSourceObject(Projectile);
-	FHitResult HitResult;
-	HitResult.Location = ProjectileTargetLocation;
-	EffectContextHandle.AddHitResult(HitResult);
-	
-	const FGameplayEffectSpecHandle SpecHandle = SourceASC->MakeOutgoingSpec(DamageEffectClass, GetAbilityLevel(), EffectContextHandle);
-
-	// loop through all damage types that the ability has and set its magnitude
-	for (auto Pair : DamageTypes)
-	{
-		const float ScaledDamage = Pair.Value.GetValueAtLevel(GetAbilityLevel());
-		SpecHandle.Data->SetSetByCallerMagnitude(Pair.Key, ScaledDamage);
-	}
-	
-	Projectile->DamageEffectSpecHandle = SpecHandle;
+	Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
 	
 	Projectile->FinishSpawning(SpawnTransform);
 }

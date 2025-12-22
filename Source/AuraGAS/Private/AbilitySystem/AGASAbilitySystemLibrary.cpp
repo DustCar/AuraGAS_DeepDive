@@ -3,7 +3,9 @@
 
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "AGASAbilityTypes.h"
+#include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Engine/OverlapResult.h"
@@ -83,16 +85,16 @@ void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 
 	AActor* AvatarActor = ASC->GetAvatarActor();
 	
-	FGameplayEffectContextHandle EffectContext = ASC->MakeEffectContext();
-	EffectContext.AddSourceObject(AvatarActor);
+	FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(AvatarActor);
 	
-	const FGameplayEffectSpecHandle PrimaryAttributesSpecHandle = ASC->MakeOutgoingSpec(ClassDefaultInfo.PrimaryAttributes, Level, EffectContext);
+	const FGameplayEffectSpecHandle PrimaryAttributesSpecHandle = ASC->MakeOutgoingSpec(ClassDefaultInfo.PrimaryAttributes, Level, EffectContextHandle);
 	ASC->ApplyGameplayEffectSpecToSelf(*PrimaryAttributesSpecHandle.Data);
 
-	const FGameplayEffectSpecHandle SecondaryAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->SecondaryAttributes, Level, EffectContext);
+	const FGameplayEffectSpecHandle SecondaryAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->SecondaryAttributes, Level, EffectContextHandle);
 	ASC->ApplyGameplayEffectSpecToSelf(*SecondaryAttributesSpecHandle.Data);
 
-	const FGameplayEffectSpecHandle VitalAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->VitalAttributes, Level, EffectContext);
+	const FGameplayEffectSpecHandle VitalAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->VitalAttributes, Level, EffectContextHandle);
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributesSpecHandle.Data);
 	
 }
@@ -143,6 +145,27 @@ UAGASAbilityInfo* UAGASAbilitySystemLibrary::GetAbilityInfo(const UObject* World
 	if (AGASGameInstance == nullptr) return nullptr;
 
 	return AGASGameInstance->AbilityInfo;
+}
+
+FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarget(const FDamageEffectParams& InParams)
+{
+	UAbilitySystemComponent* SourceASC = InParams.SourceAbilitySystemComponent;
+	UAbilitySystemComponent* TargetASC = InParams.TargetAbilitySystemComponent;
+	
+	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(SourceASC->GetAvatarActor());
+	
+	 const FGameplayEffectSpecHandle DamageEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.DamageGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
+	
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, InParams.DamageType, InParams.BaseDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Chance, InParams.DebuffChance);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Damage, InParams.DebuffDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Frequency, InParams.DebuffFrequency);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Duration, InParams.DebuffDuration);
+	
+	SourceASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data, TargetASC);
+	
+	return EffectContextHandle;
 }
 
 bool UAGASAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)

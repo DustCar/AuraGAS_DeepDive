@@ -41,12 +41,24 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Lightning, "Damage.Lightning")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Arcane, "Damage.Arcane")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Physical, "Damage.Physical")
 
+// Debuff Tags
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Burn, "Debuff.Burn")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Stun, "Debuff.Stun")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Arcane, "Debuff.Arcane")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Physical, "Debuff.Physical")
+
+// Debuff Tags: Params
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Params_Chance, "Debuff.Params.Chance")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Params_Damage, "Debuff.Params.Damage")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Params_Frequency, "Debuff.Params.Frequency")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Params_Duration, "Debuff.Params.Duration")
+
 // Resistance Tags
-UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance, "Resistance")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Fire, "Resistance.Fire")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Lightning, "Resistance.Lightning")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Arcane, "Resistance.Arcane")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Resistance_Physical, "Resistance.Physical")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance, "Attributes.Resistance")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance_Fire, "Attributes.Resistance.Fire")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance_Lightning, "Attributes.Resistance.Lightning")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance_Arcane, "Attributes.Resistance.Arcane")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance_Physical, "Attributes.Resistance.Physical")
 
 // Ability Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Attack, "Abilities.Attack")
@@ -54,15 +66,18 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Summon, "Abilities.Summon")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_HitReact, "Abilities.HitReact")
 
+// Ability Tags: Status
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Status_Locked, "Abilities.Status.Locked")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Status_Eligible, "Abilities.Status.Eligible")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Status_Unlocked, "Abilities.Status.Unlocked")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Status_Equipped, "Abilities.Status.Equipped")
 
+// Ability Tags: Types
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Type_Offensive, "Abilities.Type.Offensive")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Type_Passive, "Abilities.Type.Passive")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Type_None, "Abilities.Type.None")
 
+// Ability Tags: Aura
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Fire_FireBolt, "Abilities.Fire.FireBolt")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Lightning_Electrocute, "Abilities.Lightning.Electrocute")

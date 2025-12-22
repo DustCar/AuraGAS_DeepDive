@@ -15,19 +15,19 @@ struct FAbilityInfo
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Abilities"))
 	FGameplayTag AbilityTag = FGameplayTag();
 
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag InputTag = FGameplayTag();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Cooldown"))
 	FGameplayTag CooldownTag = FGameplayTag();
 	
 	UPROPERTY(BlueprintReadOnly)
 	FGameplayTag StatusTag = FGameplayTag();
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Categories = "Abilities.Type"))
 	FGameplayTag TypeTag = FGameplayTag();
 	
 	UPROPERTY(BlueprintReadOnly)
@@ -37,10 +37,10 @@ struct FAbilityInfo
 	FText AbilityName = FText();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FText AbilityDescription =  FText();
+	FText AbilityDescription = FText();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FText NextLevelDescription =  FText();
+	FText NextLevelDescription = FText();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TObjectPtr<const UTexture2D> Icon = nullptr;

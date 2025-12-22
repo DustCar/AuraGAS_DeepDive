@@ -53,10 +53,10 @@ struct AGASDamageStatics
 		TagsToCaptureDefs.Add(TAG_Attributes_Secondary_CriticalHitDamage, CriticalHitDamageDef);
 		TagsToCaptureDefs.Add(TAG_Attributes_Secondary_CriticalHitResistance, CriticalHitResistanceDef);
 		
-		TagsToCaptureDefs.Add(TAG_Resistance_Fire, FireResistanceDef);
-		TagsToCaptureDefs.Add(TAG_Resistance_Lightning, LightningResistanceDef);
-		TagsToCaptureDefs.Add(TAG_Resistance_Arcane, ArcaneResistanceDef);
-		TagsToCaptureDefs.Add(TAG_Resistance_Physical, PhysicalResistanceDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Resistance_Fire, FireResistanceDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Resistance_Lightning, LightningResistanceDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Resistance_Arcane, ArcaneResistanceDef);
+		TagsToCaptureDefs.Add(TAG_Attributes_Resistance_Physical, PhysicalResistanceDef);
 	}
 	
 };
@@ -83,7 +83,7 @@ UExecCalc_Damage::UExecCalc_Damage()
 	RelevantAttributesToCapture.Add(DamageStatics().PhysicalResistanceDef);
 
 	AllDamageTypes = UGameplayTagsManager::Get().RequestGameplayTagChildren(TAG_Damage);
-	AllResistanceTypes = UGameplayTagsManager::Get().RequestGameplayTagChildren(TAG_Resistance);
+	AllResistanceTypes = UGameplayTagsManager::Get().RequestGameplayTagChildren(TAG_Attributes_Resistance);
 
 	// Add DamageType to Resistance tag pairings to DamageToResistMap
 	for (int32 i = 0; i < AllDamageTypes.Num(); i++)

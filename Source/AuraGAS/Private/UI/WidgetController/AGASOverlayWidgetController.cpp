@@ -3,6 +3,7 @@
 
 #include "UI/WidgetController/AGASOverlayWidgetController.h"
 
+#include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAttributeSet.h"
 #include "AbilitySystem/Data/AGASAbilityInfo.h"
@@ -70,6 +71,28 @@ void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 				MessageWidgetRowDelegate.Broadcast(*Row);
 			}
 		}
+	});
+	
+	// Update the equipped abilities in the overlay after changing them in the spell menu
+	AGASAbilitySystemComponent->OnAbilityEquipped.AddLambda([this](const FGameplayTag& AbilityTag, const FGameplayTag& OldInputTag, const FGameplayTag& NewInputTag)
+	{
+		// clear the old input tag
+		if (OldInputTag.IsValid())
+		{
+			FAbilityInfo OldAbilityInfo;
+			OldAbilityInfo.AbilityTag = FGameplayTag();
+			OldAbilityInfo.InputTag = OldInputTag;
+			AbilityInfoDelegate.Broadcast(OldAbilityInfo);
+		}
+		
+		// assign the new input tag with new ability info then broadcast ability info
+		FAbilityInfo NewAbilityInfo = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+		NewAbilityInfo.InputTag = NewInputTag;
+		NewAbilityInfo.StatusTag = TAG_Abilities_Status_Equipped;
+		FGameplayAbilitySpec* AbilitySpec = AGASAbilitySystemComponent->GetSpecFromAbilityTag(AbilityTag);
+		NewAbilityInfo.AbilityLevel = AbilitySpec->Level;
+		AbilityInfoDelegate.Broadcast(NewAbilityInfo);
+		
 	});
 
 }

@@ -76,6 +76,8 @@ void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		Destroy();
 		return;
 	}
+	
+	// Ignore Owner and prevent friendly fire
 	if (OtherActor == ThisOwner || UAGASAbilitySystemLibrary::IsOnSameTeam(ThisOwner, OtherActor)) return;
 
 	if (!bHit)
@@ -86,9 +88,15 @@ void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 	if (HasAuthority())
 	{
+		// NOTE: We will only be using DamageEffectParams on the server since it was only set there, and it is not being
+		// replicated
+		// Check to make sure that the SourceASC is valid on the server
+		check(DamageEffectParams.SourceAbilitySystemComponent)
 		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
-			TargetASC->ApplyGameplayEffectSpecToSelf(*DamageEffectSpecHandle.Data);
+			DamageEffectParams.TargetAbilitySystemComponent = TargetASC;
+			
+			UAGASAbilitySystemLibrary::ApplyDamageEffectToTarget(DamageEffectParams);
 		}
 		Destroy();
 	}

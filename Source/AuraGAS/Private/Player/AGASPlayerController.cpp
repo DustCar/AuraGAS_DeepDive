@@ -142,7 +142,7 @@ void AAGASPlayerController::Move(const FInputActionValue& Value)
 // Used to allow player to look around horizontally; IA is used in tandem with RMB
 void AAGASPlayerController::RotateCamera(const FInputActionValue& Value)
 {
-	if (bShiftKeyDown) return;
+	if (bShiftKeyDown || bTargeting) return;
 	
 	const float HorizontalMouseMovement = Value.Get<float>();
 

@@ -5,26 +5,22 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
-#include "AGASGameplayTags.h"
 
 void UAGASDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
 	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass);
 
-	for (const auto& [DamageTag, DamageScaleFloat] : DamageTypes)
-	{
-		const float ScaledDamage = DamageScaleFloat.GetValueAtLevel(GetAbilityLevel());
-		DamageSpecHandle.Data->SetSetByCallerMagnitude(DamageTag, ScaledDamage);
-	}
+	const float ScaledDamage = DamageFloat.GetValueAtLevel(GetAbilityLevel());
+	DamageSpecHandle.Data->SetSetByCallerMagnitude(DamageTag, ScaledDamage);
 
 	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data, UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
 }
 
-int32 UAGASDamageGameplayAbility::GetRoundedDamageAtLevel(int32 Level, const FGameplayTag& DamageTag)
+int32 UAGASDamageGameplayAbility::GetRoundedDamageAtLevel(int32 Level)
 {
-	if (DamageTypes.Find(DamageTag))
+	if (DamageFloat.IsValid())
 	{
-		return FMath::RoundHalfToEven(DamageTypes.Find(DamageTag)->GetValueAtLevel(Level));
+		return FMath::RoundHalfToEven(DamageFloat.GetValueAtLevel(Level));
 	}
 	
 	return 0;
@@ -39,14 +35,8 @@ FString UAGASDamageGameplayAbility::FormatDamageAbilityDescription(int32 Level, 
 	{
 		FStringFormatNamedArguments NamesToValues;
 		
-		NamesToValues.Add(TEXT("_FireDmg0"), DamageAbility->GetRoundedDamageAtLevel(Level, TAG_Damage_Fire));
-		NamesToValues.Add(TEXT("_FireDmg1"), DamageAbility->GetRoundedDamageAtLevel(Level + 1, TAG_Damage_Fire));
-		NamesToValues.Add(TEXT("_LightningDmg0"), DamageAbility->GetRoundedDamageAtLevel(Level, TAG_Damage_Lightning));
-		NamesToValues.Add(TEXT("_LightningDmg1"), DamageAbility->GetRoundedDamageAtLevel(Level + 1, TAG_Damage_Lightning));
-		NamesToValues.Add(TEXT("_ArcaneDmg0"), DamageAbility->GetRoundedDamageAtLevel(Level, TAG_Damage_Arcane));
-		NamesToValues.Add(TEXT("_ArcaneDmg1"), DamageAbility->GetRoundedDamageAtLevel(Level + 1, TAG_Damage_Arcane));
-		NamesToValues.Add(TEXT("_PhysicalDmg0"), DamageAbility->GetRoundedDamageAtLevel(Level, TAG_Damage_Physical));
-		NamesToValues.Add(TEXT("_PhysicalDmg1"), DamageAbility->GetRoundedDamageAtLevel(Level + 1, TAG_Damage_Physical));
+		NamesToValues.Add(TEXT("_Dmg0"), DamageAbility->GetRoundedDamageAtLevel(Level));
+		NamesToValues.Add(TEXT("_Dmg1"), DamageAbility->GetRoundedDamageAtLevel(Level + 1));
 		NamesToValues.Add(TEXT("_LineBreak"), "\n");
 		NamesToValues.Add(TEXT("_ProjNum0"), Level < 5 ? Level : 5);
 		NamesToValues.Add(TEXT("_ProjNum1"), Level + 1 < 5 ? Level + 1 : 5);
@@ -54,5 +44,22 @@ FString UAGASDamageGameplayAbility::FormatDamageAbilityDescription(int32 Level, 
 		NewDescription = FString::Format(*Description, NamesToValues);
 	}
 	return NewDescription;
+}
+
+FDamageEffectParams UAGASDamageGameplayAbility::MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor) const
+{
+	FDamageEffectParams Params;
+	Params.DamageGameplayEffectClass = DamageEffectClass;
+	Params.SourceAbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
+	Params.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
+	Params.BaseDamage = DamageFloat.GetValueAtLevel(GetAbilityLevel());
+	Params.AbilityLevel = GetAbilityLevel();
+	Params.DamageType = DamageTag;
+	Params.DebuffChance = DebuffChance;
+	Params.DebuffDamage = DebuffDamage;
+	Params.DebuffFrequency = DebuffFrequency;
+	Params.DebuffDuration = DebuffDuration;
+	
+	return Params;
 }
 
