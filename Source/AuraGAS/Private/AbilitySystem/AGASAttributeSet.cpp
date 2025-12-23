@@ -7,7 +7,9 @@
 #include "AGASGameplayTags.h"
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
+#include "AbilitySystem/ExecCalcs/ExecCalc_Damage.h"
 #include "GameFramework/Character.h"
+#include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "Interaction/AGASPlayerInterface.h"
 #include "Net/UnrealNetwork.h"
@@ -142,37 +144,14 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 
 	FEffectPropertiesAdvanced Props;
 	SetEffectProperties(Data, Props);
+	
+	// blanket fix for stopping all damage after character death
+	// NOTE: for debuff effects (like burn) it still runs the function but just returns
+	if (Props.TargetProperties->Character->Implements<UAGASCombatInterface>() && IAGASCombatInterface::Execute_IsDead(Props.TargetProperties->Character)) return;
 
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		const float LocalIncomingDamage = GetIncomingDamage();
-		SetIncomingDamage(0.f);
-		if (LocalIncomingDamage < 0.f) return;
-		
-		const float NewHealth = GetHealthPoints() - LocalIncomingDamage;
-        SetHealthPoints(FMath::Clamp(NewHealth, 0.f, GetMaxHealthPoints()));
-
-		const bool bFatal = NewHealth <= 0.f;
-		if (bFatal)
-		{
-			
-			IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(Props.TargetProperties->AvatarActor);
-			if (CombatInterface)
-			{
-				CombatInterface->Die();
-			}
-			SendXPPointsEvent(Props);
-		}
-		else
-		{
-			FGameplayTagContainer TagContainer;
-			TagContainer.AddTag(TAG_Abilities_HitReact);
-			Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
-		}
-		
-		const bool bCriticalHit = UAGASAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
-		const bool bBlocked = UAGASAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
-		ShowFloatingText(Props, LocalIncomingDamage, bCriticalHit, bBlocked);
+		HandleIncomingDamage(Props);
 	}
 
 	if (Data.EvaluatedData.Attribute == GetIncomingXPPointsAttribute())
@@ -207,6 +186,106 @@ void UAGASAttributeSet::SendXPPointsEvent(const FEffectPropertiesAdvanced& Props
 		Payload.EventMagnitude = XPPointsReward;
 		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Props.SourceProperties->AvatarActor, TAG_Attributes_Meta_IncomingXPPoints, Payload);
 	}
+}
+
+void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Props)
+{
+	const float LocalIncomingDamage = GetIncomingDamage();
+	SetIncomingDamage(0.f);
+	if (LocalIncomingDamage < 0.f) return;
+		
+	const float NewHealth = GetHealthPoints() - LocalIncomingDamage;
+	SetHealthPoints(FMath::Clamp(NewHealth, 0.f, GetMaxHealthPoints()));
+
+	const bool bFatal = NewHealth <= 0.f;
+	if (bFatal)
+	{
+			
+		IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(Props.TargetProperties->AvatarActor);
+		if (CombatInterface)
+		{
+			CombatInterface->Die();
+		}
+		SendXPPointsEvent(Props);
+	}
+	else
+	{
+		FGameplayTagContainer TagContainer;
+		TagContainer.AddTag(TAG_Abilities_HitReact);
+		Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+	}
+		
+	const bool bCriticalHit = UAGASAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
+	const bool bBlocked = UAGASAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
+	ShowFloatingText(Props, LocalIncomingDamage, bCriticalHit, bBlocked);
+	
+	if (UAGASAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
+	{
+		// Handle debuff
+		Debuff(Props);
+	}
+}
+
+void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
+{
+	// create a new effect context handle for the dynamic debuff GE
+	FGameplayEffectContextHandle DebuffEffectContextHandle = Props.SourceProperties->AbilitySystemComponent->MakeEffectContext();
+	DebuffEffectContextHandle.AddSourceObject(Props.SourceProperties->AvatarActor);
+	
+	// obtain all necessary tags and floats
+	const FGameplayTag DamageTypeTag = UAGASAbilitySystemLibrary::GetDamageType(Props.EffectContextHandle);
+	const float DebuffDamage = UAGASAbilitySystemLibrary::GetDebuffDamage(Props.EffectContextHandle);
+	const float DebuffFrequency = UAGASAbilitySystemLibrary::GetDebuffFrequency(Props.EffectContextHandle);
+	const float DebuffDuration = UAGASAbilitySystemLibrary::GetDebuffDuration(Props.EffectContextHandle);
+	
+	// create a new GameplayEffect object
+	FString DebuffName = FString::Printf(TEXT("DynamicDebuff %s"), *DamageTypeTag.ToString());
+	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName));
+	
+	// set its policy and durations
+	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration;
+	Effect->Period = DebuffFrequency;
+	Effect->bExecutePeriodicEffectOnApplication = false;
+	Effect->DurationMagnitude = FScalableFloat(DebuffDuration);
+	// set stacking policy
+	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
+	Effect->StackLimitCount = 1;
+	
+	// Original way to apply damage. Does not account for resistances and debuffs
+	// add a modifier for debuff damage and set it; it is possible to add more modifiers in the same way
+	// const int32 Index = Effect->Modifiers.Add(FGameplayModifierInfo());
+	// FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[Index];
+	//
+	// ModifierInfo.ModifierMagnitude = FScalableFloat(DebuffDamage);
+	// ModifierInfo.ModifierOp = EGameplayModOp::Additive;
+	// ModifierInfo.Attribute = GetIncomingDamageAttribute();
+	
+	// Alternative way using ExecCalc_Damage
+	FGameplayEffectExecutionDefinition ExecutionDef;
+	ExecutionDef.CalculationClass = UExecCalc_Damage::StaticClass();
+	Effect->Executions.Add(ExecutionDef);
+	
+	// Add the debuff tag to the gameplay effect
+	// NOTE: the next few lines of code is the updated way to add tags to "InheritableOwnedTagsContainer" from previous versions
+	// that variable has depreciated, so this is the new way (next 4 lines tbe)
+	FInheritedTagContainer TagContainer = FInheritedTagContainer();
+	UTargetTagsGameplayEffectComponent& Component = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
+	TagContainer.AddTag(AGASGameplayTags::GetDamageTypeToDebuffMap()[DamageTypeTag]);
+	Component.SetAndApplyTargetTagChanges(TagContainer);
+	
+	// create a new GameplayEffectSpec, set its damage type and apply that effect
+	if (FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, DebuffEffectContextHandle, 1.f))
+	{
+		// set the damage value for ExecCalc_Damage
+		MutableSpec->SetSetByCallerMagnitude(DamageTypeTag, DebuffDamage);
+		
+		FAGASGameplayEffectContext* AGASDebuffEffectContext = static_cast<FAGASGameplayEffectContext*>(MutableSpec->GetContext().Get());
+		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageTypeTag));
+		AGASDebuffEffectContext->SetDamageType(DebuffDamageType);
+		
+		Props.TargetProperties->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*MutableSpec);
+	}
+	
 }
 
 void UAGASAttributeSet::OnRep_HealthPoints(const FGameplayAttributeData& OldHealthPoints) const
@@ -308,3 +387,4 @@ void UAGASAttributeSet::OnRep_PhysicalResistance(const FGameplayAttributeData& O
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(ThisClass, PhysicalResistance, OldPhysicalResistance);
 }
+

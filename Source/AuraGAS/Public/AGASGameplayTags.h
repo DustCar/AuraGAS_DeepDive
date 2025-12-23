@@ -48,6 +48,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Arcane)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Damage_Physical)
 
 // Debuff Tags
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Burn)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Stun)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Debuff_Arcane)
@@ -106,10 +107,19 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Montage_Attack_4)
 // Other Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Effects_HitReact)
 
+
 class AURAGAS_API AGASGameplayTags
 {
 public:
 	AGASGameplayTags();
 	~AGASGameplayTags();
+	
+	static const TMap<FGameplayTag, FGameplayTag>& GetDamageTypeToResistMap() { return DamageTypeToResistMap; }
+	static const TMap<FGameplayTag, FGameplayTag>& GetDamageTypeToDebuffMap() { return DamageTypeToDebuffMap; }
+	
+private:
+	
+	static const TMap<FGameplayTag, FGameplayTag> DamageTypeToResistMap;
+	static const TMap<FGameplayTag, FGameplayTag> DamageTypeToDebuffMap;
 	
 };

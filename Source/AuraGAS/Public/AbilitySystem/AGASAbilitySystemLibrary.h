@@ -54,12 +54,42 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayEffects")
 	static bool IsCriticalHit(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static bool IsSuccessfulDebuff(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static float GetDebuffDamage(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static float GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static float GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle);
+	
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static FGameplayTag GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle);
 
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
-	static void SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit);
+	static void SetIsBlockedHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsBlockedHit);
 
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
-	static void SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit);
+	static void SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsCriticalHit);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static void SetIsSuccessfulDebuff(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsSuccessfulDebuff);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static void SetDebuffDamage(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const float InDebuffDamage);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static void SetDebuffFrequency(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const float InDebuffFrequency);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static void SetDebuffDuration(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const float InDebuffDuration);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayEffects")
+	static void SetDamageType(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, const FGameplayTag& InDamageType);
 	
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|DamageEffect")
 	static FGameplayEffectContextHandle ApplyDamageEffectToTarget(const FDamageEffectParams& InParams);

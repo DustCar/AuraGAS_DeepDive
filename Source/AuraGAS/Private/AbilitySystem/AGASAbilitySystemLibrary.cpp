@@ -157,6 +157,8 @@ FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarge
 	
 	 const FGameplayEffectSpecHandle DamageEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.DamageGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
 	
+	// Assign the caller magnitudes for Damage type with base damage as value
+	// and other Debuff params
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, InParams.DamageType, InParams.BaseDamage);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Chance, InParams.DebuffChance);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Damage, InParams.DebuffDamage);
@@ -188,7 +190,60 @@ bool UAGASAbilitySystemLibrary::IsCriticalHit(const FGameplayEffectContextHandle
 	return false;
 }
 
-void UAGASAbilitySystemLibrary::SetIsBlockedHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit)
+bool UAGASAbilitySystemLibrary::IsSuccessfulDebuff(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->IsSuccessfulDebuff();
+	}
+
+	return false;
+}
+
+float UAGASAbilitySystemLibrary::GetDebuffDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->GetDebuffDamage();
+	}
+
+	return 0.f;
+}
+
+float UAGASAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->GetDebuffFrequency();
+	}
+
+	return 0.f;
+}
+
+float UAGASAbilitySystemLibrary::GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->GetDebuffDuration();
+	}
+
+	return 0.f;
+}
+
+FGameplayTag UAGASAbilitySystemLibrary::GetDamageType(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		if (AGASEffectContext->GetDamageType().IsValid())
+		{
+			return *AGASEffectContext->GetDamageType();
+		}
+	}
+
+	return FGameplayTag();
+}
+
+void UAGASAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsBlockedHit)
 {
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
@@ -196,7 +251,7 @@ void UAGASAbilitySystemLibrary::SetIsBlockedHit(UPARAM(ref) FGameplayEffectConte
 	}
 }
 
-void UAGASAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref) FGameplayEffectContextHandle& EffectContextHandle, bool bInIsCriticalHit)
+void UAGASAbilitySystemLibrary::SetIsCriticalHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsCriticalHit)
 {
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
@@ -204,8 +259,52 @@ void UAGASAbilitySystemLibrary::SetIsCriticalHit(UPARAM(ref) FGameplayEffectCont
 	}
 }
 
+void UAGASAbilitySystemLibrary::SetIsSuccessfulDebuff(FGameplayEffectContextHandle& EffectContextHandle,
+	const bool bInIsSuccessfulDebuff)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetIsSuccessfulDebuff(bInIsSuccessfulDebuff);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetDebuffDamage(FGameplayEffectContextHandle& EffectContextHandle, const float InDebuffDamage)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetDebuffDamage(InDebuffDamage);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetDebuffFrequency(FGameplayEffectContextHandle& EffectContextHandle,
+	const float InDebuffFrequency)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetDebuffFrequency(InDebuffFrequency);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetDebuffDuration(FGameplayEffectContextHandle& EffectContextHandle,
+	const float InDebuffDuration)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetDebuffDuration(InDebuffDuration);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetDamageType(FGameplayEffectContextHandle& EffectContextHandle,
+	const FGameplayTag& InDamageType)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetDamageType(MakeShared<FGameplayTag>(InDamageType));
+	}
+}
+
 void UAGASAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,
-	const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
+                                                           const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
 {
 	FCollisionQueryParams SphereParams;
 	SphereParams.AddIgnoredActors(ActorsToIgnore);

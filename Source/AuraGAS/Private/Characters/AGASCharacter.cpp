@@ -52,6 +52,7 @@ void AAGASCharacter::InitializeAbilityActorInfo()
 	AttributeSet = AGASPlayerState->GetAttributeSet();
 	AbilitySystemComponent->InitAbilityActorInfo(AGASPlayerState, this);
 	AbilitySystemComponent->AbilityActorInfoSet();
+	OnAscRegistered.Broadcast(AbilitySystemComponent);
 
 	AGASPlayerState->OnLevelChangedSignature.AddLambda([this] (const int32 NewValue)
 	{

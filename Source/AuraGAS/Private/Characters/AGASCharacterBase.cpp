@@ -7,6 +7,7 @@
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "MotionWarpingComponent.h"
+#include "AbilitySystem/Debuff/AGASDebuffNiagaraComponent.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -29,6 +30,10 @@ AAGASCharacterBase::AAGASCharacterBase()
 	}
 
 	MotionWarpingComp = CreateDefaultSubobject<UMotionWarpingComponent>("MotionWarping");
+	
+	BurnDebuffComponent = CreateDefaultSubobject<UAGASDebuffNiagaraComponent>("BurnDebuffComponent");
+	BurnDebuffComponent->SetupAttachment(GetRootComponent());
+	BurnDebuffComponent->DebuffTag = TAG_Debuff_Burn;
 }
 
 UAbilitySystemComponent* AAGASCharacterBase::GetAbilitySystemComponent() const
@@ -87,6 +92,7 @@ void AAGASCharacterBase::MulticastHandleDeath_Implementation()
 	// Runs a dissolve animation
 	Dissolve();
 	bDead = true;
+	OnDeath.Broadcast(this);
 }
 
 void AAGASCharacterBase::BeginPlay()
@@ -178,6 +184,16 @@ void AAGASCharacterBase::AddToMinionCount_Implementation(int32 Amount)
 ECharacterClass AAGASCharacterBase::GetCharacterClass_Implementation()
 {
 	return CharacterClass;
+}
+
+FOnASCRegistered& AAGASCharacterBase::GetOnASCRegisteredDelegate()
+{
+	return OnAscRegistered;
+}
+
+FOnDeath& AAGASCharacterBase::GetOnDeathDelegate()
+{
+	return OnDeath;
 }
 
 void AAGASCharacterBase::SetWasSummoned(bool bInWasSummoned)

@@ -260,7 +260,8 @@ protected:
 	//~ End Resistance Attributes rep notifies
 
 private:
-	
+	void HandleIncomingDamage(const FEffectPropertiesAdvanced& Props);
+	void Debuff(const FEffectPropertiesAdvanced& Props);
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectPropertiesAdvanced& Props);
 	void ShowFloatingText(const FEffectPropertiesAdvanced& Props, float Damage, const bool bCriticalHit, const bool bBlockedHit) const;
 	void SendXPPointsEvent(const FEffectPropertiesAdvanced& Props);

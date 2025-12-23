@@ -9,6 +9,7 @@
 #include "Interaction/AGASCombatInterface.h"
 #include "AGASCharacterBase.generated.h"
 
+class UAGASDebuffNiagaraComponent;
 class UNiagaraSystem;
 class UGameplayAbility;
 class UGameplayEffect;
@@ -30,38 +31,36 @@ public:
 	/* Combat Interface functions */
 	// Returns the hit react montage
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
-	
 	// Pure function that handles any death functionality
 	virtual void Die() override;
-	
 	// Returns the location of a character's socket based on the tag passed in
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& CombatSocketTag) override;
-	
+	// Returns a bool on if the character is dead
 	virtual bool IsDead_Implementation() const override;
-	
 	// Returns the Avatar Actor
 	virtual AActor* GetAvatar_Implementation() override;
-	
 	// Returns the whole array of attack montages a character has
 	virtual TArray<FTaggedMontage> GetAttackMontages_Implementation() override;
-	
 	// Returns one attack montage at random if there are more than 1; returns just the one if not
 	virtual FTaggedMontage GetAttackMontageRandom_Implementation() override;
-	
 	// Returns the blood effect of the actor
 	virtual UNiagaraSystem* GetBloodEffect_Implementation() override;
-	
 	// Returns impact sound of a characters attack with the specified montage tag
 	virtual USoundBase* GetImpactSoundByMontageTag_Implementation(const FGameplayTag& InMontageTag) override;
-
 	// Returns the number of current minions
 	virtual int32 GetMinionCount_Implementation() override;
-
 	// Add a positive or negative amount to minion count
 	virtual void AddToMinionCount_Implementation(int32 Amount) override;
-
+	// Get character class type
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
+	// Returns the delegate for OnASCRegistered
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
+	// Retruns the delegate for OnDeath
+	virtual FOnDeath& GetOnDeathDelegate() override;
 	/* End Combat Interface functions */
+	
+	FOnASCRegistered OnAscRegistered;
+	FOnDeath OnDeath;
 
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void MulticastHandleDeath();
@@ -102,6 +101,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComp;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAGASDebuffNiagaraComponent> BurnDebuffComponent;
 
 	/* Dissolve Effect */
 

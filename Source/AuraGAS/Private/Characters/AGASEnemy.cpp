@@ -134,6 +134,7 @@ void AAGASEnemy::InitializeAbilityActorInfo()
 	{
 		UAGASAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
 	}
+	OnAscRegistered.Broadcast(AbilitySystemComponent);
 }
 
 void AAGASEnemy::InitializeOverheadHealthBar()

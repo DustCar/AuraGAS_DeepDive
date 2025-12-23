@@ -16,9 +16,29 @@ bool FAGASGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 		{
 			RepBits |= 1 << 1;
 		}
+		if (bIsSuccessfulDebuff)
+		{
+			RepBits |= 1 << 2;
+		}
+		if (DebuffDamage > 0.f)
+		{
+			RepBits |= 1 << 3;
+		}
+		if (DebuffFrequency > 0.f)
+		{
+			RepBits |= 1 << 4;
+		}
+		if (DebuffDuration > 0.f)
+		{
+			RepBits |= 1 << 5;
+		}
+		if (DamageType.IsValid())
+		{
+			RepBits |= 1 << 6;
+		}
 	}
 
-	Ar.SerializeBits(&RepBits, 2);
+	Ar.SerializeBits(&RepBits, 7);
 
 	if (RepBits & (1 << 0))
 	{
@@ -37,6 +57,38 @@ bool FAGASGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 	else
 	{
 		bIsBlockedHit = false;
+	}
+	if (RepBits & (1 << 2))
+	{
+		Ar << bIsSuccessfulDebuff;
+		bIsSuccessfulDebuff = true;
+	}
+	else
+	{
+		bIsSuccessfulDebuff = false;
+	}
+	if (RepBits & (1 << 3))
+	{
+		Ar << DebuffDamage;
+	}
+	if (RepBits & (1 << 4))
+	{
+		Ar << DebuffFrequency;
+	}
+	if (RepBits & (1 << 5))
+	{
+		Ar << DebuffDuration;
+	}
+	if (RepBits & (1 << 6))
+	{
+		if (Ar.IsLoading())
+		{
+			if (!DamageType.IsValid())
+			{
+				DamageType = MakeShared<FGameplayTag>();
+			}
+		}
+		DamageType->NetSerialize(Ar, Map, bOutSuccess);
 	}
 	
 	return true;

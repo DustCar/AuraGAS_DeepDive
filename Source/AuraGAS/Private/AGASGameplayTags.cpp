@@ -42,6 +42,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Arcane, "Damage.Arcane")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Damage_Physical, "Damage.Physical")
 
 // Debuff Tags
+UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff, "Debuff")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Burn, "Debuff.Burn")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Stun, "Debuff.Stun")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Arcane, "Debuff.Arcane")
@@ -99,6 +100,22 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_4, "Montage.Attack.4")
 
 // Other Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Effects_HitReact, "Effects.HitReact")
+
+const TMap<FGameplayTag, FGameplayTag> AGASGameplayTags::DamageTypeToResistMap = 
+{
+	{TAG_Damage_Fire, TAG_Attributes_Resistance_Fire},
+	{TAG_Damage_Lightning, TAG_Attributes_Resistance_Lightning},
+	{TAG_Damage_Arcane, TAG_Attributes_Resistance_Arcane},
+	{TAG_Damage_Physical, TAG_Attributes_Resistance_Physical}
+};
+
+const TMap<FGameplayTag, FGameplayTag> AGASGameplayTags::DamageTypeToDebuffMap = 
+{
+	{TAG_Damage_Fire, TAG_Debuff_Burn},
+	{TAG_Damage_Lightning, TAG_Debuff_Stun},
+	{TAG_Damage_Arcane, TAG_Debuff_Arcane},
+	{TAG_Damage_Physical, TAG_Debuff_Physical}
+};
 
 AGASGameplayTags::AGASGameplayTags()
 {
