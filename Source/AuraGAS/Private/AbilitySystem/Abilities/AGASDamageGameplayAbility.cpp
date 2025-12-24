@@ -5,15 +5,13 @@
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/AGASAbilitySystemLibrary.h"
 
 void UAGASDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 {
-	FGameplayEffectSpecHandle DamageSpecHandle = MakeOutgoingGameplayEffectSpec(DamageEffectClass);
+	const FDamageEffectParams Params = MakeDamageEffectParamsFromClassDefaults(TargetActor);
 
-	const float ScaledDamage = DamageFloat.GetValueAtLevel(GetAbilityLevel());
-	DamageSpecHandle.Data->SetSetByCallerMagnitude(DamageTag, ScaledDamage);
-
-	GetAbilitySystemComponentFromActorInfo()->ApplyGameplayEffectSpecToTarget(*DamageSpecHandle.Data, UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor));
+	UAGASAbilitySystemLibrary::ApplyDamageEffectToTarget(Params);
 }
 
 int32 UAGASDamageGameplayAbility::GetRoundedDamageAtLevel(int32 Level)
@@ -59,6 +57,20 @@ FDamageEffectParams UAGASDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 	Params.DebuffDamage = DebuffDamage;
 	Params.DebuffFrequency = DebuffFrequency;
 	Params.DebuffDuration = DebuffDuration;
+	Params.DeathImpulseMagnitude = DeathImpulseMagnitude;
+	Params.KnockbackChance = KnockbackChance;
+	Params.KnockbackImpulseMagnitude = KnockbackImpulseMagnitude;
+	
+	// add impulses for melee characters
+	if (IsValid(TargetActor))
+	{
+		FRotator ToTargetRotation = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).Rotation();
+		ToTargetRotation.Pitch = 45.f;
+		const FVector ToTarget = ToTargetRotation.Vector();
+		
+		Params.DeathImpulse = ToTarget * DeathImpulseMagnitude;
+		Params.KnockbackImpulse = ToTarget * KnockbackImpulseMagnitude;
+	}
 	
 	return Params;
 }

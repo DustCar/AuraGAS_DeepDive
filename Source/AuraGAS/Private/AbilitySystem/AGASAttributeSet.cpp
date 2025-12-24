@@ -149,9 +149,12 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	// NOTE: for debuff effects (like burn) it still runs the function but just returns
 	if (Props.TargetProperties->Character->Implements<UAGASCombatInterface>() && IAGASCombatInterface::Execute_IsDead(Props.TargetProperties->Character)) return;
 
+	// in our case, we consider any GE that has a period/frequency to be a debuff (so all DoT damage)
+	const bool bIsDebuff = Data.EffectSpec.Period > 0.f;
+	
 	if (Data.EvaluatedData.Attribute == GetIncomingDamageAttribute())
 	{
-		HandleIncomingDamage(Props);
+		HandleIncomingDamage(Props, bIsDebuff);
 	}
 
 	if (Data.EvaluatedData.Attribute == GetIncomingXPPointsAttribute())
@@ -188,7 +191,7 @@ void UAGASAttributeSet::SendXPPointsEvent(const FEffectPropertiesAdvanced& Props
 	}
 }
 
-void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Props)
+void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Props, const bool bIsDebuff)
 {
 	const float LocalIncomingDamage = GetIncomingDamage();
 	SetIncomingDamage(0.f);
@@ -197,33 +200,38 @@ void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Pr
 	const float NewHealth = GetHealthPoints() - LocalIncomingDamage;
 	SetHealthPoints(FMath::Clamp(NewHealth, 0.f, GetMaxHealthPoints()));
 
+	IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(Props.TargetProperties->AvatarActor);
+	
 	const bool bFatal = NewHealth <= 0.f;
 	if (bFatal)
 	{
-			
-		IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(Props.TargetProperties->AvatarActor);
 		if (CombatInterface)
 		{
-			CombatInterface->Die();
+			CombatInterface->Die(UAGASAbilitySystemLibrary::GetDeathImpulse(Props.EffectContextHandle));
 		}
 		SendXPPointsEvent(Props);
 	}
-	else
+	else if (!bIsDebuff)
 	{
 		FGameplayTagContainer TagContainer;
 		TagContainer.AddTag(TAG_Abilities_HitReact);
 		Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+		
+		const FVector KnockbackImpulse = UAGASAbilitySystemLibrary::GetKnockbackImpulse(Props.EffectContextHandle);
+		if (KnockbackImpulse.Length() > 0.f)
+		{
+			Props.TargetProperties->Character->LaunchCharacter(KnockbackImpulse, false, false);
+		}
+		if (UAGASAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
+		{
+			// Handle debuff
+			Debuff(Props);
+		}
 	}
 		
 	const bool bCriticalHit = UAGASAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
 	const bool bBlocked = UAGASAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
 	ShowFloatingText(Props, LocalIncomingDamage, bCriticalHit, bBlocked);
-	
-	if (UAGASAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
-	{
-		// Handle debuff
-		Debuff(Props);
-	}
 }
 
 void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)

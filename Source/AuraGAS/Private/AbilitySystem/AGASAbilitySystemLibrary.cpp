@@ -154,8 +154,14 @@ FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarge
 	
 	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(SourceASC->GetAvatarActor());
+	SetDeathImpulse(EffectContextHandle, InParams.DeathImpulse);
 	
-	 const FGameplayEffectSpecHandle DamageEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.DamageGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
+	const bool bSuccessfulKnockback = FMath::FRandRange(UE_SMALL_NUMBER, 100.f) < InParams.KnockbackChance;
+	if (bSuccessfulKnockback)
+	{
+		SetKnockbackImpulse(EffectContextHandle, InParams.KnockbackImpulse);
+	}
+	const FGameplayEffectSpecHandle DamageEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.DamageGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
 	
 	// Assign the caller magnitudes for Damage type with base damage as value
 	// and other Debuff params
@@ -243,6 +249,26 @@ FGameplayTag UAGASAbilitySystemLibrary::GetDamageType(const FGameplayEffectConte
 	return FGameplayTag();
 }
 
+FVector UAGASAbilitySystemLibrary::GetDeathImpulse(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->GetDeathImpulse();
+	}
+
+	return FVector::ZeroVector;
+}
+
+FVector UAGASAbilitySystemLibrary::GetKnockbackImpulse(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->GetKnockbackImpulse();
+	}
+
+	return FVector::ZeroVector;
+}
+
 void UAGASAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsBlockedHit)
 {
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -300,6 +326,24 @@ void UAGASAbilitySystemLibrary::SetDamageType(FGameplayEffectContextHandle& Effe
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		AGASEffectContext->SetDamageType(MakeShared<FGameplayTag>(InDamageType));
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetDeathImpulse(FGameplayEffectContextHandle& EffectContextHandle,
+	const FVector& InDeathImpulse)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetDeathImpulse(InDeathImpulse);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetKnockbackImpulse(FGameplayEffectContextHandle& EffectContextHandle,
+                                                    const FVector& InKnockbackImpulse)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetKnockbackImpulse(InKnockbackImpulse);
 	}
 }
 

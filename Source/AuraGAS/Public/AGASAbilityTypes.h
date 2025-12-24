@@ -6,6 +6,7 @@
 
 class UGameplayEffect;
 
+// A custom struct that holds most necessary info for the GameplaySpec
 USTRUCT(BlueprintType)
 struct FDamageEffectParams
 {
@@ -42,6 +43,21 @@ struct FDamageEffectParams
 	
 	UPROPERTY()
 	float DebuffDuration = 0.f;
+	
+	UPROPERTY()
+	float DeathImpulseMagnitude = 0.f;
+	
+	UPROPERTY()
+	FVector DeathImpulse = FVector::ZeroVector;
+	
+	UPROPERTY()
+	float KnockbackChance = 0.f;
+	
+	UPROPERTY()
+	float KnockbackImpulseMagnitude = 0.f;
+	
+	UPROPERTY()
+	FVector KnockbackImpulse = FVector::ZeroVector;
 };
 
 USTRUCT(BlueprintType)
@@ -58,6 +74,8 @@ public:
 	float GetDebuffFrequency() const { return DebuffFrequency; }
 	float GetDebuffDuration() const { return DebuffDuration; }
 	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
+	FVector GetDeathImpulse() const { return DeathImpulse; }
+	FVector GetKnockbackImpulse() const { return KnockbackImpulse; }
 
 	void SetIsCriticalHit(const bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
 	void SetIsBlockedHit(const bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
@@ -66,6 +84,8 @@ public:
 	void SetDebuffFrequency(const float InDebuffFrequency) { DebuffFrequency = InDebuffFrequency; }
 	void SetDebuffDuration(const float InDebuffDuration) { DebuffDuration = InDebuffDuration; }
 	void SetDamageType(const TSharedPtr<FGameplayTag>& InDamageType) { DamageType = InDamageType; }
+	void SetDeathImpulse(const FVector& InDeathImpulse) { DeathImpulse = InDeathImpulse; }
+	void SetKnockbackImpulse(const FVector& InKnockbackImpulse) { KnockbackImpulse = InKnockbackImpulse; }
 	
 	/* Returns the actual struct used for serialization */
 	virtual UScriptStruct* GetScriptStruct() const override
@@ -108,6 +128,12 @@ protected:
 	
 	UPROPERTY()
 	float DebuffDuration = 0.f;
+	
+	UPROPERTY()
+	FVector DeathImpulse = FVector::ZeroVector;
+	
+	UPROPERTY()
+	FVector KnockbackImpulse = FVector::ZeroVector;
 	
 	TSharedPtr<FGameplayTag> DamageType;
 	

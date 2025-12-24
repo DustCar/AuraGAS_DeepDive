@@ -46,7 +46,13 @@ UAnimMontage* AAGASCharacterBase::GetHitReactMontage_Implementation()
 	return HitReactMontage;
 }
 
-void AAGASCharacterBase::Die()
+void AAGASCharacterBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+void AAGASCharacterBase::Die(const FVector& DeathImpulse)
 {
 	// If character was summoned, decrement their summoner's minion count
 	if (bWasSummoned && IsValid(GetInstigator()))
@@ -60,17 +66,18 @@ void AAGASCharacterBase::Die()
 	{
 		WeaponMesh->DetachFromComponent(FDetachmentTransformRules(EDetachmentRule::KeepWorld, true));
 	}
-	MulticastHandleDeath();
+	
+	MulticastHandleDeath(DeathImpulse);
 }
 
-void AAGASCharacterBase::MulticastHandleDeath_Implementation()
+void AAGASCharacterBase::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
 {
 	if (DeathSound)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, DeathSound, GetActorLocation(), GetActorRotation());
 	}
 	// Implementing ragdoll physics for the weapon and the character mesh
-	if (IsValid(WeaponMesh))
+	if (IsValid(WeaponMesh->GetSkeletalMeshAsset()))
 	{
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
@@ -78,14 +85,17 @@ void AAGASCharacterBase::MulticastHandleDeath_Implementation()
 		WeaponMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 		WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+		WeaponMesh->AddImpulse(DeathImpulse * 2);
 	}
 
+	const float CharMeshMass = GetMesh()->GetMass();
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+	GetMesh()->AddImpulse(DeathImpulse * CharMeshMass);
 	
 	// Disable capsule component collision to avoid an invisible actor
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -93,12 +103,6 @@ void AAGASCharacterBase::MulticastHandleDeath_Implementation()
 	Dissolve();
 	bDead = true;
 	OnDeath.Broadcast(this);
-}
-
-void AAGASCharacterBase::BeginPlay()
-{
-	Super::BeginPlay();
-	
 }
 
 FVector AAGASCharacterBase::GetCombatSocketLocation_Implementation(const FGameplayTag& CombatSocketTag)

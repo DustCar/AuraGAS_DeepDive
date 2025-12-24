@@ -32,7 +32,7 @@ public:
 	// Returns the hit react montage
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
 	// Pure function that handles any death functionality
-	virtual void Die() override;
+	virtual void Die(const FVector& DeathImpulse) override;
 	// Returns the location of a character's socket based on the tag passed in
 	virtual FVector GetCombatSocketLocation_Implementation(const FGameplayTag& CombatSocketTag) override;
 	// Returns a bool on if the character is dead
@@ -55,7 +55,7 @@ public:
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
 	// Returns the delegate for OnASCRegistered
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
-	// Retruns the delegate for OnDeath
+	// Returns the delegate for OnDeath
 	virtual FOnDeath& GetOnDeathDelegate() override;
 	/* End Combat Interface functions */
 	
@@ -63,7 +63,7 @@ public:
 	FOnDeath OnDeath;
 
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void MulticastHandleDeath();
+	virtual void MulticastHandleDeath(const FVector& DeathImpulse);
 
 	UPROPERTY(EditAnywhere, Category = "Setup|Combat")
 	TArray<FTaggedMontage> AttackMontages;

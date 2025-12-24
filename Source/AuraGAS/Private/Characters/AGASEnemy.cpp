@@ -88,11 +88,11 @@ void AAGASEnemy::SetCharacterLevel_Implementation(int32 NewLevel)
 }
 
 
-void AAGASEnemy::Die()
+void AAGASEnemy::Die(const FVector& DeathImpulse)
 {
 	AGASAIController->GetBrainComponent()->StopLogic(TEXT("Died"));
 	SetLifeSpan(CorpseLifeSpan);
-	Super::Die();
+	Super::Die(DeathImpulse);
 }
 
 void AAGASEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)

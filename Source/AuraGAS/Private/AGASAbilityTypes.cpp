@@ -36,9 +36,17 @@ bool FAGASGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 		{
 			RepBits |= 1 << 6;
 		}
+		if (!DeathImpulse.IsZero())
+		{
+			RepBits |= 1 << 7;
+		}
+		if (!KnockbackImpulse.IsZero())
+		{
+			RepBits |= 1 << 8;
+		}
 	}
 
-	Ar.SerializeBits(&RepBits, 7);
+	Ar.SerializeBits(&RepBits, 9);
 
 	if (RepBits & (1 << 0))
 	{
@@ -89,6 +97,14 @@ bool FAGASGameplayEffectContext::NetSerialize(FArchive& Ar, class UPackageMap* M
 			}
 		}
 		DamageType->NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 7))
+	{
+		DeathImpulse.NetSerialize(Ar, Map, bOutSuccess);
+	}
+	if (RepBits & (1 << 8))
+	{
+		KnockbackImpulse.NetSerialize(Ar, Map, bOutSuccess);
 	}
 	
 	return true;

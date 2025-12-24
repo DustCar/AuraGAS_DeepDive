@@ -30,7 +30,7 @@ public:
 	//~ Begin Combat Interface
 	virtual int32 GetCharacterLevel_Implementation() override;
 	virtual void SetCharacterLevel_Implementation(int32 NewLevel) override;
-	virtual void Die() override;
+	virtual void Die(const FVector& DeathImpulse) override;
 	//~ End Combat Interface
 
 	//~ Begin Target Interface

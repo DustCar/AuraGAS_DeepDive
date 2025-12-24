@@ -47,4 +47,13 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff");
 	float DebuffDuration = 5.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage|DeathImpulse")
+	float DeathImpulseMagnitude = 2500.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Knockback")
+	float KnockbackChance = 10.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Knockback")
+	float KnockbackImpulseMagnitude = 300.f;
 };
