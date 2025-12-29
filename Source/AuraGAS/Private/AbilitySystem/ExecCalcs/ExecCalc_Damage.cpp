@@ -189,6 +189,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	AActor* TargetAvatar = TargetASC ? TargetASC->GetAvatarActor() : nullptr;
 
 	const UAGASCharacterClassInfo* CharacterClassInfo = UAGASAbilitySystemLibrary::GetCharacterClassInfo(SourceAvatar);
+	if (CharacterClassInfo == nullptr) return;
 
 	const FGameplayEffectSpec& Spec = ExecutionParams.GetOwningSpec();
 	

@@ -37,6 +37,7 @@ void AAGASProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetReplicateMovement(true);
 	SetLifeSpan(LifeSpan);
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
 
@@ -94,7 +95,7 @@ void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		check(DamageEffectParams.SourceAbilitySystemComponent)
 		if (UAbilitySystemComponent* TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(OtherActor))
 		{
-			FRotator ToTargetRotation = (GetActorLocation() - OtherActor->GetActorLocation()).Rotation();
+			FRotator ToTargetRotation = (OtherActor->GetActorLocation() - GetActorLocation()).Rotation();
 			ToTargetRotation.Pitch = 45.f;
 			const FVector ToTarget = ToTargetRotation.Vector();
 			

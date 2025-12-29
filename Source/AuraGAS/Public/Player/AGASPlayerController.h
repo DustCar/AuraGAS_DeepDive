@@ -21,6 +21,7 @@ class IAGASTargetInterface;
 struct FInputActionValue;
 class UAGASInputConfig;
 class UInputMappingContext;
+class UNiagaraSystem;
 
 // Custom struct to store info for actors in the way of the camera
 USTRUCT(BlueprintType)
@@ -141,8 +142,11 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	float AutoRunAcceptanceRadius = 50.f;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UNiagaraSystem> ClickNiagaraSystem;
 
 	void AutoRun();
 

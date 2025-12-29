@@ -8,6 +8,7 @@
 #include "KismetTraceUtils.h" // Debug capsule trace
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
+#include "NiagaraFunctionLibrary.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Camera/CameraComponent.h"
@@ -182,6 +183,8 @@ void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Valu
 		// only LMB for movement
 		if (InputTag.MatchesTagExact(TAG_InputTag_LMB)) bAutoRunning = false;
 	}
+	
+	if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
 }
 
 void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
@@ -217,6 +220,9 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 					CachedDestination = NavPath->PathPoints.Last();
 					bAutoRunning = true;
+					
+					// make sure that we have a valid path before we call the click effect
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
 				}
 			}
 		

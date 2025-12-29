@@ -153,7 +153,7 @@ void AAGASEnemy::InitializeOverheadHealthBar()
 	if (UAGASUserWidget* AGASHealthBarWidget = Cast<UAGASUserWidget>(HealthBar->GetUserWidgetObject()))
 	{
 		AGASHealthBarWidget->SetWidgetController(OverheadHPBarWidgetController);
-		/*if (HasAuthority())*/ OverheadHPBarWidgetController->BroadcastInitialValues();
+		OverheadHPBarWidgetController->BroadcastInitialValues();
 	}
 }
 

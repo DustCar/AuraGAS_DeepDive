@@ -42,6 +42,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|CharacterClassDefaults", meta = (WorldContext = "WorldContextObject"))
 	static void GiveStartupAbilities(const UObject* WorldContextObject, UAGASAbilitySystemComponent* ASC, ECharacterClass CharacterClass);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|XPPoints")
+	static int32 GetXPPointsRewarded(const UObject* WorldContextObject, const ECharacterClass CharacterClass, const int32 CharacterLevel);
 
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|CharacterClassDefaults", meta = (WorldContext = "WorldContextObject"))
 	static UAGASCharacterClassInfo* GetCharacterClassInfo(const UObject* WorldContextObject);
@@ -111,7 +114,11 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayMechanics")
 	static bool IsOnSameTeam(const AActor* FirstActor, const AActor* SecondActor);
+	
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayMechanics")
+	static TArray<FRotator> EvenlySpacedRotators(const FVector& Forward, const FVector& Axis, float Spread, int32 NumRotators);
+	
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayMechanics")
+	static TArray<FVector> EvenlyRotatedVectors(const FVector& Forward, const FVector& Axis, float Spread, int32 NumVectors);
 
-	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|XPPoints")
-	static int32 GetXPPointsRewarded(const UObject* WorldContextObject, const ECharacterClass CharacterClass, const int32 CharacterLevel);
 };

@@ -4,7 +4,9 @@
 #include "AbilitySystem/Abilities/AGASGA_CastProjectile.h"
 
 #include "AbilitySystemComponent.h"
+#include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "Actor/AGASProjectile.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Interaction/AGASCombatInterface.h"
 
 
@@ -33,4 +35,56 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 	Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
 	
 	Projectile->FinishSpawning(SpawnTransform);
+}
+
+void UAGASGA_CastProjectile::SpawnProjectiles(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag,
+	AActor* HomingTarget, const bool bOverridePitch, const float PitchAmount, const bool bHoming)
+{
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (AvatarActor == nullptr || !AvatarActor->HasAuthority()) return;
+	
+	const FVector SocketLocation = IAGASCombatInterface::Execute_GetCombatSocketLocation(AvatarActor, SocketTag);
+	FRotator Rotation = (ProjectileTargetLocation - SocketLocation).Rotation();
+	if (bOverridePitch) Rotation.Pitch = PitchAmount;
+	
+	const FVector Forward = Rotation.Vector();
+	
+	const int32 NumProjectiles = FMath::Min(MaxNumProjectiles, GetAbilityLevel());
+	
+	TArray<FRotator> Rotations = UAGASAbilitySystemLibrary::EvenlySpacedRotators(Forward, FVector::UpVector, ProjectileSpread, NumProjectiles);
+	
+	for (const FRotator& Rot : Rotations)
+	{
+		FTransform SpawnTransform;
+		SpawnTransform.SetLocation(SocketLocation);
+		SpawnTransform.SetRotation(Rot.Quaternion());
+		
+		AAGASProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAGASProjectile>(
+			ProjectileClass,
+			SpawnTransform,
+			GetAvatarActorFromActorInfo(),
+			Cast<APawn>(GetAvatarActorFromActorInfo()),
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+		);
+
+		Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
+		
+		if (bHoming)
+		{
+			Projectile->ProjectileMovement->bIsHomingProjectile = true;
+			if (HomingTarget && HomingTarget->Implements<UAGASCombatInterface>())
+			{
+				Projectile->ProjectileMovement->HomingTargetComponent = HomingTarget->GetRootComponent();
+			}
+			else
+			{
+				Projectile->HomingTargetSceneComponent = NewObject<USceneComponent>(USceneComponent::StaticClass());
+				Projectile->HomingTargetSceneComponent->SetWorldLocation(ProjectileTargetLocation);
+				Projectile->ProjectileMovement->HomingTargetComponent = Projectile->HomingTargetSceneComponent;
+			}
+			Projectile->ProjectileMovement->HomingAccelerationMagnitude = FMath::FRandRange(HomingAccelerationMin, HomingAccelerationMax);
+		}
+		
+		Projectile->FinishSpawning(SpawnTransform);
+	}
 }

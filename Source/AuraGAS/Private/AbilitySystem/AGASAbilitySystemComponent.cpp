@@ -62,6 +62,26 @@ void UAGASAbilitySystemComponent::AddCharacterPassiveAbilities(
 	}
 }
 
+void UAGASAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
+{
+	if (!InputTag.IsValid()) return;
+
+	for (FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
+		{
+			AbilitySpecInputPressed(AbilitySpec);
+
+			if (!AbilitySpec.IsActive()) return;
+			UGameplayAbility* PrimaryInstance = AbilitySpec.GetPrimaryInstance();
+			if (PrimaryInstance)
+			{
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed, AbilitySpec.Handle, PrimaryInstance->GetCurrentActivationInfo().GetActivationPredictionKey());
+			}
+		}
+	}
+}
+
 void UAGASAbilitySystemComponent::AbilityInputTagHeld(const FGameplayTag& InputTag)
 {
 	if (!InputTag.IsValid()) return;
@@ -88,6 +108,16 @@ void UAGASAbilitySystemComponent::AbilityInputTagReleased(const FGameplayTag& In
 		if (AbilitySpec.DynamicAbilityTags.HasTagExact(InputTag))
 		{
 			AbilitySpecInputReleased(AbilitySpec);
+			
+			if (!AbilitySpec.IsActive()) return;
+			// NOTE: GetPrimaryInstance() is only valid on InstancedPerActor abilities
+			// for InstancedPerExecution abilities, GetAbilityInstances() would be used that would return an array of GAs
+			// this is for the fix of AbilitySpec.ActivationInfo being deprecated in 5.5 onward
+			UGameplayAbility* PrimaryInstance = AbilitySpec.GetPrimaryInstance();
+			if (PrimaryInstance)
+			{
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased, AbilitySpec.Handle, PrimaryInstance->GetCurrentActivationInfo().GetActivationPredictionKey());
+			}
 		}
 	}
 }
