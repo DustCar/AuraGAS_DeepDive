@@ -18,6 +18,12 @@ struct FDamageEffectParams
 	TSubclassOf<UGameplayEffect> DamageGameplayEffectClass = nullptr;
 	
 	UPROPERTY()
+	TSubclassOf<UGameplayEffect> KnockbackGameplayEffectClass = nullptr;
+	
+	UPROPERTY()
+	TSubclassOf<UGameplayEffect> KnockbackStatusGameplayEffectClass = nullptr;
+	
+	UPROPERTY()
 	TObjectPtr<UAbilitySystemComponent> SourceAbilitySystemComponent;
 	
 	UPROPERTY()
@@ -57,7 +63,7 @@ struct FDamageEffectParams
 	float KnockbackImpulseMagnitude = 0.f;
 	
 	UPROPERTY()
-	FVector KnockbackImpulse = FVector::ZeroVector;
+	FVector KnockbackDirection = FVector::ZeroVector;
 };
 
 USTRUCT(BlueprintType)
@@ -75,7 +81,7 @@ public:
 	float GetDebuffDuration() const { return DebuffDuration; }
 	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
 	FVector GetDeathImpulse() const { return DeathImpulse; }
-	FVector GetKnockbackImpulse() const { return KnockbackImpulse; }
+	FVector GetKnockbackDirection() const { return KnockbackDirection; }
 
 	void SetIsCriticalHit(const bool bInIsCriticalHit) { bIsCriticalHit = bInIsCriticalHit; }
 	void SetIsBlockedHit(const bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
@@ -85,7 +91,7 @@ public:
 	void SetDebuffDuration(const float InDebuffDuration) { DebuffDuration = InDebuffDuration; }
 	void SetDamageType(const TSharedPtr<FGameplayTag>& InDamageType) { DamageType = InDamageType; }
 	void SetDeathImpulse(const FVector& InDeathImpulse) { DeathImpulse = InDeathImpulse; }
-	void SetKnockbackImpulse(const FVector& InKnockbackImpulse) { KnockbackImpulse = InKnockbackImpulse; }
+	void SetKnockbackDirection(const FVector& InKnockbackDirection) { KnockbackDirection = InKnockbackDirection; }
 	
 	/* Returns the actual struct used for serialization */
 	virtual UScriptStruct* GetScriptStruct() const override
@@ -133,7 +139,7 @@ protected:
 	FVector DeathImpulse = FVector::ZeroVector;
 	
 	UPROPERTY()
-	FVector KnockbackImpulse = FVector::ZeroVector;
+	FVector KnockbackDirection = FVector::ZeroVector;
 	
 	TSharedPtr<FGameplayTag> DamageType;
 	

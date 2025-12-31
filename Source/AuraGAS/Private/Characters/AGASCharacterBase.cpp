@@ -190,6 +190,24 @@ ECharacterClass AAGASCharacterBase::GetCharacterClass_Implementation()
 	return CharacterClass;
 }
 
+void AAGASCharacterBase::KnockbackCharacter_Implementation(const FVector& KnockbackForce)
+{
+	// could add additional logic to make knockback feel better but for now we'll just refactor our knockback to use
+	// a combat interface function rather than just calling it straight up in AttributeSet
+	LaunchCharacter(KnockbackForce, false, false);
+	
+}
+
+USkeletalMeshComponent* AAGASCharacterBase::GetWeapon_Implementation()
+{
+	if (IsValid(WeaponMesh))
+	{
+		return WeaponMesh;
+	}
+	
+	return nullptr;
+}
+
 FOnASCRegistered& AAGASCharacterBase::GetOnASCRegisteredDelegate()
 {
 	return OnAscRegistered;

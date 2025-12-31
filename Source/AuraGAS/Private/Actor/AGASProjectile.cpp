@@ -100,11 +100,10 @@ void AAGASProjectile::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 			const FVector ToTarget = ToTargetRotation.Vector();
 			
 			const FVector DeathImpulseVec = ToTarget * DamageEffectParams.DeathImpulseMagnitude;
-			const FVector KnockbackImpulseVec = ToTarget * DamageEffectParams.KnockbackImpulseMagnitude;
 			
 			DamageEffectParams.TargetAbilitySystemComponent = TargetASC;
 			DamageEffectParams.DeathImpulse = DeathImpulseVec;
-			DamageEffectParams.KnockbackImpulse = KnockbackImpulseVec;
+			DamageEffectParams.KnockbackDirection = ToTarget;
 			UAGASAbilitySystemLibrary::ApplyDamageEffectToTarget(DamageEffectParams);
 		}
 		Destroy();

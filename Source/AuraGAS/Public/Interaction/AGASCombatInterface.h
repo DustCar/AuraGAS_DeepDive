@@ -95,9 +95,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	ECharacterClass GetCharacterClass();
 	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void KnockbackCharacter(const FVector& KnockbackForce);
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	USkeletalMeshComponent* GetWeapon();
+	
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() = 0;
 	virtual FOnDeath& GetOnDeathDelegate() = 0;
-	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SetInShockLoop(bool bInLoop);
 };

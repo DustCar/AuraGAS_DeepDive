@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AGASGameplayTags.h"
 #include "GameplayEffectExtension.h"
+#include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/ExecCalcs/ExecCalc_Damage.h"
 #include "GameFramework/Character.h"
@@ -156,6 +157,11 @@ void UAGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallba
 	{
 		HandleIncomingDamage(Props, bIsDebuff);
 	}
+	
+	if (Data.EvaluatedData.Attribute == GetIncomingForceAttribute())
+	{
+		HandleKnockback(Props);
+	}
 
 	if (Data.EvaluatedData.Attribute == GetIncomingXPPointsAttribute())
 	{
@@ -217,11 +223,6 @@ void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Pr
 		TagContainer.AddTag(TAG_Abilities_HitReact);
 		Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
 		
-		const FVector KnockbackImpulse = UAGASAbilitySystemLibrary::GetKnockbackImpulse(Props.EffectContextHandle);
-		if (KnockbackImpulse.Length() > 0.f)
-		{
-			Props.TargetProperties->Character->LaunchCharacter(KnockbackImpulse, false, false);
-		}
 		if (UAGASAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
 		{
 			// Handle debuff
@@ -232,6 +233,29 @@ void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Pr
 	const bool bCriticalHit = UAGASAbilitySystemLibrary::IsCriticalHit(Props.EffectContextHandle);
 	const bool bBlocked = UAGASAbilitySystemLibrary::IsBlockedHit(Props.EffectContextHandle);
 	ShowFloatingText(Props, LocalIncomingDamage, bCriticalHit, bBlocked);
+}
+
+void UAGASAttributeSet::HandleKnockback(const FEffectPropertiesAdvanced& Props)
+{
+	const float LocalIncomingForce = GetIncomingForce();
+	SetIncomingForce(0.f);
+	if (LocalIncomingForce < 0.f) return;
+	
+	if (!Props.TargetProperties->Character->Implements<UAGASCombatInterface>()) return;
+	
+	const FVector DirectionVector = UAGASAbilitySystemLibrary::GetKnockbackDirection(Props.EffectContextHandle);
+	const FVector KnockbackForce = DirectionVector * LocalIncomingForce;
+	
+	// Cancel any ongoing abilities when getting knocked back
+	FGameplayTagContainer AbilitiesToCancel;
+	AbilitiesToCancel.AddTag(TAG_Abilities_Attack);
+	AbilitiesToCancel.AddTag(TAG_Abilities_Summon);
+	// TODO: refactor gameplay tags to have a parent tag for ability element and AppendTags for children of elements 
+	AbilitiesToCancel.AddTag(TAG_Abilities_Fire_FireBolt);
+	AbilitiesToCancel.AddTag(TAG_Abilities_Lightning_Electrocute);
+	Props.TargetProperties->AbilitySystemComponent->CancelAbilities(&AbilitiesToCancel);
+	
+	IAGASCombatInterface::Execute_KnockbackCharacter(Props.TargetProperties->Character, KnockbackForce);
 }
 
 void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)

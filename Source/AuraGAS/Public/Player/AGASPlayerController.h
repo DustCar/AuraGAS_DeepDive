@@ -108,7 +108,6 @@ private:
 
 	void Move(const FInputActionValue& Value);
 	void ShiftPressed(const FInputActionValue& Value) { bShiftKeyDown = Value.Get<bool>(); }
-	void RotateCamera(const FInputActionValue& Value);
 	bool bShiftKeyDown = false;
 
 	// Cursor Trace

@@ -8,6 +8,8 @@
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Player/AGASPlayerState.h"
 
@@ -15,6 +17,9 @@
 AAGASCharacter::AAGASCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
+	
+	GetMesh()->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 
 	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
 	LevelUpNiagaraComponent->SetupAttachment(RootComponent);
@@ -100,6 +105,12 @@ int32 AAGASCharacter::GetCharacterLevel_Implementation()
 	return AGASPlayerState->GetPlayerLevel();
 }
 
+void AAGASCharacter::KnockbackCharacter_Implementation(const FVector& KnockbackForce)
+{
+	Super::KnockbackCharacter_Implementation(KnockbackForce);
+	GetCharacterMovement()->StopMovementImmediately();
+}
+
 void AAGASCharacter::AddToXPPointsOnPlayerState_Implementation(int32 InXPPoints)
 {
 	AAGASPlayerState* AGASPlayerState = GetPlayerState<AAGASPlayerState>();
@@ -131,30 +142,6 @@ int32 AAGASCharacter::GetAttributePointsOnPlayerState_Implementation()
 
 	return AGASPlayerState->GetAttributePoints();
 }
-
-/**
- * Old function that was used in AGASCharacterBase.h that applies a GameplayEffectSpec to the character
- * with said GameplayEffectClass.
- *
- * Updated function for Character is ApplyGameplayEffectSpecToSelf that takes in a GameplayEffectContextHandle
- * param so that a single context handle can be reused and is only used on the Player Character since enemies
- * use the AGASAbilitySystemLibrary to initialize default attributes
- */
-/*
-void AAGASCharacter::ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const
-{
-	
-	// NOTE: We use GetAbilitySystemComponent() in this function since at the base level, there is no ASC yet to be
-	// established. We have only established it in AGASPlayerState/Character and AGASEnemy
-	 
-	check(IsValid(GetAbilitySystemComponent()));
-	check(GameplayEffectClass);
-	FGameplayEffectContextHandle ContextHandle = GetAbilitySystemComponent()->MakeEffectContext();
-	ContextHandle.AddSourceObject(this);
-	const FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(GameplayEffectClass, Level, ContextHandle);
-	GetAbilitySystemComponent()->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data, GetAbilitySystemComponent());
-}
-*/
 
 void AAGASCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass,
 	const FGameplayEffectContextHandle& EffectContextHandle, const float Level) const

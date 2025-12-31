@@ -48,6 +48,8 @@ FDamageEffectParams UAGASDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 {
 	FDamageEffectParams Params;
 	Params.DamageGameplayEffectClass = DamageEffectClass;
+	Params.KnockbackGameplayEffectClass = KnockbackEffectClass;
+	Params.KnockbackStatusGameplayEffectClass = KnockbackStatusEffectClass;
 	Params.SourceAbilitySystemComponent = GetAbilitySystemComponentFromActorInfo();
 	Params.TargetAbilitySystemComponent = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(TargetActor);
 	Params.BaseDamage = DamageFloat.GetValueAtLevel(GetAbilityLevel());
@@ -69,7 +71,7 @@ FDamageEffectParams UAGASDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 		const FVector ToTarget = ToTargetRotation.Vector();
 		
 		Params.DeathImpulse = ToTarget * DeathImpulseMagnitude;
-		Params.KnockbackImpulse = ToTarget * KnockbackImpulseMagnitude;
+		Params.KnockbackDirection = ToTarget;
 	}
 	
 	return Params;

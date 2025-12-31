@@ -53,6 +53,10 @@ public:
 	virtual void AddToMinionCount_Implementation(int32 Amount) override;
 	// Get character class type
 	virtual ECharacterClass GetCharacterClass_Implementation() override;
+	// Apply knockback to the character
+	virtual void KnockbackCharacter_Implementation(const FVector& KnockbackForce) override;
+	// Get the weapon mesh on the character, if one exists
+	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
 	// Returns the delegate for OnASCRegistered
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
 	// Returns the delegate for OnDeath

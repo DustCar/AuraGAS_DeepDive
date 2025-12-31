@@ -23,6 +23,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Secondary_MaxManaPoints, "Attributes.Secon
 
 // Meta Attribute Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Meta_IncomingXPPoints, "Attributes.Meta.IncomingXPPoints")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Meta_IncomingForce, "Attributes.Meta.IncomingForce")
 
 // Input Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_InputTag_LMB, "InputTag.LMB")
@@ -98,8 +99,15 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_2, "Montage.Attack.2")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_3, "Montage.Attack.3")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Montage_Attack_4, "Montage.Attack.4")
 
+// Player Tags
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Block_InputPressed, "Player.Block.InputPressed")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Block_InputHeld, "Player.Block.InputHeld")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Block_InputReleased, "Player.Block.InputReleased")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Block_CursorTrace, "Player.Block.CursorTrace")
+
 // Other Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Effects_HitReact, "Effects.HitReact")
+UE_DEFINE_GAMEPLAY_TAG(TAG_StatusEffects_Knockback, "StatusEffects.Knockback")
 
 const TMap<FGameplayTag, FGameplayTag> AGASGameplayTags::DamageTypeToResistMap = 
 {

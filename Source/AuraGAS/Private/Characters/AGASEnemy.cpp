@@ -95,6 +95,12 @@ void AAGASEnemy::Die(const FVector& DeathImpulse)
 	Super::Die(DeathImpulse);
 }
 
+void AAGASEnemy::KnockbackCharacter_Implementation(const FVector& KnockbackForce)
+{
+	AGASAIController->StopMovement();
+	Super::KnockbackCharacter_Implementation(KnockbackForce);
+}
+
 void AAGASEnemy::SetCombatTarget_Implementation(AActor* InCombatTarget)
 {
 	CombatTarget = InCombatTarget;

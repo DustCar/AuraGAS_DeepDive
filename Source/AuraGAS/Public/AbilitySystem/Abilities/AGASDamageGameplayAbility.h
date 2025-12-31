@@ -28,6 +28,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Knockback")
+	TSubclassOf<UGameplayEffect> KnockbackEffectClass;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Knockback")
+	TSubclassOf<UGameplayEffect> KnockbackStatusEffectClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage", meta = (Categories = "Damage"));
 	FGameplayTag DamageTag;
@@ -55,5 +61,5 @@ protected:
 	float KnockbackChance = 10.f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Knockback")
-	float KnockbackImpulseMagnitude = 300.f;
+	float KnockbackImpulseMagnitude = 500.f;
 };

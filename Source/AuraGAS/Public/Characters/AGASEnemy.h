@@ -31,6 +31,7 @@ public:
 	virtual int32 GetCharacterLevel_Implementation() override;
 	virtual void SetCharacterLevel_Implementation(int32 NewLevel) override;
 	virtual void Die(const FVector& DeathImpulse) override;
+	virtual void KnockbackCharacter_Implementation(const FVector& KnockbackForce) override;
 	//~ End Combat Interface
 
 	//~ Begin Target Interface

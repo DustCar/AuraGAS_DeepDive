@@ -5,7 +5,7 @@
 
 #include "AGASGameplayTags.h"
 #include "EnhancedInputSubsystems.h"
-#include "KismetTraceUtils.h" // Debug capsule trace
+#include "AbilitySystemBlueprintLibrary.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "NiagaraFunctionLibrary.h"
@@ -64,7 +64,23 @@ void AAGASPlayerController::OnRep_PlayerState()
 
 void AAGASPlayerController::CursorTrace()
 {
-	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
+	// stop CursorTracing when the block tag is granted
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(TAG_Player_Block_CursorTrace))
+	{
+		if (LastActor)
+		{
+			LastActor->UnHighlightActor();
+			LastActor = nullptr;
+		}
+		if (CurrentActor)
+		{
+			CurrentActor->UnHighlightActor();
+			CurrentActor = nullptr;
+		}
+		return;
+	}
+	
+	GetHitResultUnderCursor(ECC_Target, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;
 
 	LastActor = CurrentActor;
@@ -115,7 +131,6 @@ void AAGASPlayerController::SetupInputComponent()
 	
 	AGASInputComponent->BindAction(AGASInputActions->InputMove, ETriggerEvent::Triggered, this, &ThisClass::Move);
 	AGASInputComponent->BindAction(AGASInputActions->InputShift, ETriggerEvent::Triggered, this, &ThisClass::ShiftPressed);
-	AGASInputComponent->BindAction(AGASInputActions->InputRotateCamera, ETriggerEvent::Triggered, this, &ThisClass::RotateCamera);
 	AGASInputComponent->BindAbilityActions(AGASInputActions, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
@@ -137,19 +152,6 @@ void AAGASPlayerController::Move(const FInputActionValue& Value)
 		// Forward uses InputAxisVector.Y since that is W, S; Right uses .X since that is A, D
 		ControlledPawn->AddMovementInput(ForwardDirection, InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
-	}
-}
-
-// Used to allow player to look around horizontally; IA is used in tandem with RMB
-void AAGASPlayerController::RotateCamera(const FInputActionValue& Value)
-{
-	if (bShiftKeyDown || bTargeting) return;
-	
-	const float HorizontalMouseMovement = Value.Get<float>();
-
-	if (ActiveSpringArm)
-	{
-		ActiveSpringArm->AddRelativeRotation(FRotator(0.f, HorizontalMouseMovement * 5.f, 0.f));
 	}
 }
 
@@ -177,6 +179,13 @@ void AAGASPlayerController::AutoRun()
 
 void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Value, FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputPressed))
+	{
+		bTargeting = false;
+		bAutoRunning = false;
+		return;
+	}
+	
 	if (InputTag.MatchesTagExact(TAG_InputTag_LMB) || InputTag.MatchesTagExact(TAG_InputTag_RMB))
 	{
 		bTargeting = CurrentActor ? true : false;
@@ -189,6 +198,11 @@ void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Valu
 
 void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputReleased))
+	{
+		return;
+	}
+	
 	if (GetASC() == nullptr) return;
 	GetASC()->AbilityInputTagReleased(InputTag);
 
@@ -207,21 +221,23 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 				// used for areas that do not have nav mesh (i.e. under an item)
 				const bool bNavLocationFound = NavSystem->ProjectPointToNavigation(CachedDestination, CachedDestinationNavLocation, QueryExtent, &NavAgentProperties);
 
-				if (bNavLocationFound)
+				if (!bNavLocationFound) return;
+				
+				UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestinationNavLocation);
+				if (NavPath == nullptr || NavPath->PathPoints.Num() <= 0) return;
+
+				Spline->ClearSplinePoints();
+				for (const FVector& PointLoc : NavPath->PathPoints)
 				{
-					UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestinationNavLocation);
-					if (NavPath == nullptr || NavPath->PathPoints.Num() <= 0) return;
+					Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
+				}
 
-					Spline->ClearSplinePoints();
-					for (const FVector& PointLoc : NavPath->PathPoints)
-					{
-						Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
-					}
-
-					CachedDestination = NavPath->PathPoints.Last();
-					bAutoRunning = true;
-					
-					// make sure that we have a valid path before we call the click effect
+				CachedDestination = NavPath->PathPoints.Last();
+				bAutoRunning = true;
+				
+				// make sure that we have a valid path before we call the click effect
+				if (GetASC() && !GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputPressed))
+				{
 					UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
 				}
 			}
@@ -236,6 +252,11 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Instance, FGameplayTag InputTag)
 {
+	if (GetASC() && GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputHeld))
+	{
+		return;
+	}
+	
 	// checks if we are using mouse keys for abilities since they do other things; LMB for movement, RMB for moving camera
 	const bool bMouseKeys = InputTag.MatchesTagExact(TAG_InputTag_LMB) || InputTag.MatchesTagExact(TAG_InputTag_RMB);
 
@@ -309,11 +330,6 @@ void AAGASPlayerController::SyncOccludedActors()
 
 	if (bGotHits)
 	{
-		// Debug CapsuleTrace
-		// DrawDebugCapsuleTraceMulti(GetWorld(), Start, End, ActiveCapsuleComponent->GetScaledCapsuleRadius() * CapsulePercentageForTrace,
-		// 	ActiveCapsuleComponent->GetScaledCapsuleHalfHeight() * CapsulePercentageForTrace * 0.5f, ShouldDebug, bGotHits, OutHits,
-		// 	FLinearColor::Green, FLinearColor::Blue, 1.0f);
-		
 		// The list of actors hit by the line trace, that means that they are occluded from view
 		TSet<const AActor*> ActorsJustOccluded;
 
@@ -416,6 +432,7 @@ bool AAGASPlayerController::OnHideOccludedActor(const FCameraOccludedActor& Occl
 	for (int i = 0; i < OccludedActor.StaticMesh->GetNumMaterials(); ++i)
 	{
 		OccludedActor.StaticMesh->SetMaterial(i, FadeMaterial);
+		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 	}
 
 	return true;
@@ -426,6 +443,7 @@ bool AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& Occl
 	for (int matIdx = 0; matIdx < OccludedActor.Materials.Num(); ++matIdx)
 	{
 		OccludedActor.StaticMesh->SetMaterial(matIdx, OccludedActor.Materials[matIdx]);
+		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Block);
 	}
 
 	return true;
@@ -446,7 +464,7 @@ UAGASAbilitySystemComponent* AAGASPlayerController::GetASC()
 {
 	if (AGASAbilitySystemComponent == nullptr)
 	{
-		AGASAbilitySystemComponent = GetPlayerState<AAGASPlayerState>()->GetAGASAbilitySystemComponent();
+		AGASAbilitySystemComponent = Cast<UAGASAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn<APawn>()));
 	}
 
 	return AGASAbilitySystemComponent;

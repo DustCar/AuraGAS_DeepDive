@@ -7,6 +7,7 @@
 #include "AGASAbilityTypes.h"
 #include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "AuraGAS/AGASLogChannels.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Engine/OverlapResult.h"
 #include "Game/AGASGameInstance.h"
@@ -159,8 +160,26 @@ FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarge
 	const bool bSuccessfulKnockback = FMath::FRandRange(UE_SMALL_NUMBER, 100.f) < InParams.KnockbackChance;
 	if (bSuccessfulKnockback)
 	{
-		SetKnockbackImpulse(EffectContextHandle, InParams.KnockbackImpulse);
+		
+		// With a successful knockback, we will create a KnockbackEffectSpecHandle then apply it to the target, so will have to add the knockback GE class to 
+		// damage effect params, we can set the knockback GE class on base, but we can also use a check to see if we have a knockback class
+		if (InParams.KnockbackGameplayEffectClass && InParams.KnockbackStatusGameplayEffectClass)
+		{
+			SetKnockbackDirection(EffectContextHandle, InParams.KnockbackDirection);
+			// Apply gameplay effect for setting the knockback meta attribute IncomingForce
+			const FGameplayEffectSpecHandle KnockbackEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.KnockbackGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(KnockbackEffectSpecHandle, TAG_Attributes_Meta_IncomingForce, InParams.KnockbackImpulseMagnitude);
+			SourceASC->ApplyGameplayEffectSpecToTarget(*KnockbackEffectSpecHandle.Data, TargetASC);
+			// Apply gameplay effect that blocks any attack ability before it is used
+			const FGameplayEffectSpecHandle KnockbackStatusEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.KnockbackStatusGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
+			SourceASC->ApplyGameplayEffectSpecToTarget(*KnockbackStatusEffectSpecHandle.Data, TargetASC);
+		}
+		else
+		{
+			UE_LOG(LogAGAS, Error, TEXT("KnockbackEffectClass is not set in AGASDamageGameplayAbility base class and KnockbackChance is > 0."))
+		}
 	}
+	
 	const FGameplayEffectSpecHandle DamageEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.DamageGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
 	
 	// Assign the caller magnitudes for Damage type with base damage as value
@@ -259,16 +278,15 @@ FVector UAGASAbilitySystemLibrary::GetDeathImpulse(const FGameplayEffectContextH
 	return FVector::ZeroVector;
 }
 
-FVector UAGASAbilitySystemLibrary::GetKnockbackImpulse(const FGameplayEffectContextHandle& EffectContextHandle)
+FVector UAGASAbilitySystemLibrary::GetKnockbackDirection(const FGameplayEffectContextHandle& EffectContextHandle)
 {
 	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		return AGASEffectContext->GetKnockbackImpulse();
+		return AGASEffectContext->GetKnockbackDirection();
 	}
 
 	return FVector::ZeroVector;
 }
-
 void UAGASAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsBlockedHit)
 {
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -338,12 +356,12 @@ void UAGASAbilitySystemLibrary::SetDeathImpulse(FGameplayEffectContextHandle& Ef
 	}
 }
 
-void UAGASAbilitySystemLibrary::SetKnockbackImpulse(FGameplayEffectContextHandle& EffectContextHandle,
-                                                    const FVector& InKnockbackImpulse)
+void UAGASAbilitySystemLibrary::SetKnockbackDirection(FGameplayEffectContextHandle& EffectContextHandle,
+	const FVector& InKnockbackDirection)
 {
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		AGASEffectContext->SetKnockbackImpulse(InKnockbackImpulse);
+		AGASEffectContext->SetKnockbackDirection(InKnockbackDirection);
 	}
 }
 

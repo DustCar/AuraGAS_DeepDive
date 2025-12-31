@@ -29,6 +29,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Secondary_MaxManaPoints)
 
 // Meta Attribute Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Meta_IncomingXPPoints)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Meta_IncomingForce)
 
 // Input Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_InputTag_LMB)
@@ -104,8 +105,16 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Montage_Attack_2)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Montage_Attack_3)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Montage_Attack_4)
 
+// Player Tags
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Player_Block_InputPressed)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Player_Block_InputHeld)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Player_Block_InputReleased)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Player_Block_CursorTrace)
+
 // Other Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Effects_HitReact)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_StatusEffects_Knockback)
+
 
 
 class AURAGAS_API AGASGameplayTags

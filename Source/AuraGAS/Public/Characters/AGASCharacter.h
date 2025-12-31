@@ -25,6 +25,7 @@ public:
 
 	//~ Begin Combat Interface
 	virtual int32 GetCharacterLevel_Implementation() override;
+	virtual void KnockbackCharacter_Implementation(const FVector& KnockbackForce) override;
 	//~ End Combat Interface
 
 	//~ Begin Player Interface
