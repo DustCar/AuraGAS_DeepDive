@@ -93,6 +93,8 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Lightning_Electrocute)
 // Cooldown Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Cooldown_Fire_FireBolt)
 
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Cooldown_Lightning_Electrocute)
+
 // Combat Socket Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_CombatSocket_Weapon)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_CombatSocket_RightHand)

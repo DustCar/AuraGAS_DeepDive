@@ -388,6 +388,37 @@ void UAGASAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldC
 	}
 }
 
+void UAGASAbilitySystemLibrary::GetClosestTargets(int32 MaxTargets, const TArray<AActor*>& Actors,
+	TArray<AActor*>& OutClosestTargets, const FVector& Origin)
+{
+	// no need to check for targets if we don't pass in a non-zero integer
+	if (MaxTargets < 1) return;
+	
+	// only keep targets that are enemies
+	for (AActor* Actor : Actors)
+	{
+		if (Actor->ActorHasTag(ACTOR_TAG_ENEMY))
+		{
+			OutClosestTargets.AddUnique(Actor);
+		}
+	}
+	
+	// sort the array using Euclidean and sort in terms of closest first
+	Algo::Sort(OutClosestTargets, [&Origin](const AActor* ActorA, const AActor* ActorB)
+	{
+		const float DistanceA = FVector::DistSquared(ActorA->GetActorLocation(), Origin);
+		const float DistanceB = FVector::DistSquared(ActorB->GetActorLocation(), Origin);
+		
+		return DistanceA < DistanceB;
+	});
+	
+	// resize the array if our desired num of targets is smaller
+	if (OutClosestTargets.Num() > MaxTargets)
+	{
+		OutClosestTargets.RemoveAt(MaxTargets, OutClosestTargets.Num() - MaxTargets);
+	}
+}
+
 bool UAGASAbilitySystemLibrary::IsOnSameTeam(const AActor* FirstActor, const AActor* SecondActor)
 {
 	const bool bBothPlayers = FirstActor->ActorHasTag(ACTOR_TAG_PLAYER) && SecondActor->ActorHasTag(ACTOR_TAG_PLAYER);

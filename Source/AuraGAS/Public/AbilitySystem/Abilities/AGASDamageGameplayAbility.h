@@ -19,9 +19,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CauseDamage(AActor* TargetActor);
 	
-	int32 GetRoundedDamageAtLevel(int32 Level);
+	int32 GetRoundedDamageAtLevel(int32 Level) const;
 	static FString FormatDamageAbilityDescription(int32 Level, const FString& Description, UGameplayAbility* Ability);
 	
+	UFUNCTION(BlueprintPure)
 	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;
 	
 protected:

@@ -87,6 +87,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Lightning_Electrocute, "Abilities.Lightning
 // Cooldown Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBolt, "Cooldown.Fire.FireBolt")
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Lightning_Electrocute, "Cooldown.Lightning.Electrocute")
+
 // Combat Socket Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_Weapon, "CombatSocket.Weapon")
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_RightHand, "CombatSocket.RightHand")

@@ -38,6 +38,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
 	
+	virtual void MulticastHandleDeath_Implementation(const FVector& DeathImpulse) override;
+	
 protected:
 	virtual void BeginPlay() override;
 	virtual void AddCharacterAbilities() override;

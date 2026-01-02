@@ -41,6 +41,21 @@ AAGASCharacter::AAGASCharacter()
 	CharacterClass = ECharacterClass::Elementalist;
 }
 
+void AAGASCharacter::MulticastHandleDeath_Implementation(const FVector& DeathImpulse)
+{
+	// NOTE: We need to call DisableInput() on the Actor we need to disable input for, i.e. this Pawn's controller
+	// if we call it directly from this Pawn, it won't work
+	// Additional Notes: We can't just use DisableInput() like this, we need to use PlayerController->DisableInput() 
+	// because the PlayerController is the Actor class that holds all of our Inputs
+	APlayerController* PlayerController = GetController<APlayerController>();
+	if (PlayerController)
+	{
+		PlayerController->DisableInput(PlayerController);
+	}
+	
+	Super::MulticastHandleDeath_Implementation(DeathImpulse);
+}
+
 void AAGASCharacter::BeginPlay()
 {
 	Super::BeginPlay();

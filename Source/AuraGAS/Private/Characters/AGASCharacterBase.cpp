@@ -82,9 +82,10 @@ void AAGASCharacterBase::MulticastHandleDeath_Implementation(const FVector& Deat
 		WeaponMesh->SetSimulatePhysics(true);
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-		WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		WeaponMesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+		// WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		// WeaponMesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
 		WeaponMesh->AddImpulse(DeathImpulse * 2);
 	}
 
@@ -92,13 +93,15 @@ void AAGASCharacterBase::MulticastHandleDeath_Implementation(const FVector& Deat
 	GetMesh()->SetSimulatePhysics(true);
 	GetMesh()->SetEnableGravity(true);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
+	// GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	// GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
 	GetMesh()->AddImpulse(DeathImpulse * CharMeshMass);
 	
-	// Disable capsule component collision to avoid an invisible actor
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// Set capsule component collision response to WorldStatic block only to avoid an invisible actor and clipping through
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
 	// Runs a dissolve animation
 	Dissolve();
 	bDead = true;

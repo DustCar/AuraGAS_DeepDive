@@ -14,7 +14,7 @@ void UAGASDamageGameplayAbility::CauseDamage(AActor* TargetActor)
 	UAGASAbilitySystemLibrary::ApplyDamageEffectToTarget(Params);
 }
 
-int32 UAGASDamageGameplayAbility::GetRoundedDamageAtLevel(int32 Level)
+int32 UAGASDamageGameplayAbility::GetRoundedDamageAtLevel(int32 Level) const
 {
 	if (DamageFloat.IsValid())
 	{
@@ -63,7 +63,7 @@ FDamageEffectParams UAGASDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 	Params.KnockbackChance = KnockbackChance;
 	Params.KnockbackImpulseMagnitude = KnockbackImpulseMagnitude;
 	
-	// add impulses for melee characters
+	// add impulses for melee characters or any other abilities with a valid target actor
 	if (IsValid(TargetActor))
 	{
 		FRotator ToTargetRotation = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).Rotation();
