@@ -63,6 +63,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance_Arcane, "Attributes.Resistance.
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance_Physical, "Attributes.Resistance.Physical")
 
 // Ability Tags
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities, "Abilities")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive, "Abilities.Passive")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Attack, "Abilities.Attack")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Summon, "Abilities.Summon")
 

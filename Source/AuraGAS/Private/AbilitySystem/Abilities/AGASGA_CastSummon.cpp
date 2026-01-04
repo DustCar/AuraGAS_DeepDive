@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/Abilities/AGASGA_CastSummon.h"
 
+#include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "Characters/AGASCharacterBase.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -29,16 +30,19 @@ TArray<FVector> UAGASGA_CastSummon::GetSpawnLocations()
 		// this combination allows for even spread but doesn't spawn from the outermost edges
 		const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i + DeltaSpread * 0.5f, FVector::UpVector);
 		// Chooses a random location on the "lines" within spawn distance min max
-		FVector ChosenSpawnLocation = OwnerLocation + Direction * FMath::FRandRange(MinSpawnDistance, MaxSpawnDistance);
+		const FVector ChosenRandomLocation = OwnerLocation + Direction * FMath::FRandRange(MinSpawnDistance, MaxSpawnDistance);
 
-		FHitResult Hit;
-		GetWorld()->LineTraceSingleByChannel(Hit, ChosenSpawnLocation + FVector(0.f, 0.f, 400.f), ChosenSpawnLocation - FVector(0.f, 0.f, 400.f), ECC_Visibility);
-		if (Hit.bBlockingHit)
-		{
-			ChosenSpawnLocation = Hit.Location;
-		}
+		FVector FinalSpawnLocation;
+		UAGASAbilitySystemLibrary::FindClosestLocationOnFloor(this, ChosenRandomLocation, FinalSpawnLocation, 400);
+		//
+		// FHitResult Hit;
+		// GetWorld()->LineTraceSingleByChannel(Hit, ChosenSpawnLocation + FVector(0.f, 0.f, 400.f), ChosenSpawnLocation - FVector(0.f, 0.f, 400.f), ECC_Visibility);
+		// if (Hit.bBlockingHit)
+		// {
+		// 	ChosenSpawnLocation = Hit.Location;
+		// }
 		
-		SpawnLocations.Add(ChosenSpawnLocation);
+		SpawnLocations.Add(FinalSpawnLocation);
 	}
 
 	return SpawnLocations;

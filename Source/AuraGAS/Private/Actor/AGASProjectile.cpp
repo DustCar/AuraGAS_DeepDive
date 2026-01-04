@@ -10,6 +10,7 @@
 #include "AuraGAS/AuraGAS.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Interaction/AGASCombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -52,6 +53,15 @@ void AAGASProjectile::BeginPlay()
 			EAttachLocation::KeepRelativeOffset,
 			true
 		);
+	}
+	
+	if (HasAuthority() && ProjectileMovement->HomingTargetComponent.IsValid())
+	{
+		IAGASCombatInterface* HomingTargetCombatInterface = Cast<IAGASCombatInterface>(ProjectileMovement->HomingTargetComponent->GetOwner());
+		if (HomingTargetCombatInterface)
+		{
+			HomingTargetCombatInterface->GetOnDeathDelegate().AddUniqueDynamic(this, &ThisClass::OnHomingTargetDeath);
+		}
 	}
 }
 
@@ -128,4 +138,15 @@ void AAGASProjectile::HandleSpecialEffectsOnImpact()
 	{
 		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ImpactEffect, GetActorLocation());
 	}
+}
+
+void AAGASProjectile::OnHomingTargetDeath(AActor* DeadActor)
+{
+	// A fix for hovering projectiles after an actor dies
+	// NOTE: this covers the case when a projectile is actively seeking the target, but it dies in the process
+	FVector DeadActorLocationOnFloor;
+	UAGASAbilitySystemLibrary::FindClosestLocationOnFloor(this, DeadActor->GetActorLocation(), DeadActorLocationOnFloor);
+	HomingTargetSceneComponent = NewObject<USceneComponent>(USceneComponent::StaticClass());
+	HomingTargetSceneComponent->SetWorldLocation(DeadActorLocationOnFloor);
+	ProjectileMovement->HomingTargetComponent = HomingTargetSceneComponent;
 }

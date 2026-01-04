@@ -17,6 +17,10 @@ class UAGASAttributeSet;
 class UAGASAbilitySystemComponent;
 class UMotionWarpingComponent;
 
+// simple delegate to stop enemy movement when being shocked; alternative to previous GameplayTag events since
+// there is no tag for being shocked, and we are just setting a bool bIsBeingShocked
+DECLARE_DELEGATE_OneParam(FOnBeingShocked, bool)
+
 UCLASS(Abstract)
 class AURAGAS_API AAGASCharacterBase : public ACharacter, public IAbilitySystemInterface, public IAGASCombatInterface
 {
@@ -24,7 +28,7 @@ class AURAGAS_API AAGASCharacterBase : public ACharacter, public IAbilitySystemI
 
 public:
 	AAGASCharacterBase();
-
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	UAGASAttributeSet* GetAttributeSet() const { return AttributeSet; }
 	
@@ -57,6 +61,10 @@ public:
 	virtual void KnockbackCharacter_Implementation(const FVector& KnockbackForce) override;
 	// Get the weapon mesh on the character, if one exists
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() override;
+	// Set bIsBeingShocked bool
+	virtual void SetIsBeingShocked_Implementation(bool bInIsBeingShocked) override;
+	// Get bIsBeingShocked bool
+	virtual bool IsBeingShocked_Implementation() const override;
 	// Returns the delegate for OnASCRegistered
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
 	// Returns the delegate for OnDeath
@@ -74,6 +82,21 @@ public:
 	TArray<FTaggedMontage> AttackMontages;
 
 	void SetWasSummoned(bool bInWasSummoned);
+	
+	UPROPERTY(ReplicatedUsing=OnRep_IsStunned, BlueprintReadOnly)
+	bool bIsStunned = false;
+	
+	UPROPERTY(ReplicatedUsing=OnRep_IsBurned, BlueprintReadOnly)
+	bool bIsBurned = false;
+	
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	bool bIsBeingShocked = false;
+	
+	UFUNCTION()
+	virtual void OnRep_IsStunned();
+	
+	UFUNCTION()
+	virtual void OnRep_IsBurned();
 
 protected:
 	virtual void BeginPlay() override;
@@ -109,6 +132,9 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<UAGASDebuffNiagaraComponent> BurnDebuffComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAGASDebuffNiagaraComponent> StunDebuffComponent;
 
 	/* Dissolve Effect */
 
@@ -137,6 +163,14 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool bWasSummoned = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|Combat")
+	float BaseWalkSpeed = 600.f;
+	
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	virtual void BurnTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	
+	FOnBeingShocked OnBeingShocked;
 
 private:
 

@@ -219,9 +219,12 @@ void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Pr
 	}
 	else if (!bIsDebuff)
 	{
-		FGameplayTagContainer TagContainer;
-		TagContainer.AddTag(TAG_Abilities_HitReact);
-		Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+		if (Props.TargetProperties->Character->Implements<UAGASCombatInterface>() && !IAGASCombatInterface::Execute_IsBeingShocked(Props.TargetProperties->Character))
+		{
+			FGameplayTagContainer TagContainer;
+			TagContainer.AddTag(TAG_Abilities_HitReact);
+			Props.TargetProperties->AbilitySystemComponent->TryActivateAbilitiesByTag(TagContainer);
+		}
 		
 		if (UAGASAbilitySystemLibrary::IsSuccessfulDebuff(Props.EffectContextHandle))
 		{
@@ -302,9 +305,18 @@ void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
 	// Add the debuff tag to the gameplay effect
 	// NOTE: the next few lines of code is the updated way to add tags to "InheritableOwnedTagsContainer" from previous versions
 	// that variable has depreciated, so this is the new way (next 4 lines tbe)
+	const FGameplayTag DebuffTag = AGASGameplayTags::GetDamageTypeToDebuffMap()[DamageTypeTag];
 	FInheritedTagContainer TagContainer = FInheritedTagContainer();
 	UTargetTagsGameplayEffectComponent& Component = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
-	TagContainer.AddTag(AGASGameplayTags::GetDamageTypeToDebuffMap()[DamageTypeTag]);
+	TagContainer.AddTag(DebuffTag);
+	// if the debuff is stun specifically then we block all player input
+	if (DebuffTag.MatchesTagExact(TAG_Debuff_Stun))
+	{
+		TagContainer.AddTag(TAG_Player_Block_CursorTrace);
+		TagContainer.AddTag(TAG_Player_Block_InputHeld);
+		TagContainer.AddTag(TAG_Player_Block_InputPressed);
+		TagContainer.AddTag(TAG_Player_Block_InputReleased);
+	}
 	Component.SetAndApplyTargetTagChanges(TagContainer);
 	
 	// create a new GameplayEffectSpec, set its damage type and apply that effect
@@ -316,6 +328,10 @@ void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
 		FAGASGameplayEffectContext* AGASDebuffEffectContext = static_cast<FAGASGameplayEffectContext*>(MutableSpec->GetContext().Get());
 		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageTypeTag));
 		AGASDebuffEffectContext->SetDamageType(DebuffDamageType);
+		
+		const FGameplayTagContainer AbilitiesToCancelTags(TAG_Abilities);
+		const FGameplayTagContainer AbilitiesToIgnoreTags(TAG_Abilities_Passive);
+		Props.TargetProperties->AbilitySystemComponent->CancelAbilities(&AbilitiesToCancelTags, &AbilitiesToIgnoreTags);
 		
 		Props.TargetProperties->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*MutableSpec);
 	}

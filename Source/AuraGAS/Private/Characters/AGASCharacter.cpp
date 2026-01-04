@@ -4,6 +4,7 @@
 #include "Characters/AGASCharacter.h"
 
 #include "AbilitySystemComponent.h"
+#include "AGASGameplayTags.h"
 #include "NiagaraComponent.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
@@ -73,6 +74,9 @@ void AAGASCharacter::InitializeAbilityActorInfo()
 	AbilitySystemComponent->InitAbilityActorInfo(AGASPlayerState, this);
 	AbilitySystemComponent->AbilityActorInfoSet();
 	OnAscRegistered.Broadcast(AbilitySystemComponent);
+	
+	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::StunTagChanged);
+	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Debuff_Burn, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::BurnTagChanged);
 
 	AGASPlayerState->OnLevelChangedSignature.AddLambda([this] (const int32 NewValue)
 	{
@@ -110,6 +114,50 @@ void AAGASCharacter::OnRep_PlayerState()
 
 	// Initialize Ability Actor Info for client
 	InitializeAbilityActorInfo();
+}
+
+void AAGASCharacter::OnRep_IsStunned()
+{
+	// TODO: might have to refactor when updating Debuff GEs.
+	if (AbilitySystemComponent)
+	{
+		FGameplayTagContainer BlockedTags;
+		BlockedTags.AddTag(TAG_Debuff_Stun);
+		BlockedTags.AddTag(TAG_Player_Block_CursorTrace);
+		BlockedTags.AddTag(TAG_Player_Block_InputHeld);
+		BlockedTags.AddTag(TAG_Player_Block_InputPressed);
+		BlockedTags.AddTag(TAG_Player_Block_InputReleased);
+		
+		if (bIsStunned)
+		{
+			AbilitySystemComponent->AddLooseGameplayTags(BlockedTags);
+			
+		}
+		else
+		{
+			AbilitySystemComponent->RemoveLooseGameplayTags(BlockedTags);
+		}
+		
+	}
+}
+
+void AAGASCharacter::OnRep_IsBurned()
+{
+	if (AbilitySystemComponent)
+	{
+		FGameplayTagContainer BurnTags;
+		BurnTags.AddTag(TAG_Debuff_Burn);
+		
+		if (bIsBurned)
+		{
+			AbilitySystemComponent->AddLooseGameplayTags(BurnTags);
+			
+		}
+		else
+		{
+			AbilitySystemComponent->RemoveLooseGameplayTags(BurnTags);
+		}
+	}
 }
 
 int32 AAGASCharacter::GetCharacterLevel_Implementation()

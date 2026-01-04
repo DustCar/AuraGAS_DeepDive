@@ -115,6 +115,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|GameplayMechanics")
 	static void GetClosestTargets(int32 MaxTargets, const TArray<AActor*>& Actors, TArray<AActor*>& OutClosestTargets, const FVector& Origin);
 
+	/**
+	 * Returns an approximate FVector location that is a blocking hit with the floor
+	 * 
+	 * @param WorldContextObject UObject to reference
+	 * @param Origin Center location to trace from
+	 * @param OutClosestLocation Out parameter holding the resultant FVector
+	 * @param SearchHalfLength Number of UE units to search above/below the Origin
+	 * @param ZOffset Custom offset to add to the final FVector (0 for default)
+	 * @return Success boolean
+	 */
+	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayMechanics", meta = (WorldContext = "WorldContextObject"))
+	static bool FindClosestLocationOnFloor(const UObject* WorldContextObject, const FVector& Origin, FVector& OutClosestLocation, const float SearchHalfLength = 500.f, float ZOffset = 0.f);
+
 	UFUNCTION(BlueprintPure, Category = "AGASAbilitySystemLibrary|GameplayMechanics")
 	static bool IsOnSameTeam(const AActor* FirstActor, const AActor* SecondActor);
 	

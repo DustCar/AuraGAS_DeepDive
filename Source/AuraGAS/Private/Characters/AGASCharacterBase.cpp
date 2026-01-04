@@ -9,7 +9,9 @@
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/Debuff/AGASDebuffNiagaraComponent.h"
 #include "AuraGAS/AuraGAS.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"
 
 
 AAGASCharacterBase::AAGASCharacterBase()
@@ -34,6 +36,19 @@ AAGASCharacterBase::AAGASCharacterBase()
 	BurnDebuffComponent = CreateDefaultSubobject<UAGASDebuffNiagaraComponent>("BurnDebuffComponent");
 	BurnDebuffComponent->SetupAttachment(GetRootComponent());
 	BurnDebuffComponent->DebuffTag = TAG_Debuff_Burn;
+	
+	StunDebuffComponent = CreateDefaultSubobject<UAGASDebuffNiagaraComponent>("StunDebuffComponent");
+	StunDebuffComponent->SetupAttachment(GetRootComponent());
+	StunDebuffComponent->DebuffTag = TAG_Debuff_Stun;
+}
+
+void AAGASCharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	
+	DOREPLIFETIME(AAGASCharacterBase, bIsStunned);
+	DOREPLIFETIME(AAGASCharacterBase, bIsBurned);
+	DOREPLIFETIME(AAGASCharacterBase, bIsBeingShocked);
 }
 
 UAbilitySystemComponent* AAGASCharacterBase::GetAbilitySystemComponent() const
@@ -44,6 +59,25 @@ UAbilitySystemComponent* AAGASCharacterBase::GetAbilitySystemComponent() const
 UAnimMontage* AAGASCharacterBase::GetHitReactMontage_Implementation()
 {
 	return HitReactMontage;
+}
+
+void AAGASCharacterBase::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bIsStunned = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bIsStunned ? 0.f : BaseWalkSpeed;
+}
+
+void AAGASCharacterBase::BurnTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	bIsBurned = NewCount > 0;
+}
+
+void AAGASCharacterBase::OnRep_IsStunned()
+{
+}
+
+void AAGASCharacterBase::OnRep_IsBurned()
+{
 }
 
 void AAGASCharacterBase::BeginPlay()
@@ -95,8 +129,6 @@ void AAGASCharacterBase::MulticastHandleDeath_Implementation(const FVector& Deat
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-	// GetMesh()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-	// GetMesh()->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
 	GetMesh()->AddImpulse(DeathImpulse * CharMeshMass);
 	
 	// Set capsule component collision response to WorldStatic block only to avoid an invisible actor and clipping through
@@ -209,6 +241,17 @@ USkeletalMeshComponent* AAGASCharacterBase::GetWeapon_Implementation()
 	}
 	
 	return nullptr;
+}
+
+void AAGASCharacterBase::SetIsBeingShocked_Implementation(bool bInIsBeingShocked)
+{
+	bIsBeingShocked = bInIsBeingShocked;
+	OnBeingShocked.ExecuteIfBound(bInIsBeingShocked);
+}
+
+bool AAGASCharacterBase::IsBeingShocked_Implementation() const
+{
+	return bIsBeingShocked;
 }
 
 FOnASCRegistered& AAGASCharacterBase::GetOnASCRegisteredDelegate()

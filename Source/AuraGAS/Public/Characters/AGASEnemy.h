@@ -43,9 +43,6 @@ public:
 	bool bHitReacting = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|Combat")
-	float BaseWalkSpeed = 250.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|Combat")
 	float CorpseLifeSpan = 5.f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Setup|Combat")
@@ -72,6 +69,8 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<AAGASAIController> AGASAIController;
+	
+	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
 
 private:
 	

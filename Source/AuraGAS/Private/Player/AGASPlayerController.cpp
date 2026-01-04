@@ -136,6 +136,8 @@ void AAGASPlayerController::SetupInputComponent()
 
 void AAGASPlayerController::Move(const FInputActionValue& Value)
 {
+	if (GetASC()->HasMatchingGameplayTag(TAG_Debuff_Stun)) return;
+	
 	if (bAutoRunning) bAutoRunning = false;
 	
 	const FVector2D InputAxisVector = Value.Get<FVector2D>();
@@ -186,11 +188,10 @@ void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Valu
 		return;
 	}
 	
-	if (InputTag.MatchesTagExact(TAG_InputTag_LMB) || InputTag.MatchesTagExact(TAG_InputTag_RMB))
+	if (InputTag.MatchesTagExact(TAG_InputTag_LMB))
 	{
 		bTargeting = CurrentActor ? true : false;
-		// only LMB for movement
-		if (InputTag.MatchesTagExact(TAG_InputTag_LMB)) bAutoRunning = false;
+		bAutoRunning = false;
 	}
 	
 	if (GetASC()) GetASC()->AbilityInputTagPressed(InputTag);
@@ -246,8 +247,6 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 			bTargeting = false;
 		}
 	}
-	// reset targeting for RMB as well
-	if (InputTag.MatchesTagExact(TAG_InputTag_RMB)) bTargeting = false;
 }
 
 void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Instance, FGameplayTag InputTag)
@@ -258,7 +257,7 @@ void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Inst
 	}
 	
 	// checks if we are using mouse keys for abilities since they do other things; LMB for movement, RMB for moving camera
-	const bool bMouseKeys = InputTag.MatchesTagExact(TAG_InputTag_LMB) || InputTag.MatchesTagExact(TAG_InputTag_RMB);
+	const bool bMouseKeys = InputTag.MatchesTagExact(TAG_InputTag_LMB);
 
 	// using mouse keys and not targeting or in "offensive" mode
 	if (bMouseKeys && !bTargeting && !bShiftKeyDown)

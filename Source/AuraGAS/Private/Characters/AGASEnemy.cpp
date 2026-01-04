@@ -46,6 +46,8 @@ AAGASEnemy::AAGASEnemy()
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	CharacterClass = ECharacterClass::Elementalist;
+	
+	BaseWalkSpeed = 250.f;
 }
 
 void AAGASEnemy::PossessedBy(AController* NewController)
@@ -129,12 +131,19 @@ void AAGASEnemy::BeginPlay()
 		this,
 		&ThisClass::HitReactTagChanged
 	);
+	
+	OnBeingShocked.BindLambda([this](bool bInIsBeingShocked)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = bInIsBeingShocked ? 0.f : BaseWalkSpeed;
+	});
 }
 
 void AAGASEnemy::InitializeAbilityActorInfo()
 {
 	AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	AbilitySystemComponent->AbilityActorInfoSet();
+	
+	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::StunTagChanged);
 
 	if (HasAuthority())
 	{
@@ -171,4 +180,13 @@ void AAGASEnemy::HitReactTagChanged(const FGameplayTag CallbackTag, int32 NewCou
 	if (!HasAuthority()) return;
 
 	AGASAIController->GetBlackboardComponent()->SetValueAsBool(FName("HitReacting"), bHitReacting);
+}
+
+void AAGASEnemy::StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
+{
+	Super::StunTagChanged(CallbackTag, NewCount);
+	
+	if (!HasAuthority()) return;
+
+	AGASAIController->GetBlackboardComponent()->SetValueAsBool(FName("Stunned"), bIsStunned);
 }

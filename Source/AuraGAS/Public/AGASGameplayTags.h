@@ -69,6 +69,8 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Resistance_Arcane)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Attributes_Resistance_Physical)
 
 // Ability Tags
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive) // different from Type_Passive; this one is for GAs, the other is for UI
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Attack)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Summon)
 

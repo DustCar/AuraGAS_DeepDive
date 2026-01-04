@@ -419,6 +419,30 @@ void UAGASAbilitySystemLibrary::GetClosestTargets(int32 MaxTargets, const TArray
 	}
 }
 
+bool UAGASAbilitySystemLibrary::FindClosestLocationOnFloor(const UObject* WorldContextObject, const FVector& Origin,
+	FVector& OutClosestLocation, const float SearchHalfLength, float ZOffset)
+{
+	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, EGetWorldErrorMode::LogAndReturnNull);
+	if (World)
+	{
+		const FVector TraceStart = Origin + FVector(0.f, 0.f, SearchHalfLength);
+		const FVector TraceEnd = Origin - FVector(0.f, 0.f, SearchHalfLength);
+		FHitResult HitResult;
+		
+		World->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Navigation);
+		if (HitResult.bBlockingHit)
+		{
+			OutClosestLocation = HitResult.ImpactPoint;
+			OutClosestLocation.Z += ZOffset;
+			return true;
+		}
+	}
+	
+	OutClosestLocation = Origin;
+	OutClosestLocation.Z = ZOffset;
+	return false;
+}
+
 bool UAGASAbilitySystemLibrary::IsOnSameTeam(const AActor* FirstActor, const AActor* SecondActor)
 {
 	const bool bBothPlayers = FirstActor->ActorHasTag(ACTOR_TAG_PLAYER) && SecondActor->ActorHasTag(ACTOR_TAG_PLAYER);

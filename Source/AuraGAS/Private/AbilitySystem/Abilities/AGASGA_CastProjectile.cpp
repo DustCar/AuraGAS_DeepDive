@@ -74,7 +74,24 @@ void UAGASGA_CastProjectile::SpawnProjectiles(const FVector& ProjectileTargetLoc
 			Projectile->ProjectileMovement->bIsHomingProjectile = true;
 			if (HomingTarget && HomingTarget->Implements<UAGASCombatInterface>())
 			{
-				Projectile->ProjectileMovement->HomingTargetComponent = HomingTarget->GetRootComponent();
+				const bool bHomingTargetAlive = !IAGASCombatInterface::Execute_IsDead(HomingTarget);
+				// if we have a target, and it's alive, set it as the target component
+				if (bHomingTargetAlive)
+				{
+					Projectile->ProjectileMovement->HomingTargetComponent = HomingTarget->GetRootComponent();
+				}
+				// else, we will create a scene component like the outer else case but this time the location will
+				// be based on the previously alive targets location
+				// NOTE: this case can happen if the projectile gets spawned right after a target actor dies and covers
+				// the case where the OnDeath delegate doesn't get called
+				else
+				{
+					FVector ProjectileTargetLocationOnFloor;
+					UAGASAbilitySystemLibrary::FindClosestLocationOnFloor(this, ProjectileTargetLocation, ProjectileTargetLocationOnFloor);
+					Projectile->HomingTargetSceneComponent = NewObject<USceneComponent>(USceneComponent::StaticClass());
+					Projectile->HomingTargetSceneComponent->SetWorldLocation(ProjectileTargetLocationOnFloor);
+					Projectile->ProjectileMovement->HomingTargetComponent = Projectile->HomingTargetSceneComponent;
+				}
 			}
 			else
 			{

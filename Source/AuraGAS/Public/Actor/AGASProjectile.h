@@ -59,4 +59,7 @@ private:
 
 	void HandleSpecialEffectsOnImpact();
 	
+	UFUNCTION()
+	void OnHomingTargetDeath(AActor* DeadActor);
+	
 };
