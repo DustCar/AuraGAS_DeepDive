@@ -64,7 +64,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance_Physical, "Attributes.Resistanc
 
 // Ability Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities, "Abilities")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive, "Abilities.Passive")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Attack, "Abilities.Attack")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Summon, "Abilities.Summon")
 
@@ -85,6 +84,11 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Type_None, "Abilities.Type.None")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Fire_FireBolt, "Abilities.Fire.FireBolt")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Lightning_Electrocute, "Abilities.Lightning.Electrocute")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive, "Abilities.Passive")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_HaloOfProtection, "Abilities.Passive.HaloOfProtection")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_LifeSiphon, "Abilities.Passive.LifeSiphon")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_ManaSiphon, "Abilities.Passive.ManaSiphon")
 
 // Cooldown Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBolt, "Cooldown.Fire.FireBolt")

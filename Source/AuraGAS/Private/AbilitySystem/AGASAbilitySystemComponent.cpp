@@ -204,6 +204,11 @@ FGameplayTag UAGASAbilitySystemComponent::GetStatusTagFromSpec(const FGameplayAb
 	return FGameplayTag();
 }
 
+bool UAGASAbilitySystemComponent::AbilityIsAlreadyEquipped(const FGameplayAbilitySpec& AbilitySpec)
+{
+	return AbilitySpec.DynamicAbilityTags.HasTag(FGameplayTag::RequestGameplayTag(FName("InputTag")));
+}
+
 FGameplayAbilitySpec* UAGASAbilitySystemComponent::GetSpecFromAbilityTag(const FGameplayTag& AbilityTag)
 {
 	FScopedAbilityListLock ActiveScopeLock(*this);
@@ -218,6 +223,20 @@ FGameplayAbilitySpec* UAGASAbilitySystemComponent::GetSpecFromAbilityTag(const F
 		}
 	}
 	return nullptr;
+}
+
+bool UAGASAbilitySystemComponent::IsPassiveAbility(const FGameplayTag& AbilityTag) const
+{
+	const UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
+	if (AbilityInfo)
+	{
+		const FAbilityInfo& Info = AbilityInfo->FindAbilityInfoForTag(AbilityTag);
+		const FGameplayTag LocalAbilityType = Info.TypeTag;
+		
+		return LocalAbilityType.MatchesTagExact(TAG_Abilities_Type_Passive);
+	}
+	
+	return false;
 }
 
 FGameplayAbilitySpec* UAGASAbilitySystemComponent::GetSpecFromInputTag(const FGameplayTag& InputTag)
@@ -239,7 +258,7 @@ void UAGASAbilitySystemComponent::UpdateAbilityStatuses(int32 Level)
 	UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(GetAvatarActor());
 	if (AbilityInfo == nullptr)
 	{
-		UE_LOG(LogAGAS, Error, TEXT("Could not find AbilityInfo on GameMode. Please check if AbilityInfo is set or check if GameMode is set."))
+		UE_LOG(LogAGAS, Error, TEXT("Could not find AbilityInfo on GameInstance. Please check if AbilityInfo is set or check if GameMode is set."))
 		return;
 	}
 	
@@ -380,9 +399,26 @@ void UAGASAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 				CurrentEquippedAbilitySpec->DynamicAbilityTags.RemoveTag(NewInputTag);
 				CurrentEquippedAbilitySpec->DynamicAbilityTags.RemoveTag(TAG_Abilities_Status_Equipped);
 				CurrentEquippedAbilitySpec->DynamicAbilityTags.AddTag(TAG_Abilities_Status_Unlocked);
+				
+				// if the old ability is a passive then deactivate that ability
+				if (IsPassiveAbility(CurrentEquippedAbilityTag))
+				{
+					DeactivatePassiveAbility.Broadcast(CurrentEquippedAbilityTag);
+					MulticastActivatePassiveEffect(CurrentEquippedAbilityTag, false);
+				}
 				MarkAbilitySpecDirty(*CurrentEquippedAbilitySpec);
 				
 				ClientBroadcastOnAbilityUnequipped(CurrentEquippedAbilityTag);
+			}
+			
+			// if a passive ability hasn't been equipped yet then try to activate it
+			if (!AbilityIsAlreadyEquipped(*AbilitySpec))
+			{
+				if (IsPassiveAbility(AbilityTag))
+				{
+					TryActivateAbility(AbilitySpec->Handle);
+					MulticastActivatePassiveEffect(AbilityTag, true);
+				}
 			}
 			
 			// cache the old input tag for broadcast
@@ -419,6 +455,12 @@ void UAGASAbilitySystemComponent::ClientBroadcastOnAbilityEquipped_Implementatio
 void UAGASAbilitySystemComponent::ClientBroadcastOnAbilityUnequipped_Implementation(const FGameplayTag& AbilityTag)
 {
 	OnAbilityUnequipped.Broadcast(AbilityTag);
+}
+
+void UAGASAbilitySystemComponent::MulticastActivatePassiveEffect_Implementation(const FGameplayTag& AbilityTag,
+	bool bActivate)
+{
+	ActivatePassiveEffect.Broadcast(AbilityTag, bActivate);
 }
 
 void UAGASAbilitySystemComponent::OnRep_ActivateAbilities()

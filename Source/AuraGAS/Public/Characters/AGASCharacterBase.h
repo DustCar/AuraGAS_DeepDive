@@ -9,6 +9,7 @@
 #include "Interaction/AGASCombatInterface.h"
 #include "AGASCharacterBase.generated.h"
 
+class UAGASPassiveNiagaraComponent;
 class UAGASDebuffNiagaraComponent;
 class UNiagaraSystem;
 class UGameplayAbility;
@@ -129,12 +130,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UMotionWarpingComponent> MotionWarpingComp;
-	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAGASDebuffNiagaraComponent> BurnDebuffComponent;
-	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UAGASDebuffNiagaraComponent> StunDebuffComponent;
 
 	/* Dissolve Effect */
 
@@ -176,4 +171,22 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Setup|Combat")
 	TObjectPtr<UAnimMontage> HitReactMontage;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAGASDebuffNiagaraComponent> BurnDebuffComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAGASDebuffNiagaraComponent> StunDebuffComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAGASPassiveNiagaraComponent> HaloOfProtectionNiagaraComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAGASPassiveNiagaraComponent> LifeSiphonNiagaraComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<UAGASPassiveNiagaraComponent> ManaSiphonNiagaraComponent;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<USceneComponent> EffectAttachComponent;
 };

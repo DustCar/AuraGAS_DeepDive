@@ -14,6 +14,8 @@ DECLARE_DELEGATE_OneParam(FForEachAbility, const FGameplayAbilitySpec&);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FAbilityStatusChanged, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /*Status Tag*/, int32 /*Ability Level*/);
 DECLARE_MULTICAST_DELEGATE_ThreeParams(FOnAbilityEquippedNative, const FGameplayTag& /*Ability Tag*/, const FGameplayTag& /*Old Input Tag*/, const FGameplayTag& /*New Input Tag*/);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAbilityUnequippedNative, const FGameplayTag& /*Ability Tag*/);
+DECLARE_MULTICAST_DELEGATE_OneParam(FDeactivatePassiveAbility, const FGameplayTag& /*Ability Tag*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FActivatePassiveEffect, const FGameplayTag& /*Ability Tag*/, bool /*bActivate*/);
 
 /**
  * 
@@ -37,6 +39,9 @@ public:
 	// delegate for SpellMenuWC to bind to, to process ability changes and send the info to WBPs
 	FOnAbilityEquippedNative OnAbilityEquipped;
 	FOnAbilityUnequippedNative OnAbilityUnequipped;
+	
+	FDeactivatePassiveAbility DeactivatePassiveAbility;
+	FActivatePassiveEffect ActivatePassiveEffect;
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities);
@@ -51,9 +56,12 @@ public:
 	static FGameplayTag GetAbilityTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetInputTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
 	static FGameplayTag GetStatusTagFromSpec(const FGameplayAbilitySpec& AbilitySpec);
+	static bool AbilityIsAlreadyEquipped(const FGameplayAbilitySpec& AbilitySpec);
 	
 	// obtain the gameplay ability spec from the player's activatable abilities array that matches the tag
 	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
+	
+	bool IsPassiveAbility(const FGameplayTag& AbilityTag) const;
 
 	void UpgradeAttribute(const FGameplayTag& AttributeTag);
 
@@ -73,6 +81,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerEquipAbility(const FGameplayTag& AbilityTag, const FGameplayTag& NewInputTag);
 	
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastActivatePassiveEffect(const FGameplayTag& AbilityTag, bool bActivate);
 	
 protected:
 

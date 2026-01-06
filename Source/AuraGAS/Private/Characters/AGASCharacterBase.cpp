@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "MotionWarpingComponent.h"
 #include "AbilitySystem/Debuff/AGASDebuffNiagaraComponent.h"
+#include "AbilitySystem/Passive/AGASPassiveNiagaraComponent.h"
 #include "AuraGAS/AuraGAS.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -40,6 +41,20 @@ AAGASCharacterBase::AAGASCharacterBase()
 	StunDebuffComponent = CreateDefaultSubobject<UAGASDebuffNiagaraComponent>("StunDebuffComponent");
 	StunDebuffComponent->SetupAttachment(GetRootComponent());
 	StunDebuffComponent->DebuffTag = TAG_Debuff_Stun;
+	
+	EffectAttachComponent = CreateDefaultSubobject<USceneComponent>("EffectAttachComponent");
+	EffectAttachComponent->SetupAttachment(GetRootComponent());
+	EffectAttachComponent->SetUsingAbsoluteRotation(true);
+	EffectAttachComponent->SetWorldRotation(FRotator::ZeroRotator);
+	
+	HaloOfProtectionNiagaraComponent = CreateDefaultSubobject<UAGASPassiveNiagaraComponent>("HaloOfProtectionComponent");
+	HaloOfProtectionNiagaraComponent->SetupAttachment(EffectAttachComponent);
+	
+	LifeSiphonNiagaraComponent = CreateDefaultSubobject<UAGASPassiveNiagaraComponent>("LifeSiphonNiagaraComponent");
+	LifeSiphonNiagaraComponent->SetupAttachment(EffectAttachComponent);
+	
+	ManaSiphonNiagaraComponent = CreateDefaultSubobject<UAGASPassiveNiagaraComponent>("ManaSiphonNiagaraComponent");
+	ManaSiphonNiagaraComponent->SetupAttachment(EffectAttachComponent);
 }
 
 void AAGASCharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const

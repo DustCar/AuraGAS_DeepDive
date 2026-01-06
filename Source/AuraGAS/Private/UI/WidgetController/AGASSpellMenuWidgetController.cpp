@@ -81,11 +81,6 @@ void UAGASSpellMenuWidgetController::BindCallbacksToDependencies()
 	});
 }
 
-void UAGASSpellMenuWidgetController::SelectedAbility(UAGASUserWidget* AbilityButton)
-{
-	OnAbilityButtonSelected.Broadcast(AbilityButton);
-}
-
 void UAGASSpellMenuWidgetController::OnSpendPointButtonPressed(const FGameplayTag& AbilityTag)
 {
 	AGASAbilitySystemComponent->ServerSpendSpellPoint(AbilityTag);
