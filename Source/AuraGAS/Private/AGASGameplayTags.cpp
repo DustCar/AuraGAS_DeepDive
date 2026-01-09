@@ -85,6 +85,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Fire_FireBolt, "Abilities.Fire.FireBolt")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Lightning_Electrocute, "Abilities.Lightning.Electrocute")
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Arcane_ArcaneShards, "Abilities.Arcane.ArcaneShards")
+
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive, "Abilities.Passive")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_HaloOfProtection, "Abilities.Passive.HaloOfProtection")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_LifeSiphon, "Abilities.Passive.LifeSiphon")
@@ -94,6 +96,8 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_ManaSiphon, "Abilities.Passive.Mana
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBolt, "Cooldown.Fire.FireBolt")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Lightning_Electrocute, "Cooldown.Lightning.Electrocute")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Arcane_ArcaneShards, "Cooldown.Arcane.ArcaneShards")
 
 // Combat Socket Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_CombatSocket_Weapon, "CombatSocket.Weapon")

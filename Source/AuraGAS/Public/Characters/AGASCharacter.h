@@ -35,6 +35,8 @@ public:
 	virtual void AddToAttributePointsOnPlayerState_Implementation(int32 InAttributePoints) override;
 	virtual void AddToSpellPointsOnPlayerState_Implementation(int32 InSpellPoints) override;
 	virtual int32 GetAttributePointsOnPlayerState_Implementation() override;
+	virtual void ShowMagicCircleOnPlayerController_Implementation(UMaterialInterface* DecalMaterial) override;
+	virtual void HideMagicCircleOnPlayerController_Implementation() override;
 	//~ End Player Interface
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)

@@ -34,4 +34,11 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	int32 GetAttributePointsOnPlayerState();
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void ShowMagicCircleOnPlayerController(UMaterialInterface* DecalMaterial = nullptr);
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void HideMagicCircleOnPlayerController();
+	
 };

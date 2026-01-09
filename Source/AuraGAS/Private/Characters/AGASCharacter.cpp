@@ -12,6 +12,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Player/AGASPlayerController.h"
 #include "Player/AGASPlayerState.h"
 
 
@@ -206,8 +207,30 @@ int32 AAGASCharacter::GetAttributePointsOnPlayerState_Implementation()
 	return AGASPlayerState->GetAttributePoints();
 }
 
+void AAGASCharacter::ShowMagicCircleOnPlayerController_Implementation(UMaterialInterface* DecalMaterial)
+{
+	if (!IsLocallyControlled()) return;
+	
+	AAGASPlayerController* AGASPlayerController = GetController<AAGASPlayerController>();
+	check(AGASPlayerController);
+	
+	AGASPlayerController->ShowMagicCircle(DecalMaterial);
+	AGASPlayerController->SetShowMouseCursorAndForceRefresh(false);
+}
+
+void AAGASCharacter::HideMagicCircleOnPlayerController_Implementation()
+{
+	if (!IsLocallyControlled()) return;
+	
+	AAGASPlayerController* AGASPlayerController = GetController<AAGASPlayerController>();
+	check(AGASPlayerController);
+	
+	AGASPlayerController->HideMagicCircle();
+	AGASPlayerController->SetShowMouseCursorAndForceRefresh(true);
+}
+
 void AAGASCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass,
-	const FGameplayEffectContextHandle& EffectContextHandle, const float Level) const
+                                               const FGameplayEffectContextHandle& EffectContextHandle, const float Level) const
 {
 	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClass, Level, EffectContextHandle);
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);

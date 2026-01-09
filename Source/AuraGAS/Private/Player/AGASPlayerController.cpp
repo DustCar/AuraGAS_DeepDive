@@ -10,11 +10,13 @@
 #include "NavigationSystem.h"
 #include "NiagaraFunctionLibrary.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "Actor/AGASMagicCircle.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Characters/AGASCharacter.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/DecalComponent.h"
 #include "Components/SplineComponent.h"
 #include "Input/AGASInputConfig.h"
 #include "Input/AGASInputComponent.h"
@@ -46,6 +48,8 @@ void AAGASPlayerController::PlayerTick(float DeltaTime)
 	{
 		AutoRun();
 	}
+	
+	UpdateMagicCircleLocation();
 }
 
 void AAGASPlayerController::OnPossess(APawn* InPawn)
@@ -60,6 +64,36 @@ void AAGASPlayerController::OnRep_PlayerState()
 	Super::OnRep_PlayerState();
 
 	InitializeHUD();
+}
+
+void AAGASPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
+{
+	if (!IsValid(MagicCircle))
+	{
+		FVector MagicCircleLocation = CursorHit.ImpactPoint;
+		MagicCircle = GetWorld()->SpawnActor<AAGASMagicCircle>(MagicCircleClass, MagicCircleLocation, FRotator::ZeroRotator);
+		if (DecalMaterial != nullptr)
+		{
+			MagicCircle->MagicCircleDecal->SetDecalMaterial(DecalMaterial);
+		}
+	}
+}
+
+void AAGASPlayerController::HideMagicCircle()
+{
+	if (IsValid(MagicCircle))
+	{
+		MagicCircle->Destroy();
+	}
+}
+
+void AAGASPlayerController::SetShowMouseCursorAndForceRefresh(bool bNewValue)
+{
+	SetShowMouseCursor(bNewValue);
+	
+	float XMouseLocation, YMouseLocation;
+	GetMousePosition(XMouseLocation, YMouseLocation);
+	SetMouseLocation(XMouseLocation, YMouseLocation);
 }
 
 void AAGASPlayerController::CursorTrace()
@@ -360,6 +394,22 @@ void AAGASPlayerController::SyncOccludedActors()
 	else
 	{
 		ForceShowOccludedActors();
+	}
+}
+
+void AAGASPlayerController::UpdateMagicCircleLocation()
+{
+	if (IsValid(MagicCircle))
+	{
+		if (CursorHit.bBlockingHit)
+		{
+			MagicCircle->SetActorHiddenInGame(false);
+			MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
+		}
+		else
+		{
+			MagicCircle->SetActorHiddenInGame(true);
+		}
 	}
 }
 

@@ -8,6 +8,7 @@
 #include "AGASPlayerController.generated.h"
 
 
+class AAGASMagicCircle;
 class UCapsuleComponent;
 class UCameraComponent;
 class USpringArmComponent;
@@ -57,6 +58,19 @@ public:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_PlayerState() override;
+	
+	// damage text function
+	UFUNCTION(Client, Reliable)
+	void ShowDamageNumber(const float DamageAmount, ACharacter* TargetCharacter, const bool bCriticalHit, const bool bBlockedHit);
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowMagicCircle(UMaterialInterface* DecalMaterial = nullptr);
+	
+	UFUNCTION(BlueprintCallable)
+	void HideMagicCircle();
+	
+	// small util function that helps refresh the cursor when hiding/showing in game
+	void SetShowMouseCursorAndForceRefresh(bool bNewValue);
 
 protected:
 	virtual void BeginPlay() override;
@@ -175,14 +189,19 @@ private:
 	{
 		return bIsOcclusionEnabled && FadeMaterial && ActiveCamera && ActiveCapsuleComponent;
 	}
-	
-public:
-	// Damage text function
-	UFUNCTION(Client, Reliable)
-	void ShowDamageNumber(const float DamageAmount, ACharacter* TargetCharacter, const bool bCriticalHit, const bool bBlockedHit);
 
 	UFUNCTION(BlueprintCallable)
 	void SyncOccludedActors();
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AAGASMagicCircle> MagicCircleClass;
+	
+	UPROPERTY()
+	TObjectPtr<AAGASMagicCircle> MagicCircle;
+	
+	void UpdateMagicCircleLocation();
+	
+public:
 	
 	FORCEINLINE FHitResult GetCursorHit() { return CursorHit; }
 	
