@@ -66,12 +66,13 @@ void AAGASPlayerController::OnRep_PlayerState()
 	InitializeHUD();
 }
 
-void AAGASPlayerController::ShowMagicCircle(UMaterialInterface* DecalMaterial)
+void AAGASPlayerController::ShowMagicCircle(float Radius, UMaterialInterface* DecalMaterial)
 {
 	if (!IsValid(MagicCircle))
 	{
 		FVector MagicCircleLocation = CursorHit.ImpactPoint;
 		MagicCircle = GetWorld()->SpawnActor<AAGASMagicCircle>(MagicCircleClass, MagicCircleLocation, FRotator::ZeroRotator);
+		MagicCircle->SetSphereRadius(Radius);
 		if (DecalMaterial != nullptr)
 		{
 			MagicCircle->MagicCircleDecal->SetDecalMaterial(DecalMaterial);
@@ -114,7 +115,8 @@ void AAGASPlayerController::CursorTrace()
 		return;
 	}
 	
-	GetHitResultUnderCursor(ECC_Target, false, CursorHit);
+	const ECollisionChannel TraceChannel = IsValid(MagicCircle) ? ECC_ExcludeActors : ECC_Target;
+	GetHitResultUnderCursor(TraceChannel, false, CursorHit);
 	if (!CursorHit.bBlockingHit) return;
 
 	LastActor = CurrentActor;

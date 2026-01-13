@@ -156,16 +156,28 @@ FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarge
 	FGameplayEffectContextHandle EffectContextHandle = SourceASC->MakeEffectContext();
 	EffectContextHandle.AddSourceObject(SourceASC->GetAvatarActor());
 	SetDeathImpulse(EffectContextHandle, InParams.DeathImpulse);
+	SetKnockbackDirection(EffectContextHandle, InParams.KnockbackDirection);
+	
+	// We are doing a separate calculation for radial knockback and death impulse since this is the only moment where RadialDamageOrigin is actually set.
+	// When we create damage effect params from class defaults, the RadialDamageOrigin would still be (0,0,0). So even if we used RDO, our knockback and death impulse
+	// would still use a vector based on the Player Character location rather than the ability's location.
+	// main use case is in ArcaneShards; we set the damage origin before we call ApplyDamageEffect in GA_ArcaneShards
+	if (InParams.bIsRadialDamage)
+	{
+		FRotator ToTargetRotator = (TargetASC->GetAvatarActor()->GetActorLocation() - InParams.RadialDamageOrigin).Rotation();
+		ToTargetRotator.Pitch = 45.f;
+		const FVector ToTargetVector = ToTargetRotator.Vector();
+		SetKnockbackDirection(EffectContextHandle, ToTargetVector);
+		SetDeathImpulse(EffectContextHandle, ToTargetVector * InParams.DeathImpulseMagnitude);
+	}
 	
 	const bool bSuccessfulKnockback = FMath::FRandRange(UE_SMALL_NUMBER, 100.f) < InParams.KnockbackChance;
 	if (bSuccessfulKnockback)
 	{
-		
 		// With a successful knockback, we will create a KnockbackEffectSpecHandle then apply it to the target, so will have to add the knockback GE class to 
 		// damage effect params, we can set the knockback GE class on base, but we can also use a check to see if we have a knockback class
 		if (InParams.KnockbackGameplayEffectClass && InParams.KnockbackStatusGameplayEffectClass)
 		{
-			SetKnockbackDirection(EffectContextHandle, InParams.KnockbackDirection);
 			// Apply gameplay effect for setting the knockback meta attribute IncomingForce
 			const FGameplayEffectSpecHandle KnockbackEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.KnockbackGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
 			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(KnockbackEffectSpecHandle, TAG_Attributes_Meta_IncomingForce, InParams.KnockbackImpulseMagnitude);
@@ -179,6 +191,11 @@ FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarge
 			UE_LOG(LogAGAS, Error, TEXT("KnockbackEffectClass is not set in AGASDamageGameplayAbility base class and KnockbackChance is > 0."))
 		}
 	}
+	
+	SetIsRadialDamage(EffectContextHandle, InParams.bIsRadialDamage);
+	SetRadialDamageInnerRadius(EffectContextHandle, InParams.RadialDamageInnerRadius);
+	SetRadialDamageOuterRadius(EffectContextHandle, InParams.RadialDamageOuterRadius);
+	SetRadialDamageOrigin(EffectContextHandle, InParams.RadialDamageOrigin);
 	
 	const FGameplayEffectSpecHandle DamageEffectSpecHandle = SourceASC->MakeOutgoingSpec(InParams.DamageGameplayEffectClass, InParams.AbilityLevel, EffectContextHandle);
 	
@@ -287,6 +304,47 @@ FVector UAGASAbilitySystemLibrary::GetKnockbackDirection(const FGameplayEffectCo
 
 	return FVector::ZeroVector;
 }
+
+bool UAGASAbilitySystemLibrary::IsRadialDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->IsRadialDamage();
+	}
+
+	return false;
+}
+
+float UAGASAbilitySystemLibrary::GetRadialDamageInnerRadius(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->GetRadialDamageInnerRadius();
+	}
+
+	return 0.f;
+}
+
+float UAGASAbilitySystemLibrary::GetRadialDamageOuterRadius(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->GetRadialDamageOuterRadius();
+	}
+
+	return 0.f;
+}
+
+FVector UAGASAbilitySystemLibrary::GetRadialDamageOrigin(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AGASEffectContext->GetRadialDamageOrigin();
+	}
+
+	return FVector::ZeroVector;
+}
+
 void UAGASAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, const bool bInIsBlockedHit)
 {
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
@@ -362,6 +420,42 @@ void UAGASAbilitySystemLibrary::SetKnockbackDirection(FGameplayEffectContextHand
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		AGASEffectContext->SetKnockbackDirection(InKnockbackDirection);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetIsRadialDamage(FGameplayEffectContextHandle& EffectContextHandle,
+	const bool bInIsRadialDamage)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetIsRadialDamage(bInIsRadialDamage);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetRadialDamageInnerRadius(FGameplayEffectContextHandle& EffectContextHandle,
+	const float InInnerRadius)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetRadialDamageInnerRadius(InInnerRadius);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetRadialDamageOuterRadius(FGameplayEffectContextHandle& EffectContextHandle,
+	const float InOuterRadius)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetRadialDamageOuterRadius(InOuterRadius);
+	}
+}
+
+void UAGASAbilitySystemLibrary::SetRadialDamageOrigin(FGameplayEffectContextHandle& EffectContextHandle,
+	const FVector& InRadialDamageOrigin)
+{
+	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AGASEffectContext->SetRadialDamageOrigin(InRadialDamageOrigin);
 	}
 }
 

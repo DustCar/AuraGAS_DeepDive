@@ -207,14 +207,14 @@ int32 AAGASCharacter::GetAttributePointsOnPlayerState_Implementation()
 	return AGASPlayerState->GetAttributePoints();
 }
 
-void AAGASCharacter::ShowMagicCircleOnPlayerController_Implementation(UMaterialInterface* DecalMaterial)
+void AAGASCharacter::ShowMagicCircleOnPlayerController_Implementation(float Radius, UMaterialInterface* DecalMaterial)
 {
 	if (!IsLocallyControlled()) return;
 	
 	AAGASPlayerController* AGASPlayerController = GetController<AAGASPlayerController>();
 	check(AGASPlayerController);
 	
-	AGASPlayerController->ShowMagicCircle(DecalMaterial);
+	AGASPlayerController->ShowMagicCircle(Radius, DecalMaterial);
 	AGASPlayerController->SetShowMouseCursorAndForceRefresh(false);
 }
 

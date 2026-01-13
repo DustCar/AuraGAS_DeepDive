@@ -63,4 +63,16 @@ protected:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Knockback")
 	float KnockbackImpulseMagnitude = 500.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RadialDamage")
+	bool bIsRadialDamage = false;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RadialDamage")
+	float RadialDamageInnerRadius = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RadialDamage")
+	float RadialDamageOuterRadius = 0.f;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "RadialDamage")
+	FVector RadialDamageOrigin = FVector::ZeroVector;
 };

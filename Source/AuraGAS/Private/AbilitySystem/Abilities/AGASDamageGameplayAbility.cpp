@@ -63,10 +63,19 @@ FDamageEffectParams UAGASDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 	Params.KnockbackChance = KnockbackChance;
 	Params.KnockbackImpulseMagnitude = KnockbackImpulseMagnitude;
 	
-	// add impulses for melee characters or any other abilities with a valid target actor
+	if (bIsRadialDamage)
+	{
+		Params.bIsRadialDamage = bIsRadialDamage;
+		Params.RadialDamageOrigin = RadialDamageOrigin;
+		Params.RadialDamageInnerRadius = RadialDamageInnerRadius;
+		Params.RadialDamageOuterRadius = RadialDamageOuterRadius;
+	}
+	
+	// add impulses for other abilities with a valid target actor
 	if (IsValid(TargetActor))
 	{
 		FRotator ToTargetRotation = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).Rotation();
+		
 		ToTargetRotation.Pitch = 45.f;
 		const FVector ToTarget = ToTargetRotation.Vector();
 		

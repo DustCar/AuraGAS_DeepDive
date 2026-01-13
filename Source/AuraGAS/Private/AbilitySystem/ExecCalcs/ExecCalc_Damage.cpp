@@ -129,7 +129,7 @@ void UExecCalc_Damage::DetermineDebuff(const FGameplayEffectCustomExecutionParam
 	}
 }
 
-float UExecCalc_Damage::CalculateBaseDamage(const FGameplayEffectCustomExecutionParameters& ExecutionParams, const FGameplayEffectSpec& Spec, const FAggregatorEvaluateParameters& EvaluateParams) const
+float UExecCalc_Damage::CalculateBaseDamage(const FGameplayEffectCustomExecutionParameters& ExecutionParams, const FGameplayEffectSpec& Spec, const FAggregatorEvaluateParameters& EvaluateParams, FGameplayEffectContextHandle& EffectContextHandle) const
 {
 	float LocalDamage = 0.f;
 	for (const auto& [DamageTypeTag, ResistanceTypeTag] : DamageToResistMap)
@@ -148,6 +148,34 @@ float UExecCalc_Damage::CalculateBaseDamage(const FGameplayEffectCustomExecution
 
 		// Reduce current damage value by each percent of damage resist the target has
 		DamageTypeValue *= (100.f - ResistanceTypeValue) / 100.f;
+		if (DamageTypeValue <= 0.f) continue;
+		
+		if (UAGASAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
+		{
+			// Calculate damage scale using FRadialParams::GetDamageScale() algorithm
+			float const ValidInnerRadius = FMath::Max(0.f, UAGASAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle));
+			float const ValidOuterRadius = FMath::Max(UAGASAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle), ValidInnerRadius);
+			
+			FVector TargetLocation = ExecutionParams.GetTargetAbilitySystemComponent()->GetAvatarActor()->GetActorLocation();
+			const float DistanceToTarget = (UAGASAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle) - TargetLocation).Size();
+			float const ValidDistanceToTarget = FMath::Max(0.f, DistanceToTarget);
+			
+			// calculate damage falloff once actor gets past inner radius
+			if (ValidDistanceToTarget > ValidInnerRadius)
+			{
+				// do no damage if actor is out of range
+				if (ValidDistanceToTarget >= ValidOuterRadius)
+				{
+					DamageTypeValue = 0.f;
+				}
+				else
+				{
+					const float DamageScale = 1.f - ((ValidDistanceToTarget - ValidInnerRadius) / (ValidOuterRadius - ValidInnerRadius));
+					DamageTypeValue *= DamageScale;
+				}
+			}
+			// do nothing otherwise, meaning that DamageTypeValue stays the same
+		}
 		
 		LocalDamage += DamageTypeValue;
 	}
@@ -211,7 +239,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	}
 
 	// Loop through all the Damage Types and add it to Damage
-	float Damage = CalculateBaseDamage(ExecutionParams, Spec, EvaluateParams);
+	float Damage = CalculateBaseDamage(ExecutionParams, Spec, EvaluateParams, EffectContextHandle);
 
 	// Critical Hits ignore block and armor, and do double damage plus Crit Damage
 	float SourceCriticalHitChance = 0.f;

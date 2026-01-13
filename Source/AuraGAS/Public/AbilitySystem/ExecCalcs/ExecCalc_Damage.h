@@ -27,7 +27,8 @@ private:
 						 const FAggregatorEvaluateParameters& EvaluateParams,
 						 FGameplayEffectContextHandle& EffectContextHandle) const;
 	float CalculateBaseDamage(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
-							  const FGameplayEffectSpec& Spec, const FAggregatorEvaluateParameters& EvaluateParams) const;
+							  const FGameplayEffectSpec& Spec, const FAggregatorEvaluateParameters& EvaluateParams,
+							  FGameplayEffectContextHandle& EffectContextHandle) const;
 	float CalculatePercentDamageIgnored(const FGameplayEffectCustomExecutionParameters& ExecutionParams,
 										AActor* SourceAvatar, AActor* TargetAvatar,
 										const UAGASCharacterClassInfo* CharacterClassInfo,
