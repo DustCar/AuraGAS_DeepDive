@@ -199,7 +199,7 @@ void UAGASAttributeSet::SendXPPointsEvent(const FEffectPropertiesAdvanced& Props
 
 void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Props, const bool bIsDebuff)
 {
-	const float LocalIncomingDamage = GetIncomingDamage();
+	const float LocalIncomingDamage = FMath::RoundFromZero(GetIncomingDamage());
 	SetIncomingDamage(0.f);
 	if (LocalIncomingDamage < 0.f) return;
 		

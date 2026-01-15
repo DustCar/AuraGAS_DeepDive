@@ -18,7 +18,7 @@ int32 UAGASDamageGameplayAbility::GetRoundedDamageAtLevel(int32 Level) const
 {
 	if (DamageFloat.IsValid())
 	{
-		return FMath::RoundHalfToEven(DamageFloat.GetValueAtLevel(Level));
+		return FMath::RoundFromZero(DamageFloat.GetValueAtLevel(Level));
 	}
 	
 	return 0;
@@ -28,19 +28,14 @@ FString UAGASDamageGameplayAbility::FormatDamageAbilityDescription(int32 Level, 
 	UGameplayAbility* Ability)
 {
 	FString NewDescription = Description;
+	FStringFormatNamedArguments NamesToValues;
 	
-	if (UAGASDamageGameplayAbility* DamageAbility = Cast<UAGASDamageGameplayAbility>(Ability))
-	{
-		FStringFormatNamedArguments NamesToValues;
-		
-		NamesToValues.Add(TEXT("_Dmg0"), DamageAbility->GetRoundedDamageAtLevel(Level));
-		NamesToValues.Add(TEXT("_Dmg1"), DamageAbility->GetRoundedDamageAtLevel(Level + 1));
-		NamesToValues.Add(TEXT("_LineBreak"), "\n");
-		NamesToValues.Add(TEXT("_ProjNum0"), Level < 5 ? Level : 5);
-		NamesToValues.Add(TEXT("_ProjNum1"), Level + 1 < 5 ? Level + 1 : 5);
-		
-		NewDescription = FString::Format(*Description, NamesToValues);
-	}
+	NamesToValues.Add(TEXT("_Dmg0"), GetRoundedDamageAtLevel(Level));
+	NamesToValues.Add(TEXT("_Dmg1"), GetRoundedDamageAtLevel(Level + 1));
+	NamesToValues.Add(TEXT("_LineBreak"), "\n");
+	
+	NewDescription = FString::Format(*Description, NamesToValues);
+	
 	return NewDescription;
 }
 

@@ -14,6 +14,9 @@ class AURAGAS_API UAGASGA_CastBeam : public UAGASDamageGameplayAbility
 {
 	GENERATED_BODY()
 	
+public:
+	virtual FString FormatDamageAbilityDescription(int32 Level, const FString& Description, UGameplayAbility* Ability) override;
+	
 protected:
 	
 	UFUNCTION(BlueprintCallable)

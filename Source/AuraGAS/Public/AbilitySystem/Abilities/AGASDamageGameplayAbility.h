@@ -7,6 +7,8 @@
 #include "AGASGameplayAbility.h"
 #include "AGASDamageGameplayAbility.generated.h"
 
+// FStruct FStringFormatNamedArguments;
+
 /**
  * 
  */
@@ -20,7 +22,8 @@ public:
 	void CauseDamage(AActor* TargetActor);
 	
 	int32 GetRoundedDamageAtLevel(int32 Level) const;
-	static FString FormatDamageAbilityDescription(int32 Level, const FString& Description, UGameplayAbility* Ability);
+	
+	virtual FString FormatDamageAbilityDescription(int32 Level, const FString& Description, UGameplayAbility* Ability);
 	
 	UFUNCTION(BlueprintPure)
 	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;

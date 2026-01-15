@@ -10,6 +10,20 @@
 #include "Interaction/AGASCombatInterface.h"
 
 
+FString UAGASGA_CastProjectile::FormatDamageAbilityDescription(int32 Level, const FString& Description,
+	UGameplayAbility* Ability)
+{
+	FString ParentDescription = Super::FormatDamageAbilityDescription(Level, Description, Ability);
+	FStringFormatNamedArguments ProjNamesToValues;
+	
+	ProjNamesToValues.Add(TEXT("_ProjNum0"), FMath::Min(Level, MaxNumProjectiles));
+	ProjNamesToValues.Add(TEXT("_ProjNum1"), FMath::Min(Level + 1, MaxNumProjectiles));
+	
+	FString NewProjDescription = FString::Format(*ParentDescription, ProjNamesToValues);
+	
+	return NewProjDescription;
+}
+
 void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag)
 {
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();

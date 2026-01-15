@@ -484,6 +484,7 @@ bool AAGASPlayerController::OnHideOccludedActor(const FCameraOccludedActor& Occl
 	{
 		OccludedActor.StaticMesh->SetMaterial(i, FadeMaterial);
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
+		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Ignore);
 	}
 
 	return true;
@@ -495,6 +496,7 @@ bool AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& Occl
 	{
 		OccludedActor.StaticMesh->SetMaterial(matIdx, OccludedActor.Materials[matIdx]);
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Block);
+		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Block);
 	}
 
 	return true;

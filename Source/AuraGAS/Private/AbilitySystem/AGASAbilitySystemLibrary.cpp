@@ -188,7 +188,7 @@ FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarge
 		}
 		else
 		{
-			UE_LOG(LogAGAS, Error, TEXT("KnockbackEffectClass is not set in AGASDamageGameplayAbility base class and KnockbackChance is > 0."))
+			UE_LOG(LogAGAS, Error, TEXT("%hs: KnockbackEffectClass is missing in AGASDamageGameplayAbility base class and KnockbackChance is > 0."), __FUNCTION__)
 		}
 	}
 	

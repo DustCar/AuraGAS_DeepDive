@@ -8,6 +8,24 @@
 #include "Interaction/AGASCombatInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+FString UAGASGA_CastBeam::FormatDamageAbilityDescription(int32 Level, const FString& Description,
+	UGameplayAbility* Ability)
+{
+	FString ParentDescription = Super::FormatDamageAbilityDescription(Level, Description, Ability);
+	FStringFormatNamedArguments BeamNamesToValues;
+	
+	BeamNamesToValues.Add(TEXT("_BeamNum0"), FMath::Min(FMath::CeilToInt32(Level * 0.5), MaxNumShockTargets));
+	BeamNamesToValues.Add(TEXT("_BeamNum1"), FMath::Min(FMath::CeilToInt32((Level + 1) * 0.5), MaxNumShockTargets));
+	BeamNamesToValues.Add(TEXT("_AdDmg0"), FMath::TruncToInt32(FMath::RoundHalfFromZero(GetRoundedDamageAtLevel(Level) * 0.5)));
+	BeamNamesToValues.Add(TEXT("_AdDmg1"), FMath::TruncToInt32(FMath::RoundHalfFromZero(GetRoundedDamageAtLevel(Level + 1) * 0.5)));
+	BeamNamesToValues.Add(TEXT("_BurstDmg0"), GetRoundedDamageAtLevel(Level) * 4);
+	BeamNamesToValues.Add(TEXT("_BurstDmg1"), GetRoundedDamageAtLevel(Level + 1) * 4);
+	
+	FString NewProjDescription = FString::Format(*ParentDescription, BeamNamesToValues);
+	
+	return NewProjDescription;
+}
+
 void UAGASGA_CastBeam::StoreMouseDataInfo(const FHitResult& HitResult)
 {
 	if (HitResult.bBlockingHit)
@@ -88,7 +106,8 @@ void UAGASGA_CastBeam::StoreAdditionalTargets(TArray<AActor*>& OutAdditionalTarg
 		MouseHitActor->GetActorLocation()
 	);
 	
-	const int32 NumAdditionalTargets = FMath::Min(MaxNumShockTargets, GetAbilityLevel());
+	// Ceil(Ability/2) since we want to start with no chain and earn up to 5 additional chains every two levels. So at level 11, "max ability lvl", beam gets 5 chains
+	const int32 NumAdditionalTargets = FMath::Min(MaxNumShockTargets, FMath::CeilToInt32(GetAbilityLevel() * 0.5));
 	UAGASAbilitySystemLibrary::GetClosestTargets(NumAdditionalTargets, OverlappingActors, OutAdditionalTargets, MouseHitActor->GetActorLocation());
 	
 	for (AActor* Target : OutAdditionalTargets)

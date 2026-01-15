@@ -8,6 +8,7 @@
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/Abilities/AGASDamageGameplayAbility.h"
 #include "AbilitySystem/Abilities/AGASGameplayAbility.h"
+#include "AbilitySystem/Abilities/AGASPassiveAbility.h"
 #include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "AuraGAS/AGASLogChannels.h"
 #include "Interaction/AGASPlayerInterface.h"
@@ -312,13 +313,13 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 	
 	if (const FGameplayAbilitySpec* AbilitySpec = GetSpecFromAbilityTag(AbilityTag))
 	{
-		if (UAGASGameplayAbility* AGASAbility = Cast<UAGASGameplayAbility>(AbilitySpec->Ability))
+		if (UAGASDamageGameplayAbility* DamageAbility = Cast<UAGASDamageGameplayAbility>(AbilitySpec->Ability))
 		{
 			// Note: Previously used AbilitySpec->Level for level but is too inconsistent with client so we pass one in
 			// Note for formats: Formats are for damage abilities and will only format if ability is a damage GA, else
 			// it's normal
-			const FString FormattedDescription = UAGASDamageGameplayAbility::FormatDamageAbilityDescription(Level, Info.AbilityDescription.ToString(), AGASAbility);
-			const FString FormattedNextLvlDescription = UAGASDamageGameplayAbility::FormatDamageAbilityDescription(Level, Info.NextLevelDescription.ToString(), AGASAbility);
+			const FString FormattedDescription = DamageAbility->FormatDamageAbilityDescription(Level, Info.AbilityDescription.ToString(), DamageAbility);
+			const FString FormattedNextLvlDescription = DamageAbility->FormatDamageAbilityDescription(Level, Info.NextLevelDescription.ToString(), DamageAbility);
 			
 			OutDescription = FString::Printf(
 				TEXT(
@@ -327,7 +328,7 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 				
 				// Level, Mana cost, and Cooldown
 				"<SubTitle>Level: </><Level>%d</>\n"
-				"<SubTitle>Mana: </><ManaCost>%d</>\n"
+				"<SubTitle>Mana Cost: </><ManaCost>%d</>\n"
 				"<SubTitle>Cooldown: </><Cooldown>%.1f</> s\n"
 				
 				// Ability info body that gets formatted and obtained from ability info
@@ -337,8 +338,8 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 				),
 				*Info.AbilityName.ToString(),
 				Level,
-				AGASAbility->GetRoundedManaCost(Level),
-				AGASAbility->GetCooldown(Level),
+				DamageAbility->GetRoundedManaCost(Level),
+				DamageAbility->GetCooldown(Level),
 				*FormattedDescription
 			);
 			OutNextLevelDescription = FString::Printf(
@@ -346,7 +347,7 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 				// Same as Ability description but includes the previous and next level iteration
 				"<Title>%s </>\n"
 				"<SubTitle>Level: </><OldValue>%d</> > <Level>%d</>\n"
-				"<SubTitle>Mana: </><OldValue>%d</> > <ManaCost>%d</>\n"
+				"<SubTitle>Mana Cost: </><OldValue>%d</> > <ManaCost>%d</>\n"
 				"<SubTitle>Cooldown: </><OldValue>%.1f</> > <Cooldown>%.1f</> s\n"
 				"\n"
 				"%s\n"
@@ -355,10 +356,52 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 				*Info.AbilityName.ToString(),
 				Level,
 				Level + 1,
-				AGASAbility->GetRoundedManaCost(Level),
-				AGASAbility->GetRoundedManaCost(Level + 1),
-				AGASAbility->GetCooldown(Level),
-				AGASAbility->GetCooldown(Level + 1),
+				DamageAbility->GetRoundedManaCost(Level),
+				DamageAbility->GetRoundedManaCost(Level + 1),
+				DamageAbility->GetCooldown(Level),
+				DamageAbility->GetCooldown(Level + 1),
+				*FormattedNextLvlDescription
+			);
+			return true;
+		}
+		
+		if (UAGASPassiveAbility* PassiveAbility = Cast<UAGASPassiveAbility>(AbilitySpec->Ability))
+		{
+			// Note: Previously used AbilitySpec->Level for level but is too inconsistent with client so we pass one in
+			// Note for formats: Formats are for damage abilities and will only format if ability is a damage GA, else
+			// it's normal
+			const FString FormattedDescription = TEXT("Work in progress");
+			const FString FormattedNextLvlDescription = TEXT("Work in progress");
+			
+			OutDescription = FString::Printf(
+				TEXT(
+				// Ability Name
+				"<Title>%s </>\n"
+				
+				// Level, Mana cost, and Cooldown
+				"<SubTitle>Level: </><Level>%d</>\n"
+				
+				// Ability info body that gets formatted and obtained from ability info
+				"\n"
+				"%s\n"
+				"\n"
+				),
+				*Info.AbilityName.ToString(),
+				Level,
+				*FormattedDescription
+			);
+			OutNextLevelDescription = FString::Printf(
+				TEXT(
+				// Same as Ability description but includes the previous and next level iteration
+				"<Title>%s </>\n"
+				"<SubTitle>Level: </><OldValue>%d</> > <Level>%d</>\n"
+				"\n"
+				"%s\n"
+				"\n"
+				),
+				*Info.AbilityName.ToString(),
+				Level,
+				Level + 1,
 				*FormattedNextLvlDescription
 			);
 			return true;

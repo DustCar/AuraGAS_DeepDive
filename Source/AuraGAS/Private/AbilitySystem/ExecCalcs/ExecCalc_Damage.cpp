@@ -152,7 +152,7 @@ float UExecCalc_Damage::CalculateBaseDamage(const FGameplayEffectCustomExecution
 		
 		if (UAGASAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
 		{
-			// Calculate damage scale using FRadialParams::GetDamageScale() algorithm
+			// Calculate damage scale using FRadialParams::GetDamageScale() algorithm; no need to call UGameplayStatics::ApplyRadialDamageWithFalloff since all we need is the damage scale part
 			float const ValidInnerRadius = FMath::Max(0.f, UAGASAbilitySystemLibrary::GetRadialDamageInnerRadius(EffectContextHandle));
 			float const ValidOuterRadius = FMath::Max(UAGASAbilitySystemLibrary::GetRadialDamageOuterRadius(EffectContextHandle), ValidInnerRadius);
 			
