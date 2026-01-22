@@ -88,6 +88,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Type_None)
 
 // Ability Tags: Aura
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Fire_FireBolt)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Fire_FireBlast)
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Lightning_Electrocute)
 
@@ -100,6 +101,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_ManaSiphon)
 
 // Cooldown Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Cooldown_Fire_FireBolt)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Cooldown_Fire_FireBlast)
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Cooldown_Lightning_Electrocute)
 
@@ -126,6 +128,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Player_Block_CursorTrace)
 // Other Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Effects_HitReact)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_StatusEffects_Knockback)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_GameplayCue_FireBlast)
 
 
 

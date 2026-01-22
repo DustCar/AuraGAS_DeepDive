@@ -166,7 +166,8 @@ FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarge
 	{
 		FRotator ToTargetRotator = (TargetASC->GetAvatarActor()->GetActorLocation() - InParams.RadialDamageOrigin).Rotation();
 		ToTargetRotator.Pitch = 45.f;
-		const FVector ToTargetVector = ToTargetRotator.Vector();
+		FVector ToTargetVector = ToTargetRotator.Vector();
+		ToTargetVector.Normalize();
 		SetKnockbackDirection(EffectContextHandle, ToTargetVector);
 		SetDeathImpulse(EffectContextHandle, ToTargetVector * InParams.DeathImpulseMagnitude);
 	}
@@ -552,7 +553,8 @@ TArray<FRotator> UAGASAbilitySystemLibrary::EvenlySpacedRotators(const FVector& 
 	const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread * 0.5f, Axis);
 	if (NumRotators > 1)
 	{
-		const float DeltaSpread = Spread / (NumRotators - 1);
+		// we want to make sure that there are no overlapping rotators (0 deg and 360 deg are the same) so after full circle then just divide by the number of rots
+		const float DeltaSpread = Spread < 360.f ? Spread / (NumRotators - 1) : Spread / NumRotators;
 		for (int32 i = 0; i < NumRotators; i++)
 		{
 			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, Axis);
@@ -574,7 +576,8 @@ TArray<FVector> UAGASAbilitySystemLibrary::EvenlyRotatedVectors(const FVector& F
 	const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread * 0.5f, Axis);
 	if (NumVectors > 1)
 	{
-		const float DeltaSpread = Spread / (NumVectors - 1);
+		// same reason as rotators function
+		const float DeltaSpread = Spread < 360.f ? Spread / (NumVectors - 1) : Spread / NumVectors;
 		for (int32 i = 0; i < NumVectors; i++)
 		{
 			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, Axis);

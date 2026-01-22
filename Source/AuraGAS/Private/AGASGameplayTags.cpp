@@ -82,6 +82,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Type_None, "Abilities.Type.None")
 
 // Ability Tags: Aura
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Fire_FireBolt, "Abilities.Fire.FireBolt")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Fire_FireBlast, "Abilities.Fire.FireBlast")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Lightning_Electrocute, "Abilities.Lightning.Electrocute")
 
@@ -94,6 +95,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_ManaSiphon, "Abilities.Passive.Mana
 
 // Cooldown Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBolt, "Cooldown.Fire.FireBolt")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBlast, "Cooldown.Fire.FireBlast")
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Lightning_Electrocute, "Cooldown.Lightning.Electrocute")
 
@@ -120,6 +122,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Player_Block_CursorTrace, "Player.Block.CursorTrace")
 // Other Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Effects_HitReact, "Effects.HitReact")
 UE_DEFINE_GAMEPLAY_TAG(TAG_StatusEffects_Knockback, "StatusEffects.Knockback")
+UE_DEFINE_GAMEPLAY_TAG(TAG_GameplayCue_FireBlast, "GameplayCue.FireBlast")
 
 const TMap<FGameplayTag, FGameplayTag> AGASGameplayTags::DamageTypeToResistMap = 
 {

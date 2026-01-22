@@ -51,7 +51,7 @@ void UAGASGA_CastProjectile::SpawnProjectile(const FVector& ProjectileTargetLoca
 	Projectile->FinishSpawning(SpawnTransform);
 }
 
-void UAGASGA_CastProjectile::SpawnProjectiles(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag,
+void UAGASGA_CastProjectile::SpawnProjectilesFromSocket(const FVector& ProjectileTargetLocation, const FGameplayTag& SocketTag,
 	AActor* HomingTarget, const bool bOverridePitch, const float PitchAmount, const bool bHoming)
 {
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
@@ -118,4 +118,41 @@ void UAGASGA_CastProjectile::SpawnProjectiles(const FVector& ProjectileTargetLoc
 		
 		Projectile->FinishSpawning(SpawnTransform);
 	}
+}
+
+TArray<AAGASProjectile*> UAGASGA_CastProjectile::SpawnProjectilesFromCharacter()
+{
+	AActor* AvatarActor = GetAvatarActorFromActorInfo();
+	if (AvatarActor == nullptr || !AvatarActor->HasAuthority()) return TArray<AAGASProjectile*>();
+	
+	TArray<AAGASProjectile*> Projectiles;
+	const FVector Forward = AvatarActor->GetActorForwardVector();
+	const FVector Location = AvatarActor->GetActorLocation();
+	
+	const int32 NumProjectiles = MaxNumProjectiles;
+	
+	TArray<FRotator> Rotations = UAGASAbilitySystemLibrary::EvenlySpacedRotators(Forward, FVector::UpVector, ProjectileSpread, NumProjectiles);
+	
+	for (const FRotator& Rot : Rotations)
+	{
+		FTransform SpawnTransform;
+		SpawnTransform.SetLocation(Location);
+		SpawnTransform.SetRotation(Rot.Quaternion());
+		
+		AAGASProjectile* Projectile = GetWorld()->SpawnActorDeferred<AAGASProjectile>(
+			ProjectileClass,
+			SpawnTransform,
+			GetAvatarActorFromActorInfo(),
+			Cast<APawn>(GetAvatarActorFromActorInfo()),
+			ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+		);
+
+		Projectile->DamageEffectParams = MakeDamageEffectParamsFromClassDefaults();
+		
+		Projectiles.Add(Projectile);
+		
+		Projectile->FinishSpawning(SpawnTransform);
+	}
+	
+	return Projectiles;
 }

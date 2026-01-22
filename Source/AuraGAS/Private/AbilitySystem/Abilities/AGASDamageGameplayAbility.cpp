@@ -72,7 +72,8 @@ FDamageEffectParams UAGASDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 		FRotator ToTargetRotation = (TargetActor->GetActorLocation() - GetAvatarActorFromActorInfo()->GetActorLocation()).Rotation();
 		
 		ToTargetRotation.Pitch = 45.f;
-		const FVector ToTarget = ToTargetRotation.Vector();
+		FVector ToTarget = ToTargetRotation.Vector();
+		ToTarget.Normalize();
 		
 		Params.DeathImpulse = ToTarget * DeathImpulseMagnitude;
 		Params.KnockbackDirection = ToTarget;
