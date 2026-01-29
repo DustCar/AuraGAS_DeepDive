@@ -9,13 +9,27 @@
 
 void AAGASGameModeBase::SaveSlotData(UMVVM_AGASLoadSlot* LoadSlot)
 {
-	if (UGameplayStatics::DoesSaveGameExist(LoadSlot->LoadSlotName, 0))
-	{
-		UGameplayStatics::DeleteGameInSlot(LoadSlot->LoadSlotName, 0);
-	}
+	DeleteSlot(LoadSlot->LoadSlotName);
 	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(LoadMenuSaveGameClass);
 	UAGASLoadMenuSaveGame* LoadMenuSaveGame = Cast<UAGASLoadMenuSaveGame>(SaveGameObject);
 	LoadMenuSaveGame->PlayerName = LoadSlot->PlayerName;
 	
 	UGameplayStatics::SaveGameToSlot(LoadMenuSaveGame, LoadSlot->LoadSlotName, 0);
+}
+
+UAGASLoadMenuSaveGame* AAGASGameModeBase::GetSaveSlotData(const FString& SlotName) const
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
+	{
+		return Cast<UAGASLoadMenuSaveGame>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+	}
+	return nullptr;
+}
+
+void AAGASGameModeBase::DeleteSlot(const FString& SlotName)
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, 0))
+	{
+		UGameplayStatics::DeleteGameInSlot(SlotName, 0);
+	}
 }

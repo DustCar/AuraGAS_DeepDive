@@ -4,6 +4,7 @@
 #include "UI/ViewModel/MVVM_AGASLoadMenu.h"
 
 #include "Game/AGASGameModeBase.h"
+#include "Game/AGASLoadMenuSaveGame.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/ViewModel/MVVM_AGASLoadSlot.h"
 
@@ -33,18 +34,55 @@ void UMVVM_AGASLoadMenu::NewSaveButtonPressed(int32 InSlot, const FString Entere
 	
 	if (AGASGameMode)
 	{
-		LoadSlots[InSlot]->PlayerName = EnteredName;
+		LoadSlots[InSlot]->SetPlayerName(EnteredName);
 		AGASGameMode->SaveSlotData(LoadSlots[InSlot]);
-		
-		LoadSlots[InSlot]->InitializeSlot();
+		LoadSlots[InSlot]->SetLoadSlotWidget(ELoadSlotWidget::Taken);
 	}
 }
 
 void UMVVM_AGASLoadMenu::NewGameButtonPressed(int32 InSlot)
 {
-	LoadSlots[InSlot]->SetWidgetSwitcherIndex.Broadcast(1);
+	LoadSlots[InSlot]->SetWidgetSwitcherIndex.Broadcast(ELoadSlotWidget::Taken);
 }
 
-void UMVVM_AGASLoadMenu::LoadSaveButtonPressed(int32 InSlot)
+void UMVVM_AGASLoadMenu::SelectSaveButtonPressed(int32 InSlot)
 {
+	SaveSelected.Broadcast();
+	for (const auto [SlotIndex, Slot] : LoadSlots)
+	{
+		if (SlotIndex == InSlot)
+		{
+			Slot->EnableSelectSaveButton.Broadcast(false);
+		}
+		else
+		{
+			Slot->EnableSelectSaveButton.Broadcast(true);
+		}
+	}
+	SelectedSlot = LoadSlots[InSlot];
+}
+
+void UMVVM_AGASLoadMenu::DeleteButtonPressed()
+{
+	if (IsValid(SelectedSlot))
+	{
+		AAGASGameModeBase::DeleteSlot(SelectedSlot->LoadSlotName);
+		SelectedSlot->SetLoadSlotWidget(ELoadSlotWidget::Vacant);
+		SelectedSlot->EnableSelectSaveButton.Broadcast(true);
+	}
+}
+
+void UMVVM_AGASLoadMenu::LoadData()
+{
+	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));
+	
+	for (const auto [SlotIndex, Slot] : LoadSlots)
+	{
+		UAGASLoadMenuSaveGame* SaveObject = AGASGameMode->GetSaveSlotData(Slot->LoadSlotName);
+		if (SaveObject)
+		{
+			Slot->SetPlayerName(SaveObject->PlayerName);
+			Slot->SetLoadSlotWidget(ELoadSlotWidget::Taken);
+		}
+	}
 }

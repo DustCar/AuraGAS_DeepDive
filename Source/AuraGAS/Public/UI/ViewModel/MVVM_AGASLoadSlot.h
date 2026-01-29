@@ -6,8 +6,16 @@
 #include "MVVMViewModelBase.h"
 #include "MVVM_AGASLoadSlot.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSetWidgetSwitcherIndex, int32, WidgetSwitcherIndex);
+UENUM(BlueprintType)
+enum ELoadSlotWidget
+{
+	Vacant,
+	EnterName,
+	Taken
+};
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSetWidgetSwitcherIndex, int32, WidgetSwitcherIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEnableSelectSaveButton, bool, bEnable);
 /**
  * 
  */
@@ -21,12 +29,23 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FSetWidgetSwitcherIndex SetWidgetSwitcherIndex;
 	
-	void InitializeSlot();
+	UPROPERTY(BlueprintAssignable)
+	FEnableSelectSaveButton EnableSelectSaveButton;
 	
-	UPROPERTY()
-	FString PlayerName;
+	void SetLoadSlotWidget(const ELoadSlotWidget LoadSlotWidget);
 	
 	UPROPERTY()
 	FString LoadSlotName;
 	
+	UPROPERTY()
+	TEnumAsByte<ELoadSlotWidget> SlotStatus;
+	
+	/* Field Notifies */ 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter)
+	FString PlayerName;
+	
+	void SetPlayerName(FString InPlayerName);
+	
+	FString GetPlayerName() const { return PlayerName; }
 };

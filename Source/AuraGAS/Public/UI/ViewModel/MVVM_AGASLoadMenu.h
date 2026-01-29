@@ -7,6 +7,8 @@
 
 #include "MVVM_AGASLoadMenu.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FSaveSelected);
+
 class UMVVM_AGASLoadSlot;
 /**
  * 
@@ -19,6 +21,9 @@ class AURAGAS_API UMVVM_AGASLoadMenu : public UMVVMViewModelBase
 public:
 	
 	void InitializeLoadSlots();
+	
+	UPROPERTY(BlueprintAssignable)
+	FSaveSelected SaveSelected;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<UMVVM_AGASLoadSlot> LoadSlotViewModelClass;
@@ -33,7 +38,12 @@ public:
 	void NewGameButtonPressed(int32 InSlot);
 	
 	UFUNCTION(BlueprintCallable)
-	void LoadSaveButtonPressed(int32 InSlot);
+	void SelectSaveButtonPressed(int32 InSlot);
+	
+	UFUNCTION(BlueprintCallable)
+	void DeleteButtonPressed();
+	
+	void LoadData();
 	
 private:
 	
@@ -48,4 +58,7 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UMVVM_AGASLoadSlot> LoadSlot_2;
+	
+	UPROPERTY()
+	TObjectPtr<UMVVM_AGASLoadSlot> SelectedSlot;
 };

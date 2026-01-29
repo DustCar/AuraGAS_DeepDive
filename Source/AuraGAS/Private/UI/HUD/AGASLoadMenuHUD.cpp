@@ -18,4 +18,5 @@ void AAGASLoadMenuHUD::BeginPlay()
 	LoadMenuWidget->AddToViewport();
 	LoadMenuWidget->BlueprintInitializeWidget();
 	
+	LoadMenuViewModel->LoadData();
 }
