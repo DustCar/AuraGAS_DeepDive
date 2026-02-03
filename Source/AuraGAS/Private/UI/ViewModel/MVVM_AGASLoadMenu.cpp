@@ -11,16 +11,18 @@
 void UMVVM_AGASLoadMenu::InitializeLoadSlots()
 {
 	LoadSlot_0 = NewObject<UMVVM_AGASLoadSlot>(this, LoadSlotViewModelClass);
-	LoadSlot_0->LoadSlotName = FString("LoadSlot_0");
+	LoadSlot_0->SetLoadSlotName(FString("LoadSlot_0"));
 	LoadSlots.Add(0, LoadSlot_0);
 	
 	LoadSlot_1 = NewObject<UMVVM_AGASLoadSlot>(this, LoadSlotViewModelClass);
-	LoadSlot_1->LoadSlotName = FString("LoadSlot_1");
+	LoadSlot_1->SetLoadSlotName(FString("LoadSlot_1"));
 	LoadSlots.Add(1, LoadSlot_1);
 	
 	LoadSlot_2 = NewObject<UMVVM_AGASLoadSlot>(this, LoadSlotViewModelClass);
-	LoadSlot_2->LoadSlotName = FString("LoadSlot_2");
+	LoadSlot_2->SetLoadSlotName(FString("LoadSlot_2"));
 	LoadSlots.Add(2, LoadSlot_2);
+	
+	SetNumLoadSlots(LoadSlots.Num());
 }
 
 UMVVM_AGASLoadSlot* UMVVM_AGASLoadMenu::GetLoadSlotViewModelByIndex(int32 InIndex) const
@@ -35,6 +37,7 @@ void UMVVM_AGASLoadMenu::NewSaveButtonPressed(int32 InSlot, const FString Entere
 	if (AGASGameMode)
 	{
 		LoadSlots[InSlot]->SetPlayerName(EnteredName);
+		LoadSlots[InSlot]->SetMapName(AGASGameMode->DefaultMapName);
 		AGASGameMode->SaveSlotData(LoadSlots[InSlot]);
 		LoadSlots[InSlot]->SetLoadSlotWidget(ELoadSlotWidget::Taken);
 	}
@@ -42,7 +45,7 @@ void UMVVM_AGASLoadMenu::NewSaveButtonPressed(int32 InSlot, const FString Entere
 
 void UMVVM_AGASLoadMenu::NewGameButtonPressed(int32 InSlot)
 {
-	LoadSlots[InSlot]->SetWidgetSwitcherIndex.Broadcast(ELoadSlotWidget::Taken);
+	LoadSlots[InSlot]->SetWidgetSwitcherIndex.Broadcast(ELoadSlotWidget::EnterName);
 }
 
 void UMVVM_AGASLoadMenu::SelectSaveButtonPressed(int32 InSlot)
@@ -66,9 +69,19 @@ void UMVVM_AGASLoadMenu::DeleteButtonPressed()
 {
 	if (IsValid(SelectedSlot))
 	{
-		AAGASGameModeBase::DeleteSlot(SelectedSlot->LoadSlotName);
+		AAGASGameModeBase::DeleteSlot(SelectedSlot->GetLoadSlotName());
 		SelectedSlot->SetLoadSlotWidget(ELoadSlotWidget::Vacant);
 		SelectedSlot->EnableSelectSaveButton.Broadcast(true);
+	}
+}
+
+void UMVVM_AGASLoadMenu::PlayButtonPressed()
+{
+	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));
+	
+	if (AGASGameMode && IsValid(SelectedSlot))
+	{
+		AGASGameMode->TravelToMap(SelectedSlot);
 	}
 }
 
@@ -78,11 +91,17 @@ void UMVVM_AGASLoadMenu::LoadData()
 	
 	for (const auto [SlotIndex, Slot] : LoadSlots)
 	{
-		UAGASLoadMenuSaveGame* SaveObject = AGASGameMode->GetSaveSlotData(Slot->LoadSlotName);
+		UAGASLoadMenuSaveGame* SaveObject = AGASGameMode->GetSaveSlotData(Slot->GetLoadSlotName());
 		if (SaveObject)
 		{
 			Slot->SetPlayerName(SaveObject->PlayerName);
+			Slot->SetMapName(SaveObject->MapName);
 			Slot->SetLoadSlotWidget(ELoadSlotWidget::Taken);
 		}
 	}
+}
+
+void UMVVM_AGASLoadMenu::SetNumLoadSlots(int32 InNumLoadSlots)
+{
+	UE_MVVM_SET_PROPERTY_VALUE(NumLoadSlots, InNumLoadSlots);
 }

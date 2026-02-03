@@ -12,3 +12,13 @@ void UMVVM_AGASLoadSlot::SetPlayerName(FString InPlayerName)
 {
 	UE_MVVM_SET_PROPERTY_VALUE(PlayerName, InPlayerName);
 }
+
+void UMVVM_AGASLoadSlot::SetMapName(FString InMapName)
+{
+	UE_MVVM_SET_PROPERTY_VALUE(MapName, InMapName);
+}
+
+void UMVVM_AGASLoadSlot::SetLoadSlotName(FString InLoadSlotName)
+{
+	UE_MVVM_SET_PROPERTY_VALUE(LoadSlotName, InLoadSlotName);
+}

@@ -35,17 +35,25 @@ public:
 	void SetLoadSlotWidget(const ELoadSlotWidget LoadSlotWidget);
 	
 	UPROPERTY()
-	FString LoadSlotName;
-	
-	UPROPERTY()
 	TEnumAsByte<ELoadSlotWidget> SlotStatus;
 	
 	/* Field Notifies */ 
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter)
-	FString PlayerName;
-	
 	void SetPlayerName(FString InPlayerName);
+	void SetMapName(FString InMapName);
+	void SetLoadSlotName(FString InLoadSlotName);
 	
 	FString GetPlayerName() const { return PlayerName; }
+	FString GetMapName() const { return MapName; }
+	FString GetLoadSlotName() const { return LoadSlotName; }
+	
+private:
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess = "true"))
+	FString PlayerName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess = "true"))
+	FString MapName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, FieldNotify, Setter, Getter, meta = (AllowPrivateAccess = "true"))
+	FString LoadSlotName;
 };

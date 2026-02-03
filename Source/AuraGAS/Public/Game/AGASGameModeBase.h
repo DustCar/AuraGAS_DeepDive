@@ -24,6 +24,20 @@ public:
 	UAGASLoadMenuSaveGame* GetSaveSlotData(const FString& SlotName) const;
 	static void DeleteSlot(const FString& SlotName);
 	
+	void TravelToMap(UMVVM_AGASLoadSlot* LoadSlot);
+	
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<USaveGame> LoadMenuSaveGameClass;
+	
+	UPROPERTY(EditDefaultsOnly)
+	FString DefaultMapName;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<UWorld> DefaultMap;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TMap<FString, TSoftObjectPtr<UWorld>> Maps;
+	
+protected:
+	virtual void BeginPlay() override;
 };

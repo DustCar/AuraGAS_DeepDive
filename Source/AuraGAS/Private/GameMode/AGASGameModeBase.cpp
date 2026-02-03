@@ -9,12 +9,13 @@
 
 void AAGASGameModeBase::SaveSlotData(UMVVM_AGASLoadSlot* LoadSlot)
 {
-	DeleteSlot(LoadSlot->LoadSlotName);
+	DeleteSlot(LoadSlot->GetLoadSlotName());
 	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(LoadMenuSaveGameClass);
 	UAGASLoadMenuSaveGame* LoadMenuSaveGame = Cast<UAGASLoadMenuSaveGame>(SaveGameObject);
-	LoadMenuSaveGame->PlayerName = LoadSlot->PlayerName;
+	LoadMenuSaveGame->PlayerName = LoadSlot->GetPlayerName();
+	LoadMenuSaveGame->MapName = LoadSlot->GetMapName();
 	
-	UGameplayStatics::SaveGameToSlot(LoadMenuSaveGame, LoadSlot->LoadSlotName, 0);
+	UGameplayStatics::SaveGameToSlot(LoadMenuSaveGame, LoadSlot->GetLoadSlotName(), 0);
 }
 
 UAGASLoadMenuSaveGame* AAGASGameModeBase::GetSaveSlotData(const FString& SlotName) const
@@ -32,4 +33,17 @@ void AAGASGameModeBase::DeleteSlot(const FString& SlotName)
 	{
 		UGameplayStatics::DeleteGameInSlot(SlotName, 0);
 	}
+}
+
+void AAGASGameModeBase::TravelToMap(UMVVM_AGASLoadSlot* LoadSlot)
+{
+	const TSoftObjectPtr<UWorld> Map = Maps.FindChecked(LoadSlot->GetMapName());
+	UGameplayStatics::OpenLevelBySoftObjectPtr(LoadSlot, Map);
+}
+
+void AAGASGameModeBase::BeginPlay()
+{
+	Super::BeginPlay();
+	
+	Maps.Add(DefaultMapName, DefaultMap);
 }

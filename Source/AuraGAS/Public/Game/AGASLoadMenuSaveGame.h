@@ -16,7 +16,9 @@ class AURAGAS_API UAGASLoadMenuSaveGame : public USaveGame
 	
 public:
 	
-	
 	UPROPERTY()
 	FString PlayerName = FString("DefaultName");
+	
+	UPROPERTY()
+	FString MapName = FString("DefaultMap");
 };
