@@ -37,6 +37,7 @@ public:
 	virtual int32 GetAttributePointsOnPlayerState_Implementation() override;
 	virtual void ShowMagicCircleOnPlayerController_Implementation(float Radius, UMaterialInterface* DecalMaterial) override;
 	virtual void HideMagicCircleOnPlayerController_Implementation() override;
+	virtual void SaveProgress_Implementation(const FName& CheckpointTag) override;
 	//~ End Player Interface
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -77,9 +78,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Abilities")
 	TArray<TSubclassOf<UGameplayAbility>> StartupPassiveAbilities;
-
-	// Old function for applying effect to self
-	// void ApplyEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const float Level) const;
 	
 	// New function for applying effect to self
 	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const FGameplayEffectContextHandle& EffectContextHandle, float Level = 1.0f) const;

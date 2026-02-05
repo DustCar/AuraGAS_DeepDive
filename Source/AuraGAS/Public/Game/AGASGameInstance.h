@@ -23,4 +23,11 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AbilityInfo")
 	TObjectPtr<UAGASAbilityInfo> AbilityInfo;
+	
+	UPROPERTY()
+	FName PlayerStartTag = FName();
+
+	UPROPERTY()
+	FString LoadSlotName = FString();
+
 };

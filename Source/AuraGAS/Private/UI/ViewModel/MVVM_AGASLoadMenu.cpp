@@ -3,6 +3,7 @@
 
 #include "UI/ViewModel/MVVM_AGASLoadMenu.h"
 
+#include "Game/AGASGameInstance.h"
 #include "Game/AGASGameModeBase.h"
 #include "Game/AGASLoadMenuSaveGame.h"
 #include "Kismet/GameplayStatics.h"
@@ -38,8 +39,9 @@ void UMVVM_AGASLoadMenu::NewSaveButtonPressed(int32 InSlot, const FString Entere
 	{
 		LoadSlots[InSlot]->SetPlayerName(EnteredName);
 		LoadSlots[InSlot]->SetMapName(AGASGameMode->DefaultMapName);
-		AGASGameMode->SaveSlotData(LoadSlots[InSlot]);
 		LoadSlots[InSlot]->SetLoadSlotWidget(ELoadSlotWidget::Taken);
+		LoadSlots[InSlot]->PlayerStartTag = AGASGameMode->DefaultPlayerStartTag;
+		AGASGameMode->SaveSlotData(LoadSlots[InSlot]);
 	}
 }
 
@@ -78,9 +80,12 @@ void UMVVM_AGASLoadMenu::DeleteButtonPressed()
 void UMVVM_AGASLoadMenu::PlayButtonPressed()
 {
 	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));
+	UAGASGameInstance* AGASGameInstance = Cast<UAGASGameInstance>(AGASGameMode->GetGameInstance());
 	
 	if (AGASGameMode && IsValid(SelectedSlot))
 	{
+		AGASGameInstance->PlayerStartTag = SelectedSlot->PlayerStartTag;
+		AGASGameInstance->LoadSlotName = SelectedSlot->GetLoadSlotName();
 		AGASGameMode->TravelToMap(SelectedSlot);
 	}
 }
@@ -97,6 +102,7 @@ void UMVVM_AGASLoadMenu::LoadData()
 			Slot->SetPlayerName(SaveObject->PlayerName);
 			Slot->SetMapName(SaveObject->MapName);
 			Slot->SetLoadSlotWidget(ELoadSlotWidget::Taken);
+			Slot->PlayerStartTag = SaveObject->PlayerStartTag;
 		}
 	}
 }

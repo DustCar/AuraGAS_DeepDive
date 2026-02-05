@@ -7,11 +7,16 @@
 #include "AGASGameplayTags.h"
 #include "NiagaraComponent.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "AbilitySystem/AGASAttributeSet.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Game/AGASGameInstance.h"
+#include "Game/AGASGameModeBase.h"
+#include "Game/AGASLoadMenuSaveGame.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Player/AGASPlayerController.h"
 #include "Player/AGASPlayerState.h"
 
@@ -227,6 +232,34 @@ void AAGASCharacter::HideMagicCircleOnPlayerController_Implementation()
 	
 	AGASPlayerController->HideMagicCircle();
 	AGASPlayerController->SetShowMouseCursorAndForceRefresh(true);
+}
+
+// function where we can save the location of the character so that we can potentially refactor "last saved position" to be
+// an actual position rather than just a checkpoint (part of a TODO)
+void AAGASCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
+{
+	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));
+	if (AGASGameMode)
+	{
+		UAGASLoadMenuSaveGame* SaveData = AGASGameMode->RetrieveInGameSaveData();
+		if (SaveData == nullptr) return;
+		
+		SaveData->PlayerStartTag = CheckpointTag;
+		
+		if (AAGASPlayerState* AGASPlayerState = Cast<AAGASPlayerState>(GetPlayerState()))
+		{
+			SaveData->PlayerLevel = AGASPlayerState->GetPlayerLevel();
+			SaveData->XPPoints = AGASPlayerState->GetXPPoints();
+			SaveData->SpellPoints = AGASPlayerState->GetSpellPoints();
+			SaveData->AttributePoints = AGASPlayerState->GetAttributePoints();
+		}
+		SaveData->Strength = UAGASAttributeSet::GetStrengthAttribute().GetGameplayAttributeData(AttributeSet)->GetBaseValue();
+		SaveData->Intelligence = UAGASAttributeSet::GetIntelligenceAttribute().GetGameplayAttributeData(AttributeSet)->GetBaseValue();
+		SaveData->Resilience = UAGASAttributeSet::GetResilienceAttribute().GetGameplayAttributeData(AttributeSet)->GetBaseValue();
+		SaveData->Vigor = UAGASAttributeSet::GetVigorAttribute().GetGameplayAttributeData(AttributeSet)->GetBaseValue();
+		
+		AGASGameMode->SaveInGameProgressData(SaveData);
+	}
 }
 
 void AAGASCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass,
