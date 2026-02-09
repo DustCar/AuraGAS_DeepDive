@@ -52,20 +52,6 @@ void AAGASPlayerController::PlayerTick(float DeltaTime)
 	UpdateMagicCircleLocation();
 }
 
-void AAGASPlayerController::OnPossess(APawn* InPawn)
-{
-	Super::OnPossess(InPawn);
-
-	InitializeHUD();
-}
-
-void AAGASPlayerController::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	InitializeHUD();
-}
-
 void AAGASPlayerController::ShowMagicCircle(float Radius, UMaterialInterface* DecalMaterial)
 {
 	if (!IsValid(MagicCircle))

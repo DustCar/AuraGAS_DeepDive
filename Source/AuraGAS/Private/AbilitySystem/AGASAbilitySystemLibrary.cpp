@@ -11,6 +11,7 @@
 #include "AuraGAS/AuraGAS.h"
 #include "Engine/OverlapResult.h"
 #include "Game/AGASGameInstance.h"
+#include "Game/AGASLoadMenuSaveGame.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/AGASPlayerController.h"
@@ -98,6 +99,26 @@ void UAGASAbilitySystemLibrary::InitializeDefaultAttributes(const UObject* World
 	const FGameplayEffectSpecHandle VitalAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->VitalAttributes, Level, EffectContextHandle);
 	ASC->ApplyGameplayEffectSpecToSelf(*VitalAttributesSpecHandle.Data);
 	
+}
+
+void UAGASAbilitySystemLibrary::InitializeDefaultAttributesFromSaveData(const UObject* WorldContextObject, UAGASAbilitySystemComponent* ASC, UAGASLoadMenuSaveGame* SaveGame)
+{
+	UAGASCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (CharacterClassInfo == nullptr) return;
+	
+	
+	FGameplayEffectContextHandle EffectContextHandle = ASC->MakeEffectContext();
+	EffectContextHandle.AddSourceObject(ASC->GetAvatarActor());
+	
+	
+	const FGameplayEffectSpecHandle PrimaryAttributesSpecHandle = ASC->MakeOutgoingSpec(CharacterClassInfo->PrimaryAttributes_SetByCaller, 1.f, EffectContextHandle);
+	
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(PrimaryAttributesSpecHandle, TAG_Attributes_Primary_Strength, SaveGame->Strength);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(PrimaryAttributesSpecHandle, TAG_Attributes_Primary_Intelligence, SaveGame->Intelligence);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(PrimaryAttributesSpecHandle, TAG_Attributes_Primary_Resilience, SaveGame->Resilience);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(PrimaryAttributesSpecHandle, TAG_Attributes_Primary_Vigor, SaveGame->Vigor);
+	
+	ASC->ApplyGameplayEffectSpecToSelf(*PrimaryAttributesSpecHandle.Data);
 }
 
 void UAGASAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContextObject, UAGASAbilitySystemComponent* ASC, ECharacterClass CharacterClass)

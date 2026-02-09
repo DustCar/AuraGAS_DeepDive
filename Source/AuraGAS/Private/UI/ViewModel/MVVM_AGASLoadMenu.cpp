@@ -39,6 +39,7 @@ void UMVVM_AGASLoadMenu::NewSaveButtonPressed(int32 InSlot, const FString Entere
 	{
 		LoadSlots[InSlot]->SetPlayerName(EnteredName);
 		LoadSlots[InSlot]->SetMapName(AGASGameMode->DefaultMapName);
+		LoadSlots[InSlot]->SetPlayerLevel(1);
 		LoadSlots[InSlot]->SetLoadSlotWidget(ELoadSlotWidget::Taken);
 		LoadSlots[InSlot]->PlayerStartTag = AGASGameMode->DefaultPlayerStartTag;
 		AGASGameMode->SaveSlotData(LoadSlots[InSlot]);
@@ -103,6 +104,7 @@ void UMVVM_AGASLoadMenu::LoadData()
 			Slot->SetMapName(SaveObject->MapName);
 			Slot->SetLoadSlotWidget(ELoadSlotWidget::Taken);
 			Slot->PlayerStartTag = SaveObject->PlayerStartTag;
+			Slot->SetPlayerLevel(SaveObject->PlayerLevel);
 		}
 	}
 }

@@ -3,8 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "GameFramework/SaveGame.h"
 #include "AGASLoadMenuSaveGame.generated.h"
+
+class UGameplayAbility;
+
+USTRUCT(BlueprintType)
+struct FSavedAbility
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "ClassDefaults")
+	TSubclassOf<UGameplayAbility> GameplayAbility;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FGameplayTag AbilityTag = FGameplayTag();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FGameplayTag AbilityStatusTag = FGameplayTag();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FGameplayTag AbilityInputTag = FGameplayTag();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FGameplayTag AbilityTypeTag = FGameplayTag();
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	int32 AbilityLevel;
+};
 
 /**
  *	Realistically, this is the class that holds everything we want to save for Aura and the levels
@@ -24,6 +51,9 @@ public:
 	
 	UPROPERTY()
 	FName PlayerStartTag;
+	
+	UPROPERTY()
+	bool bFirstTimeLoadIn = true;
 	
 	/* Player */
 	UPROPERTY()
@@ -51,4 +81,8 @@ public:
 	UPROPERTY()
 	float Vigor = 0;
 	//~ Primary Attributes End
+	
+	// Abilities
+	UPROPERTY()
+	TArray<FSavedAbility> SavedAbilities;
 };

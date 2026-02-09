@@ -92,6 +92,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive, "Abilities.Passive")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_HaloOfProtection, "Abilities.Passive.HaloOfProtection")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_LifeSiphon, "Abilities.Passive.LifeSiphon")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_ManaSiphon, "Abilities.Passive.ManaSiphon")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_ListenForEvent, "Abilities.Passive.ListenForEvent")
 
 // Cooldown Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBolt, "Cooldown.Fire.FireBolt")

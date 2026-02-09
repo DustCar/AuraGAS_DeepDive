@@ -11,6 +11,7 @@
 #include "AbilitySystem/Abilities/AGASPassiveAbility.h"
 #include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "AuraGAS/AGASLogChannels.h"
+#include "Game/AGASLoadMenuSaveGame.h"
 #include "Interaction/AGASPlayerInterface.h"
 
 void UAGASAbilitySystemComponent::OnGiveAbility(FGameplayAbilitySpec& AbilitySpec)
@@ -59,8 +60,38 @@ void UAGASAbilitySystemComponent::AddCharacterPassiveAbilities(
 	for (const TSubclassOf<UGameplayAbility> AbilityClass : StartupPassiveAbilities)
 	{
 		FGameplayAbilitySpec AbilitySpec = FGameplayAbilitySpec(AbilityClass, 1);
+		AbilitySpec.DynamicAbilityTags.AddTag(TAG_Abilities_Status_Equipped);
 		GiveAbilityAndActivateOnce(AbilitySpec);
 	}
+}
+
+void UAGASAbilitySystemComponent::AddCharacterAbilitiesFromSaveData(UAGASLoadMenuSaveGame* SaveData)
+{
+	for (const FSavedAbility AbilityData : SaveData->SavedAbilities)
+	{
+		const TSubclassOf<UGameplayAbility> LoadedAbilityClass = AbilityData.GameplayAbility;
+		FGameplayAbilitySpec LoadedAbilitySpec = FGameplayAbilitySpec(LoadedAbilityClass, AbilityData.AbilityLevel);
+		
+		// Make sure that the ability has its input and status tag set to update the UI
+		LoadedAbilitySpec.DynamicAbilityTags.AddTag(AbilityData.AbilityInputTag);
+		LoadedAbilitySpec.DynamicAbilityTags.AddTag(AbilityData.AbilityStatusTag);
+		// Note: it seems redundant to call GiveAbility twice like this, but it's to make sure that any ability that is given
+		// should be either of the types
+		if (AbilityData.AbilityTypeTag.MatchesTagExact(TAG_Abilities_Type_Offensive))
+		{
+			GiveAbility(LoadedAbilitySpec);
+		}
+		if (AbilityData.AbilityTypeTag.MatchesTagExact(TAG_Abilities_Type_Passive))
+		{
+			GiveAbility(LoadedAbilitySpec);
+			if (AbilityData.AbilityStatusTag.MatchesTagExact(TAG_Abilities_Status_Equipped))
+			{
+				TryActivateAbility(LoadedAbilitySpec.Handle);
+			}
+		}
+	}
+	bStartupAbilitiesGiven = true;
+	AbilitiesGivenSignature.Broadcast();
 }
 
 void UAGASAbilitySystemComponent::AbilityInputTagPressed(const FGameplayTag& InputTag)
@@ -202,6 +233,16 @@ FGameplayTag UAGASAbilitySystemComponent::GetStatusTagFromSpec(const FGameplayAb
 		}
 	}
 
+	return FGameplayTag();
+}
+
+FGameplayTag UAGASAbilitySystemComponent::GetStatusTagFromAbilityTag(const FGameplayTag& AbilityTag)
+{
+	if (const FGameplayAbilitySpec* Spec = GetSpecFromAbilityTag(AbilityTag))
+	{
+		return GetStatusTagFromSpec(*Spec);
+	}
+	
 	return FGameplayTag();
 }
 
@@ -462,6 +503,7 @@ void UAGASAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 					TryActivateAbility(AbilitySpec->Handle);
 					MulticastActivatePassiveEffect(AbilityTag, true);
 				}
+				
 			}
 			
 			// cache the old input tag for broadcast

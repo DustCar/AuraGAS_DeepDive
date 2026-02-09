@@ -4,6 +4,7 @@
 #include "AbilitySystem/Passive/AGASPassiveNiagaraComponent.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "Interaction/AGASCombatInterface.h"
 
@@ -20,6 +21,7 @@ void UAGASPassiveNiagaraComponent::BeginPlay()
 	if (UAGASAbilitySystemComponent* AGASASC = Cast<UAGASAbilitySystemComponent>(UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetOwner())))
 	{
 		AGASASC->ActivatePassiveEffect.AddUObject(this, &ThisClass::OnPassiveActivate);
+		ActivateIfEquipped(AGASASC);
 	}
 	else if (IAGASCombatInterface* CombatInterface = Cast<IAGASCombatInterface>(GetOwner()))
 	{
@@ -28,6 +30,7 @@ void UAGASPassiveNiagaraComponent::BeginPlay()
 			if (UAGASAbilitySystemComponent* AGASASC = Cast<UAGASAbilitySystemComponent>(ASC))
 			{
 				AGASASC->ActivatePassiveEffect.AddUObject(this, &ThisClass::OnPassiveActivate);
+				ActivateIfEquipped(AGASASC);
 			}
 		});
 	}
@@ -44,6 +47,18 @@ void UAGASPassiveNiagaraComponent::OnPassiveActivate(const FGameplayTag& Ability
 		else
 		{
 			Deactivate();
+		}
+	}
+}
+
+void UAGASPassiveNiagaraComponent::ActivateIfEquipped(UAGASAbilitySystemComponent* AGASASC)
+{
+	if (AGASASC->bStartupAbilitiesGiven)
+	{
+		FGameplayAbilitySpec* AbilitySpec = AGASASC->GetSpecFromAbilityTag(PassiveSpellTag);
+		if (AGASASC->GetStatusTagFromAbilityTag(PassiveSpellTag).MatchesTagExact(TAG_Abilities_Status_Equipped))
+		{
+			Activate();
 		}
 	}
 }

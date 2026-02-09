@@ -30,9 +30,9 @@ void UAGASOverlayWidgetController::BroadcastInitialValues()
 void UAGASOverlayWidgetController::BindCallbacksToDependencies()
 {
 	AGASPlayerState->OnXPPointsChangedSignature.AddUObject(this, &ThisClass::OnXPPointsChanged);
-	AGASPlayerState->OnLevelChangedSignature.AddLambda([this] (int32 NewLevel)
+	AGASPlayerState->OnLevelChangedSignature.AddLambda([this] (int32 NewLevel, bool bLevelUp)
 	{
-		OnPlayerLevelChangedWidget.Broadcast(NewLevel);
+		OnPlayerLevelChangedWidget.Broadcast(NewLevel, bLevelUp);
 	});
 
 	/**

@@ -64,7 +64,8 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup|Camera")
 	TObjectPtr<UCameraComponent> CameraComponent;
 
-	void InitializeDefaultStats() const;
+	void InitializeDefaultAttributes() const;
+	void LoadProgress();
 
 private:
 	

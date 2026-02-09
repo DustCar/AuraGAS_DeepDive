@@ -15,6 +15,7 @@ class UAGASAbilitySystemComponent;
 // no need to make it DYNAMIC since we only need it in C++ and the Widget Controllers would take care of sending values
 // to widgets
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnPlayerStatChanged, int32 /*StatValue*/);
+DECLARE_MULTICAST_DELEGATE_TwoParams(FOnLevelChanged, int32 /*StatValue*/, bool /*bLevelUp*/);
 
 /**
  * 
@@ -35,7 +36,7 @@ public:
 	UAGASAbilitySystemComponent* GetAGASAbilitySystemComponent() const;
 	UAGASAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
-	FOnPlayerStatChanged OnLevelChangedSignature;
+	FOnLevelChanged OnLevelChangedSignature;
 	FOnPlayerStatChanged OnXPPointsChangedSignature;
 	FOnPlayerStatChanged OnAttributePointsChangedSignature;
 	FOnPlayerStatChanged OnSpellPointsChangedSignature;

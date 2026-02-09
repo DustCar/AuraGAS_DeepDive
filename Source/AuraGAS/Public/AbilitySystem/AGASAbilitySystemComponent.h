@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "AGASAbilitySystemComponent.generated.h"
 
+class UAGASLoadMenuSaveGame;
 DECLARE_MULTICAST_DELEGATE_OneParam(FEffectAssetTags, const FGameplayTagContainer& /*Asset Tags*/);
 DECLARE_MULTICAST_DELEGATE(FAbilitiesGiven);
 // a delegate that will be used to loop through the players activatable abilities
@@ -45,6 +46,7 @@ public:
 
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupAbilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& StartupPassiveAbilities);
+	void AddCharacterAbilitiesFromSaveData(UAGASLoadMenuSaveGame* SaveData);
 	bool bStartupAbilitiesGiven = false;
 
 	void AbilityInputTagPressed(const FGameplayTag& InputTag);
@@ -60,6 +62,7 @@ public:
 	
 	// obtain the gameplay ability spec from the player's activatable abilities array that matches the tag
 	FGameplayAbilitySpec* GetSpecFromAbilityTag(const FGameplayTag& AbilityTag);
+	FGameplayTag GetStatusTagFromAbilityTag(const FGameplayTag& AbilityTag);
 	
 	bool IsPassiveAbility(const FGameplayTag& AbilityTag) const;
 

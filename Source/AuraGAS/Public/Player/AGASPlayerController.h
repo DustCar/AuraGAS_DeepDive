@@ -55,9 +55,6 @@ class AURAGAS_API AAGASPlayerController : public APlayerController
 public:
 	AAGASPlayerController();
 	virtual void PlayerTick(float DeltaTime) override;
-
-	virtual void OnPossess(APawn* InPawn) override;
-	virtual void OnRep_PlayerState() override;
 	
 	// damage text function
 	UFUNCTION(Client, Reliable)

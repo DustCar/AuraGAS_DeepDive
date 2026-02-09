@@ -17,6 +17,7 @@ void AAGASGameModeBase::SaveSlotData(UMVVM_AGASLoadSlot* LoadSlot)
 	LoadMenuSaveGame->PlayerName = LoadSlot->GetPlayerName();
 	LoadMenuSaveGame->MapName = LoadSlot->GetMapName();
 	LoadMenuSaveGame->PlayerStartTag = LoadSlot->PlayerStartTag;
+	LoadMenuSaveGame->PlayerLevel = LoadSlot->GetPlayerLevel();
 	
 	UGameplayStatics::SaveGameToSlot(LoadMenuSaveGame, LoadSlot->GetLoadSlotName(), 0);
 }

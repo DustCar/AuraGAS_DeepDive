@@ -8,6 +8,8 @@
 #include "AGASPassiveNiagaraComponent.generated.h"
 
 
+class UAGASAbilitySystemComponent;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class AURAGAS_API UAGASPassiveNiagaraComponent : public UNiagaraComponent
 {
@@ -24,4 +26,7 @@ protected:
 	virtual void BeginPlay() override;
 	
 	void OnPassiveActivate(const FGameplayTag& AbilityTag, bool bActivate);
+	
+private:
+	void ActivateIfEquipped(UAGASAbilitySystemComponent* AGASASC);
 };

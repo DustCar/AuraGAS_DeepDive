@@ -7,11 +7,12 @@
 #include "AGASGameplayTags.h"
 #include "NiagaraComponent.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/AGASAttributeSet.h"
+#include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Game/AGASGameInstance.h"
 #include "Game/AGASGameModeBase.h"
 #include "Game/AGASLoadMenuSaveGame.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -19,6 +20,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Player/AGASPlayerController.h"
 #include "Player/AGASPlayerState.h"
+#include "UI/HUD/AGASHUD.h"
 
 
 AAGASCharacter::AAGASCharacter()
@@ -83,14 +85,22 @@ void AAGASCharacter::InitializeAbilityActorInfo()
 	
 	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::StunTagChanged);
 	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Debuff_Burn, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::BurnTagChanged);
-
-	AGASPlayerState->OnLevelChangedSignature.AddLambda([this] (const int32 NewValue)
+	
+	if (AAGASPlayerController* AGASPlayerController = Cast<AAGASPlayerController>(GetController()))
 	{
-		MulticastLevelUpParticles();
-	});
+		if (AAGASHUD* AGASHUD = Cast<AAGASHUD>(AGASPlayerController->GetHUD()))
+		{
+			AGASHUD->InitOverlay(AGASPlayerController, AGASPlayerState, AbilitySystemComponent, AttributeSet);
+		}
+	}
 
-	// Can be called on server side only since attributes are replicated, however, it is okay to call on server and clients
-	InitializeDefaultStats();
+	AGASPlayerState->OnLevelChangedSignature.AddLambda([this] (const int32 NewValue, bool bLevelUp)
+	{
+		if (bLevelUp)
+		{
+			MulticastLevelUpParticles();
+		}
+	});
 }
 
 void AAGASCharacter::MulticastLevelUpParticles_Implementation() const
@@ -111,7 +121,9 @@ void AAGASCharacter::PossessedBy(AController* NewController)
 
 	// Initialize Ability Actor Info for server
 	InitializeAbilityActorInfo();
-	AddCharacterAbilities();
+	
+	LoadProgress();
+	
 }
 
 void AAGASCharacter::OnRep_PlayerState()
@@ -258,6 +270,29 @@ void AAGASCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 		SaveData->Resilience = UAGASAttributeSet::GetResilienceAttribute().GetGameplayAttributeData(AttributeSet)->GetBaseValue();
 		SaveData->Vigor = UAGASAttributeSet::GetVigorAttribute().GetGameplayAttributeData(AttributeSet)->GetBaseValue();
 		
+		SaveData->bFirstTimeLoadIn = false;
+		
+		// Empty the list of saved abilities to avoid dupes
+		SaveData->SavedAbilities.Empty();
+		// Create a ForEachAbility delegate to use with ASC ForEachAbility function
+		FForEachAbility SaveAbilityDelegate;
+		// Delegate just saves everything an ability has into our SavedAbility struct then adds to the array in our LoadMenuSaveGame class
+		SaveAbilityDelegate.BindLambda([this, &SaveData](const FGameplayAbilitySpec& AbilitySpec)
+		{
+			FSavedAbility SavedAbility;
+			FGameplayTag AbilityTag = AbilitySystemComponent->GetAbilityTagFromSpec(AbilitySpec);
+			FAbilityInfo AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(this)->FindAbilityInfoForTag(AbilityTag);
+			SavedAbility.GameplayAbility = AbilityInfo.Ability;
+			SavedAbility.AbilityLevel = AbilitySpec.Level;
+			SavedAbility.AbilityInputTag = AbilitySystemComponent->GetInputTagFromSpec(AbilitySpec);
+			SavedAbility.AbilityStatusTag = AbilitySystemComponent->GetStatusTagFromSpec(AbilitySpec);
+			SavedAbility.AbilityTag = AbilityTag;
+			SavedAbility.AbilityTypeTag = AbilityInfo.TypeTag;
+			
+			SaveData->SavedAbilities.Add(SavedAbility);
+		});
+		AbilitySystemComponent->ForEachAbility(SaveAbilityDelegate);
+		
 		AGASGameMode->SaveInGameProgressData(SaveData);
 	}
 }
@@ -269,7 +304,7 @@ void AAGASCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
 }
 
-void AAGASCharacter::InitializeDefaultStats() const
+void AAGASCharacter::InitializeDefaultAttributes() const
 {
 	// Updated to use the check macro within here instead of the old ApplyEffectToSelf since Character would have an ASC
 	// also makes the function much easier to read and reduces redundancy
@@ -284,6 +319,45 @@ void AAGASCharacter::InitializeDefaultStats() const
 	ApplyGameplayEffectToSelf(DefaultPrimaryAttributes, ContextHandle);
 	ApplyGameplayEffectToSelf(DefaultSecondaryAttributes, ContextHandle);
 	ApplyGameplayEffectToSelf(DefaultVitalAttributes, ContextHandle);
+}
+
+void AAGASCharacter::LoadProgress()
+{
+	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));
+	if (AGASGameMode)
+	{
+		UAGASLoadMenuSaveGame* SaveData = AGASGameMode->RetrieveInGameSaveData();
+		if (SaveData == nullptr) return;
+		
+		if (SaveData->bFirstTimeLoadIn)
+		{
+			InitializeDefaultAttributes();
+			AddCharacterAbilities();
+		}
+		else
+		{
+			// Load in character abilities
+			AbilitySystemComponent->AddCharacterAbilitiesFromSaveData(SaveData);
+			
+			// Load in player stats
+			if (AAGASPlayerState* AGASPlayerState = Cast<AAGASPlayerState>(GetPlayerState()))
+			{
+				AGASPlayerState->SetLevel(SaveData->PlayerLevel);
+				AGASPlayerState->SetXPPoints(SaveData->XPPoints);
+				AGASPlayerState->SetSpellPoints(SaveData->SpellPoints);
+				AGASPlayerState->SetAttributePoints(SaveData->AttributePoints);
+			}
+			
+			// Load in player attributes
+			UAGASAbilitySystemLibrary::InitializeDefaultAttributesFromSaveData(this, AbilitySystemComponent, SaveData);
+			
+			FGameplayEffectContextHandle ContextHandle = AbilitySystemComponent->MakeEffectContext();
+			ContextHandle.AddSourceObject(this);
+			
+			ApplyGameplayEffectToSelf(DefaultSecondaryAttributes, ContextHandle);
+			ApplyGameplayEffectToSelf(DefaultVitalAttributes, ContextHandle);
+		}
+	}
 }
 
 void AAGASCharacter::AddCharacterAbilities()

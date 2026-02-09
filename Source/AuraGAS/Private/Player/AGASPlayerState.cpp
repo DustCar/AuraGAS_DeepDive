@@ -42,7 +42,7 @@ UAGASAbilitySystemComponent* AAGASPlayerState::GetAGASAbilitySystemComponent() c
 void AAGASPlayerState::SetLevel(const int32 NewLevel)
 {
 	Level = NewLevel;
-	OnLevelChangedSignature.Broadcast(Level);
+	OnLevelChangedSignature.Broadcast(Level, false);
 }
 
 void AAGASPlayerState::SetXPPoints(const int32 NewXPPoints)
@@ -72,7 +72,7 @@ void AAGASPlayerState::AddToLevel(const int32 InLevel)
 	// Top up health and mana
 	AttributeSet->MaximizeVitalAttributes();
 	
-	OnLevelChangedSignature.Broadcast(Level);
+	OnLevelChangedSignature.Broadcast(Level, true);
 }
 
 void AAGASPlayerState::AddToXPPoints(const int32 InXPPoints)
@@ -115,7 +115,7 @@ void AAGASPlayerState::AddToSpellPoints(const int32 InSpellPoints)
 
 void AAGASPlayerState::OnRep_Level(int32 OldLevel)
 {
-	OnLevelChangedSignature.Broadcast(Level);
+	OnLevelChangedSignature.Broadcast(Level, true);
 }
 
 void AAGASPlayerState::OnRep_XPPoints(int32 OldXPPoints)

@@ -22,3 +22,8 @@ void UMVVM_AGASLoadSlot::SetLoadSlotName(FString InLoadSlotName)
 {
 	UE_MVVM_SET_PROPERTY_VALUE(LoadSlotName, InLoadSlotName);
 }
+
+void UMVVM_AGASLoadSlot::SetPlayerLevel(int32 InPlayerLevel)
+{
+	UE_MVVM_SET_PROPERTY_VALUE(PlayerLevel, InPlayerLevel);
+}

@@ -98,6 +98,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive) // different from Type_Pas
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_HaloOfProtection)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_LifeSiphon)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_ManaSiphon)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_ListenForEvent)
 
 // Cooldown Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Cooldown_Fire_FireBolt)

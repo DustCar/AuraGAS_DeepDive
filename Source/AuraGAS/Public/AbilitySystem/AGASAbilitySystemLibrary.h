@@ -8,6 +8,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AGASAbilitySystemLibrary.generated.h"
 
+class UAGASLoadMenuSaveGame;
 class UAGASAbilityInfo;
 struct FWidgetControllerParams;
 class UAGASSpellMenuWidgetController;
@@ -45,6 +46,9 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|CharacterClassDefaults", meta = (WorldContext = "WorldContextObject"))
 	static void InitializeDefaultAttributes(const UObject* WorldContextObject, ECharacterClass CharacterClass, float Level, UAGASAbilitySystemComponent* ASC);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|CharacterClassDefaults", meta = (WorldContext = "WorldContextObject"))
+	static void InitializeDefaultAttributesFromSaveData(const UObject* WorldContextObject, UAGASAbilitySystemComponent* ASC, UAGASLoadMenuSaveGame* SaveGame);
 
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|CharacterClassDefaults", meta = (WorldContext = "WorldContextObject"))
 	static void GiveStartupAbilities(const UObject* WorldContextObject, UAGASAbilitySystemComponent* ASC, ECharacterClass CharacterClass);
