@@ -124,6 +124,11 @@ void AAGASCharacter::PossessedBy(AController* NewController)
 	
 	LoadProgress();
 	
+	if (AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this)))
+	{
+		AGASGameMode->LoadWorldState(GetWorld());
+	}
+	
 }
 
 void AAGASCharacter::OnRep_PlayerState()

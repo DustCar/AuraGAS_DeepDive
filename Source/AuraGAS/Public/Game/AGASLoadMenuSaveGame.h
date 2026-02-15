@@ -9,6 +9,42 @@
 
 class UGameplayAbility;
 
+USTRUCT()
+struct FSavedActor
+{
+	GENERATED_BODY()
+	
+	// used to identify our saved actor
+	UPROPERTY()
+	FName ActorName = FName();
+	
+	UPROPERTY()
+	FTransform Transform = FTransform();
+
+	// serialized variables from the Actor - only vars marked with SaveGame modifier
+	UPROPERTY()
+	TArray<uint8> Bytes;
+};
+
+// == overload for FSavedActor to allow the use of AddUnique if used in an array
+inline bool operator==(const FSavedActor& Left, const FSavedActor& Right)
+{
+	return Left.ActorName == Right.ActorName;
+}
+
+USTRUCT()
+struct FSavedMap
+{
+	GENERATED_BODY()
+	
+	// identifier for map
+	UPROPERTY()
+	FString MapAssetName = FString();
+	
+	UPROPERTY()
+	TArray<FSavedActor> SavedActors;
+};
+
 USTRUCT(BlueprintType)
 struct FSavedAbility
 {
@@ -85,4 +121,10 @@ public:
 	// Abilities
 	UPROPERTY()
 	TArray<FSavedAbility> SavedAbilities;
+	
+	UPROPERTY()
+	TArray<FSavedMap> SavedMaps;
+	
+	FSavedMap GetSavedMapWithMapName(const FString& InMapName);
+	bool HasMap(const FString& InMapName);
 };

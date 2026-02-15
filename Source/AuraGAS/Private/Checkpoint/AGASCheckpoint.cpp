@@ -6,7 +6,9 @@
 #include "AuraGAS/AuraGAS.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
+#include "Game/AGASGameModeBase.h"
 #include "Interaction/AGASPlayerInterface.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AAGASCheckpoint::AAGASCheckpoint(const FObjectInitializer& ObjectInitializer)
@@ -32,6 +34,14 @@ AAGASCheckpoint::AAGASCheckpoint(const FObjectInitializer& ObjectInitializer)
 	Sphere->SetSphereRadius(350.f);
 }
 
+void AAGASCheckpoint::LoadActor_Implementation()
+{
+	if (bReached)
+	{
+		Glow();
+	}
+}
+
 void AAGASCheckpoint::BeginPlay()
 {
 	Super::BeginPlay();
@@ -44,8 +54,14 @@ void AAGASCheckpoint::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 {
 	if (OtherActor->Implements<UAGASPlayerInterface>())
 	{
+		bReached = true;
+		
+		if (AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this)))
+		{
+			AGASGameMode->SaveWorldState(GetWorld());
+		}
+		
 		IAGASPlayerInterface::Execute_SaveProgress(OtherActor, PlayerStartTag);
-		Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         Glow();
 	}
 }
@@ -54,7 +70,7 @@ void AAGASCheckpoint::Glow()
 {
 	UMaterialInstanceDynamic* DynamicMaterialInstance = UMaterialInstanceDynamic::Create(CheckpointMesh->GetMaterial(0), this);
 	CheckpointMesh->SetMaterial(0, DynamicMaterialInstance);
-	
+	Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	CheckpointReached(DynamicMaterialInstance);
 }
 

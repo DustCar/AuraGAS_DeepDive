@@ -4,17 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerStart.h"
+#include "Interaction/AGASSaveInterface.h"
 #include "AGASCheckpoint.generated.h"
 
 class USphereComponent;
 
 UCLASS()
-class AURAGAS_API AAGASCheckpoint : public APlayerStart
+class AURAGAS_API AAGASCheckpoint : public APlayerStart, public IAGASSaveInterface
 {
 	GENERATED_BODY()
 
 public:
 	AAGASCheckpoint(const FObjectInitializer& ObjectInitializer);
+	
+	//~ Being Save Interface
+	virtual bool ShouldLoadTransform_Implementation() override { return false; }
+	virtual void LoadActor_Implementation() override;
+	//~ End Save Interface
+	
+	// a variable that we want to be serialized using the SaveGame specifier
+	UPROPERTY(BlueprintReadOnly, SaveGame)
+	bool bReached = false;
 
 protected:
 	virtual void BeginPlay() override;

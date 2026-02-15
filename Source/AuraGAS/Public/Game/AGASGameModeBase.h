@@ -26,6 +26,9 @@ public:
 	UAGASLoadMenuSaveGame* RetrieveInGameSaveData();
 	void SaveInGameProgressData(UAGASLoadMenuSaveGame* SaveObject);
 	
+	void SaveWorldState(UWorld* InWorld) const;
+	void LoadWorldState(UWorld* InWorld) const;
+	
 	void TravelToMap(UMVVM_AGASLoadSlot* LoadSlot);
 	
 	UPROPERTY(EditDefaultsOnly)
