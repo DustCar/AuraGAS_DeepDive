@@ -20,6 +20,7 @@
 #include "Components/SplineComponent.h"
 #include "Input/AGASInputConfig.h"
 #include "Input/AGASInputComponent.h"
+#include "Interaction/AGASHighlightInterface.h"
 #include "Interaction/AGASTargetInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/AGASPlayerState.h"
@@ -88,16 +89,10 @@ void AAGASPlayerController::CursorTrace()
 	// stop CursorTracing when the block tag is granted
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(TAG_Player_Block_CursorTrace))
 	{
-		if (LastActor)
-		{
-			LastActor->UnHighlightActor();
-			LastActor = nullptr;
-		}
-		if (CurrentActor)
-		{
-			CurrentActor->UnHighlightActor();
-			CurrentActor = nullptr;
-		}
+		UnHighlightActor(LastActor);
+		LastActor = nullptr;
+		UnHighlightActor(CurrentActor);
+		CurrentActor = nullptr;
 		return;
 	}
 	
@@ -106,12 +101,19 @@ void AAGASPlayerController::CursorTrace()
 	if (!CursorHit.bBlockingHit) return;
 
 	LastActor = CurrentActor;
-	CurrentActor = CursorHit.GetActor();
-
+	if (IsValid(CursorHit.GetActor()) && CursorHit.GetActor()->Implements<UAGASHighlightInterface>())
+	{
+		CurrentActor = CursorHit.GetActor();
+	}
+	else
+	{
+		CurrentActor = nullptr;
+	}
+	
 	if (LastActor != CurrentActor)
 	{
-		if (LastActor) LastActor->UnHighlightActor();
-		if (CurrentActor) CurrentActor->HighlightActor();
+		UnHighlightActor(LastActor);
+		HighlightActor(CurrentActor);
 	}
 }
 
@@ -201,18 +203,41 @@ void AAGASPlayerController::AutoRun()
 	}
 }
 
+void AAGASPlayerController::HighlightActor(AActor* InActor)
+{
+	if (IsValid(InActor) && InActor->Implements<UAGASHighlightInterface>())
+	{
+		IAGASHighlightInterface::Execute_HighlightActor(InActor);
+	}
+}
+
+void AAGASPlayerController::UnHighlightActor(AActor* InActor)
+{
+	if (IsValid(InActor) && InActor->Implements<UAGASHighlightInterface>())
+	{
+		IAGASHighlightInterface::Execute_UnHighlightActor(InActor);
+	}
+}
+
 void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Value, FGameplayTag InputTag)
 {
 	if (GetASC() && GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputPressed))
 	{
-		bTargeting = false;
+		TargetingStatus = ETargetingStatus::NotTargeting;
 		bAutoRunning = false;
 		return;
 	}
 	
 	if (InputTag.MatchesTagExact(TAG_InputTag_LMB))
 	{
-		bTargeting = CurrentActor ? true : false;
+		if (IsValid(CurrentActor))
+		{
+			TargetingStatus = CurrentActor->Implements<UAGASTargetInterface>() ? ETargetingStatus::TargetingEnemy : ETargetingStatus::TargetingNonEnemy;
+		}
+		else
+		{
+			TargetingStatus = ETargetingStatus::NotTargeting;
+		}
 		bAutoRunning = false;
 	}
 	
@@ -231,11 +256,20 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 	if (InputTag.MatchesTagExact(TAG_InputTag_LMB))
 	{
-		if (!bTargeting && !bShiftKeyDown)
+		if (TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown)
 		{
 			const APawn* ControlledPawn = GetPawn();
 			if (FollowTime <= ShortPressThreshold && ControlledPawn)
 			{
+				if (IsValid(CurrentActor) && CurrentActor->Implements<UAGASHighlightInterface>())
+				{
+					IAGASHighlightInterface::Execute_SetMoveToLocation(CurrentActor, CachedDestination);
+				}
+				else if (GetASC() && !GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputPressed))
+				{
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+				}
+				
 				FNavLocation CachedDestinationNavLocation;
 				// padding to be more lenient with the path finding. Larger number less precise, smaller more precise
 				const FVector QueryExtent = FVector(250.f, 250.f, 200.f);
@@ -257,16 +291,10 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 
 				CachedDestination = NavPath->PathPoints.Last();
 				bAutoRunning = true;
-				
-				// make sure that we have a valid path before we call the click effect
-				if (GetASC() && !GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputPressed))
-				{
-					UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
-				}
 			}
 		
 			FollowTime = 0.f;
-			bTargeting = false;
+			TargetingStatus = ETargetingStatus::NotTargeting;
 		}
 	}
 }
@@ -282,7 +310,7 @@ void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Inst
 	const bool bMouseKeys = InputTag.MatchesTagExact(TAG_InputTag_LMB);
 
 	// using mouse keys and not targeting or in "offensive" mode
-	if (bMouseKeys && !bTargeting && !bShiftKeyDown)
+	if (bMouseKeys && TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown)
 	{
 		// place this return for RMB since we don't want RMB to be movement
 		if (InputTag.MatchesTagExact(TAG_InputTag_RMB)) return;
@@ -464,7 +492,7 @@ void AAGASPlayerController::ShowOccludedActor(FCameraOccludedActor& OccludedActo
 	OnShowOccludedActor(OccludedActor);
 }
 
-bool AAGASPlayerController::OnHideOccludedActor(const FCameraOccludedActor& OccludedActor) const
+void AAGASPlayerController::OnHideOccludedActor(const FCameraOccludedActor& OccludedActor) const
 {
 	for (int i = 0; i < OccludedActor.StaticMesh->GetNumMaterials(); ++i)
 	{
@@ -472,11 +500,9 @@ bool AAGASPlayerController::OnHideOccludedActor(const FCameraOccludedActor& Occl
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Ignore);
 	}
-
-	return true;
 }
 
-bool AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& OccludedActor) const
+void AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& OccludedActor) const
 {
 	for (int matIdx = 0; matIdx < OccludedActor.Materials.Num(); ++matIdx)
 	{
@@ -484,8 +510,6 @@ bool AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& Occl
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Block);
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Block);
 	}
-
-	return true;
 }
 
 void AAGASPlayerController::InitializeHUD()

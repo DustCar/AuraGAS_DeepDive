@@ -26,7 +26,7 @@ public:
 	UAGASLoadMenuSaveGame* RetrieveInGameSaveData();
 	void SaveInGameProgressData(UAGASLoadMenuSaveGame* SaveObject);
 	
-	void SaveWorldState(UWorld* InWorld) const;
+	void SaveWorldState(UWorld* InWorld, const FString& DestinationMapAssetName = FString("")) const;
 	void LoadWorldState(UWorld* InWorld) const;
 	
 	void TravelToMap(UMVVM_AGASLoadSlot* LoadSlot);
@@ -46,8 +46,11 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	TMap<FString, TSoftObjectPtr<UWorld>> Maps;
 	
+	FString GetMapNameFromMapAssetName(const FString& MapAssetName) const;
+	
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 	
 protected:
 	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 };

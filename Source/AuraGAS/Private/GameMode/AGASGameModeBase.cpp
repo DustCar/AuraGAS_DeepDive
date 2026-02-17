@@ -62,7 +62,7 @@ void AAGASGameModeBase::SaveInGameProgressData(UAGASLoadMenuSaveGame* SaveObject
 	UGameplayStatics::SaveGameToSlot(SaveObject, InGameLoadSlotName, 0);
 }
 
-void AAGASGameModeBase::SaveWorldState(UWorld* InWorld) const
+void AAGASGameModeBase::SaveWorldState(UWorld* InWorld, const FString& DestinationMapAssetName) const
 {
 	FString WorldName = InWorld->GetMapName();
 	// Map names have a prefix that is prepended when obtaining it from world; we need to remove them to get true map name
@@ -73,6 +73,13 @@ void AAGASGameModeBase::SaveWorldState(UWorld* InWorld) const
 	
 	if (UAGASLoadMenuSaveGame* SaveGame = GetSaveSlotData(AGASGameInstance->LoadSlotName))
 	{
+		// branch where we would be traveling to a new world using an entrance
+		if (DestinationMapAssetName != FString(""))
+		{
+			SaveGame->MapAssetName = DestinationMapAssetName;
+			SaveGame->MapName = GetMapNameFromMapAssetName(DestinationMapAssetName);
+		}
+		
 		if (!SaveGame->HasMap(WorldName))
 		{
 			FSavedMap NewSavedMap;
@@ -161,15 +168,25 @@ void AAGASGameModeBase::LoadWorldState(UWorld* InWorld) const
 			}
 		}
 	}
-	
-	
-	
 }
 
 void AAGASGameModeBase::TravelToMap(UMVVM_AGASLoadSlot* LoadSlot)
 {
 	const TSoftObjectPtr<UWorld> Map = Maps.FindChecked(LoadSlot->GetMapName());
 	UGameplayStatics::OpenLevelBySoftObjectPtr(LoadSlot, Map);
+}
+
+FString AAGASGameModeBase::GetMapNameFromMapAssetName(const FString& MapAssetName) const
+{
+	for (auto& [MapName, MapWorld] : Maps)
+	{
+		if (MapWorld.ToSoftObjectPath().GetAssetName() == MapAssetName)
+		{
+			return MapName;
+		}
+	}
+	
+	return FString();
 }
 
 AActor* AAGASGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
@@ -199,6 +216,11 @@ AActor* AAGASGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 void AAGASGameModeBase::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void AAGASGameModeBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
 	
 	Maps.Add(DefaultMapName, DefaultMap);
 }

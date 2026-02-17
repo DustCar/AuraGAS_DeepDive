@@ -23,9 +23,11 @@ AAGASEnemy::AAGASEnemy()
 
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	GetMesh()->MarkRenderStateDirty();
 	if (IsValid(WeaponMesh))
 	{
 		WeaponMesh->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+		WeaponMesh->MarkRenderStateDirty();
 	}
 
 	AbilitySystemComponent = CreateDefaultSubobject<UAGASAbilitySystemComponent>("AbilitySystemComponent");
@@ -61,7 +63,7 @@ void AAGASEnemy::PossessedBy(AController* NewController)
 	AGASAIController->GetBlackboardComponent()->SetValueAsBool(FName("RangedAttacker"), CharacterClass != ECharacterClass::Warrior);
 }
 
-void AAGASEnemy::HighlightActor()
+void AAGASEnemy::HighlightActor_Implementation()
 {
 	GetMesh()->SetRenderCustomDepth(true);
 	if (IsValid(WeaponMesh))
@@ -70,13 +72,18 @@ void AAGASEnemy::HighlightActor()
 	}
 }
 
-void AAGASEnemy::UnHighlightActor()
+void AAGASEnemy::UnHighlightActor_Implementation()
 {
 	GetMesh()->SetRenderCustomDepth(false);
 	if (IsValid(WeaponMesh))
 	{
 		WeaponMesh->SetRenderCustomDepth(false);
 	}
+}
+
+void AAGASEnemy::SetMoveToLocation_Implementation(FVector& OutDestination)
+{
+	// Do not change OutDestination
 }
 
 int32 AAGASEnemy::GetCharacterLevel_Implementation()

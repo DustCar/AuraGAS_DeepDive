@@ -5,7 +5,7 @@
 
 #include "Components/DecalComponent.h"
 #include "Components/SphereComponent.h"
-#include "Interaction/AGASTargetInterface.h"
+#include "Interaction/AGASHighlightInterface.h"
 
 
 AAGASMagicCircle::AAGASMagicCircle()
@@ -32,7 +32,7 @@ void AAGASMagicCircle::BeginPlay()
 void AAGASMagicCircle::OnMagicCircleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IAGASTargetInterface* TargetInterface = Cast<IAGASTargetInterface>(OtherActor))
+	if (IAGASHighlightInterface* TargetInterface = Cast<IAGASHighlightInterface>(OtherActor))
 	{
 		TargetInterface->HighlightActor();
 	}
@@ -41,7 +41,7 @@ void AAGASMagicCircle::OnMagicCircleBeginOverlap(UPrimitiveComponent* Overlapped
 void AAGASMagicCircle::OnMagicCircleEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (IAGASTargetInterface* TargetInterface = Cast<IAGASTargetInterface>(OtherActor))
+	if (IAGASHighlightInterface* TargetInterface = Cast<IAGASHighlightInterface>(OtherActor))
 	{
 		TargetInterface->UnHighlightActor();
 	}

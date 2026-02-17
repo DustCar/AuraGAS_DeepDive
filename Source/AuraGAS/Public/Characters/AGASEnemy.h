@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AGASCharacterBase.h"
+#include "Interaction/AGASHighlightInterface.h"
 #include "Interaction/AGASTargetInterface.h"
 #include "AGASEnemy.generated.h"
 
@@ -14,7 +15,7 @@ class UAGASProgressBarWidgetController;
 class UBehaviorTree;
 
 UCLASS()
-class AURAGAS_API AAGASEnemy : public AAGASCharacterBase, public IAGASTargetInterface
+class AURAGAS_API AAGASEnemy : public AAGASCharacterBase, public IAGASTargetInterface, public IAGASHighlightInterface
 {
 	GENERATED_BODY()
 
@@ -22,10 +23,11 @@ public:
 	AAGASEnemy();
 	virtual void PossessedBy(AController* NewController) override;
 
-	//~ Begin Target Interface
-	virtual void HighlightActor() override;
-	virtual void UnHighlightActor() override;
-	//~ End Target Interface
+	//~ Begin Highlight Interface
+	virtual void HighlightActor_Implementation() override;
+	virtual void UnHighlightActor_Implementation() override;
+	virtual void SetMoveToLocation_Implementation(FVector& OutDestination) override;
+	//~ End Highlight Interface
 
 	//~ Begin Combat Interface
 	virtual int32 GetCharacterLevel_Implementation() override;

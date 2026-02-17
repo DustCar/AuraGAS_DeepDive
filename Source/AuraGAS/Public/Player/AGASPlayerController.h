@@ -8,6 +8,7 @@
 #include "AGASPlayerController.generated.h"
 
 
+class IAGASHighlightInterface;
 class AAGASMagicCircle;
 class UCapsuleComponent;
 class UCameraComponent;
@@ -18,7 +19,6 @@ class USplineComponent;
 class UAGASAbilitySystemComponent;
 struct FInputActionInstance;
 struct FGameplayTag;
-class IAGASTargetInterface;
 struct FInputActionValue;
 class UAGASInputConfig;
 class UInputMappingContext;
@@ -41,6 +41,13 @@ struct FCameraOccludedActor
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsOccluded = false;
+};
+
+enum class ETargetingStatus : uint8
+{
+	TargetingEnemy,
+	TargetingNonEnemy,
+	NotTargeting
 };
 
 
@@ -124,8 +131,12 @@ private:
 	// Cursor Trace
 	FHitResult CursorHit;
 	void CursorTrace();
-	TScriptInterface<IAGASTargetInterface> LastActor;
-	TScriptInterface<IAGASTargetInterface> CurrentActor;
+	UPROPERTY()
+	TObjectPtr<AActor> LastActor;
+	UPROPERTY()
+	TObjectPtr<AActor> CurrentActor;
+	void HighlightActor(AActor* InActor);
+	void UnHighlightActor(AActor* InActor);
 
 	// Input | Abilities
 	void AbilityInputTagPressed(const FInputActionValue& Value, FGameplayTag InputTag);
@@ -147,7 +158,7 @@ private:
 	float FollowTime = 0.f;
 	float ShortPressThreshold = 0.5f;
 	bool bAutoRunning = false;
-	bool bTargeting = false;
+	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
 
 	UPROPERTY(EditDefaultsOnly)
 	float AutoRunAcceptanceRadius = 50.f;
@@ -171,13 +182,13 @@ private:
 	bool HideOccludedActor(const AActor* Actor);
 	
 	// Replaces the actor's static mesh materials to the Fade material
-	bool OnHideOccludedActor(const FCameraOccludedActor& OccludedActor) const;
+	void OnHideOccludedActor(const FCameraOccludedActor& OccludedActor) const;
 
 	// Shows actor if it was once occluded
 	void ShowOccludedActor(FCameraOccludedActor& OccludedActor);
 	
 	// Reverts the actor's static mesh materials to its original
-	bool OnShowOccludedActor(const FCameraOccludedActor& OccludedActor) const;
+	void OnShowOccludedActor(const FCameraOccludedActor& OccludedActor) const;
 	
 	// forces the actor to be shown
 	void ForceShowOccludedActors();
