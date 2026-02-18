@@ -7,6 +7,7 @@
 #include "AuraGAS/AGASLogChannels.h"
 #include "Game/AGASGameInstance.h"
 #include "Game/AGASLoadMenuSaveGame.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/PlayerStart.h"
 #include "Interaction/AGASSaveInterface.h"
 #include "Kismet/GameplayStatics.h"
@@ -76,7 +77,6 @@ void AAGASGameModeBase::SaveWorldState(UWorld* InWorld, const FString& Destinati
 		// branch where we would be traveling to a new world using an entrance
 		if (DestinationMapAssetName != FString(""))
 		{
-			SaveGame->MapAssetName = DestinationMapAssetName;
 			SaveGame->MapName = GetMapNameFromMapAssetName(DestinationMapAssetName);
 		}
 		
@@ -211,6 +211,15 @@ AActor* AAGASGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 		return SelectedActor;
 	}
 	return nullptr;
+}
+
+void AAGASGameModeBase::PlayerDied(ACharacter* DeadCharacter)
+{
+	UAGASLoadMenuSaveGame* SaveGame = RetrieveInGameSaveData();
+	if (!IsValid(SaveGame)) return;
+	if (SaveGame->MapName == FString()) return;
+	
+	UGameplayStatics::OpenLevelBySoftObjectPtr(DeadCharacter, Maps.FindChecked(SaveGame->MapName));
 }
 
 void AAGASGameModeBase::BeginPlay()

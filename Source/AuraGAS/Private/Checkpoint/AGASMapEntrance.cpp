@@ -3,6 +3,7 @@
 
 #include "Checkpoint/AGASMapEntrance.h"
 
+#include "Components/CapsuleComponent.h"
 #include "Components/SphereComponent.h"
 #include "Game/AGASGameModeBase.h"
 #include "Interaction/AGASPlayerInterface.h"
@@ -15,6 +16,10 @@ AAGASMapEntrance::AAGASMapEntrance(const FObjectInitializer& ObjectInitializer)
 	PrimaryActorTick.bCanEverTick = false;
 	
 	Sphere->SetupAttachment(MoveToComponent);
+	
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	// set capsule comp to always visible
+	CapsuleComp->bDrawOnlyIfSelected = false;
 }
 
 void AAGASMapEntrance::BeginPlay()

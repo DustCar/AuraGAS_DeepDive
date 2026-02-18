@@ -116,6 +116,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Setup|Combat")
 	FName TailSocketName;
 
+	UPROPERTY(BlueprintReadOnly);
 	bool bDead = false;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|CharacterClassDefaults")

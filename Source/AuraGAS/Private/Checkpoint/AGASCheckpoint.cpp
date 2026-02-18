@@ -36,6 +36,7 @@ AAGASCheckpoint::AAGASCheckpoint(const FObjectInitializer& ObjectInitializer)
 	Sphere->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Sphere->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
 	Sphere->SetCanEverAffectNavigation(false);
+	Sphere->SetCollisionObjectType(ECC_WorldStatic);
 	
 	MoveToComponent = CreateDefaultSubobject<USceneComponent>("MoveToComponent");
 	MoveToComponent->SetupAttachment(GetRootComponent());
@@ -92,7 +93,11 @@ void AAGASCheckpoint::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, 
 		
 		if (AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this)))
 		{
-			AGASGameMode->SaveWorldState(GetWorld());
+			const UWorld* World = GetWorld();
+			FString MapName = World->GetMapName();
+			MapName.RemoveFromStart(World->StreamingLevelsPrefix);
+			
+			AGASGameMode->SaveWorldState(GetWorld(), MapName);
 		}
 		
 		IAGASPlayerInterface::Execute_SaveProgress(OtherActor, PlayerStartTag);

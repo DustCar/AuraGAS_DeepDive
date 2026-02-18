@@ -191,6 +191,24 @@ int32 AAGASCharacter::GetCharacterLevel_Implementation()
 	return AGASPlayerState->GetPlayerLevel();
 }
 
+void AAGASCharacter::Die(const FVector& DeathImpulse)
+{
+	Super::Die(DeathImpulse);
+	
+	FTimerDelegate DeathTimerDelegate;
+	DeathTimerDelegate.BindLambda([this]()
+	{
+		AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));
+		if (AGASGameMode)
+		{
+			AGASGameMode->PlayerDied(this);
+		}
+	});
+	
+	GetWorldTimerManager().SetTimer(DeathTimerHandle, DeathTimerDelegate, DeathTime, false);
+	CameraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+}
+
 void AAGASCharacter::KnockbackCharacter_Implementation(const FVector& KnockbackForce)
 {
 	Super::KnockbackCharacter_Implementation(KnockbackForce);

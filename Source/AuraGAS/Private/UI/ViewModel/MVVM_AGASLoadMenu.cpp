@@ -35,6 +35,12 @@ void UMVVM_AGASLoadMenu::NewSaveButtonPressed(int32 InSlot, const FString Entere
 {
 	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));
 	
+	if (!IsValid(AGASGameMode))
+	{
+		GEngine->AddOnScreenDebugMessage(1, 15.f, FColor::Magenta, FString("Please switch to Single Player"));
+		return;
+	}
+	
 	if (AGASGameMode)
 	{
 		LoadSlots[InSlot]->SetPlayerName(EnteredName);
@@ -94,6 +100,8 @@ void UMVVM_AGASLoadMenu::PlayButtonPressed()
 void UMVVM_AGASLoadMenu::LoadData()
 {
 	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));
+	
+	if (!IsValid(AGASGameMode)) return;
 	
 	for (const auto [SlotIndex, Slot] : LoadSlots)
 	{

@@ -133,8 +133,6 @@ void AAGASCharacterBase::MulticastHandleDeath_Implementation(const FVector& Deat
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 		WeaponMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 		WeaponMesh->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
-		// WeaponMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
-		// WeaponMesh->SetCollisionResponseToChannel(ECC_Vehicle, ECR_Ignore);
 		WeaponMesh->AddImpulse(DeathImpulse * 2);
 	}
 
