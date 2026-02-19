@@ -169,6 +169,14 @@ UAGASAbilityInfo* UAGASAbilitySystemLibrary::GetAbilityInfo(const UObject* World
 	return AGASGameInstance->AbilityInfo;
 }
 
+UAGASLootTiers* UAGASAbilitySystemLibrary::GetLootTiers(const UObject* WorldContextObject)
+{
+	UAGASGameInstance* AGASGameInstance = Cast<UAGASGameInstance>(UGameplayStatics::GetGameInstance(WorldContextObject));
+	if (AGASGameInstance == nullptr) return nullptr;
+
+	return AGASGameInstance->LootTiers;
+}
+
 FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarget(const FDamageEffectParams& InParams)
 {
 	UAbilitySystemComponent* SourceASC = InParams.SourceAbilitySystemComponent;

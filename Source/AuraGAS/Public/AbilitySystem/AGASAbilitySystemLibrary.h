@@ -8,6 +8,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "AGASAbilitySystemLibrary.generated.h"
 
+class UAGASLootTiers;
 class UAGASLoadMenuSaveGame;
 class UAGASAbilityInfo;
 struct FWidgetControllerParams;
@@ -64,6 +65,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|AbilityInfo", meta = (WorldContext = "WorldContextObject"))
 	static UAGASAbilityInfo* GetAbilityInfo(const UObject* WorldContextObject);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|LootTiers", meta = (WorldContext = "WorldContextObject"))
+	static UAGASLootTiers* GetLootTiers(const UObject* WorldContextObject);
 
 	/*
 	 * EffectContext getters

@@ -101,6 +101,7 @@ void AAGASEnemy::Die(const FVector& DeathImpulse)
 {
 	AGASAIController->GetBrainComponent()->StopLogic(TEXT("Died"));
 	SetLifeSpan(CorpseLifeSpan);
+	SpawnLoot();
 	Super::Die(DeathImpulse);
 }
 

@@ -73,6 +73,9 @@ protected:
 	TObjectPtr<AAGASAIController> AGASAIController;
 	
 	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount) override;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void SpawnLoot();
 
 private:
 	

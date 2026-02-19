@@ -6,6 +6,7 @@
 #include "Engine/GameInstance.h"
 #include "AGASGameInstance.generated.h"
 
+class UAGASLootTiers;
 class UAGASAbilityInfo;
 class UAGASCharacterClassInfo;
 /**
@@ -23,6 +24,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "AbilityInfo")
 	TObjectPtr<UAGASAbilityInfo> AbilityInfo;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "LootTiers")
+	TObjectPtr<UAGASLootTiers> LootTiers;
 	
 	UPROPERTY()
 	FName PlayerStartTag = FName();

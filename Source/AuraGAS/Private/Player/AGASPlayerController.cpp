@@ -499,6 +499,10 @@ void AAGASPlayerController::OnHideOccludedActor(const FCameraOccludedActor& Occl
 		OccludedActor.StaticMesh->SetMaterial(i, FadeMaterial);
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Ignore);
+		// after some testing, we will straight up make anything that is occluding "not hittable", including Navigation channel.
+		// this will for sure create some bugs since some static meshes are tied together and can softlock movement for some meshes
+		// with the original mouse movement system (I will be updating this movement system so it could get fixed)
+		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Navigation, ECR_Ignore);
 	}
 }
 
@@ -509,6 +513,7 @@ void AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& Occl
 		OccludedActor.StaticMesh->SetMaterial(matIdx, OccludedActor.Materials[matIdx]);
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Block);
 		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Block);
+		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Navigation, ECR_Block);
 	}
 }
 

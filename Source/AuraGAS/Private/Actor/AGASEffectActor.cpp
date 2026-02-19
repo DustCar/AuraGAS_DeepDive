@@ -6,6 +6,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 #include "AbilitySystemComponent.h"
 #include "AuraGAS/AuraGAS.h"
+#include "GameFramework/RotatingMovementComponent.h"
 
 
 AAGASEffectActor::AAGASEffectActor()
@@ -13,12 +14,52 @@ AAGASEffectActor::AAGASEffectActor()
 	PrimaryActorTick.bCanEverTick = false;
 
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>("SceneRoot"));
+	
+	RotatingMovementComponent = CreateDefaultSubobject<URotatingMovementComponent>("RotatingMovementComponent");
+	RotatingMovementComponent->RotationRate = FRotator(0.f, RotationRate, 0.f);
+	// Default set to false since we may decide that some items will not rotate; still this can be changed in BP
+	RotatingMovementComponent->SetAutoActivate(false);
+}
+
+void AAGASEffectActor::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	if (bSinusoidalMovement)
+	{
+		RunningTime += DeltaSeconds;
+		const float SinePeriod = 2 * PI / SinePeriodConstant;
+		RunningTime = RunningTime > SinePeriod ? 0.f : RunningTime;
+		ItemVerticalMovement();
+	}
 }
 
 void AAGASEffectActor::BeginPlay()
 {
 	Super::BeginPlay();
 
+	InitialLocation = GetActorLocation();
+	CalculatedLocation = InitialLocation;
+}
+
+void AAGASEffectActor::StartSinusoidalMovement()
+{
+	RunningTime = 0.f;
+	bSinusoidalMovement = true;
+	// calling again in case to reset the actor's location
+	InitialLocation = GetActorLocation();
+	CalculatedLocation = InitialLocation;
+}
+
+void AAGASEffectActor::StartRotationalMovement()
+{
+	RotatingMovementComponent->Activate();
+}
+
+void AAGASEffectActor::ItemVerticalMovement()
+{
+	const float Sine = SineAmplitude * FMath::Sin(RunningTime * SinePeriodConstant);
+	CalculatedLocation = InitialLocation + FVector(0.f, 0.f, Sine);
 }
 
 void AAGASEffectActor::ApplyEffectToTarget(AActor* TargetActor, const TSubclassOf<UGameplayEffect> GameplayEffectClass)

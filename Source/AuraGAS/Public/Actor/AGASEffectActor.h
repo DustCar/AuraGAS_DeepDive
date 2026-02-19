@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "AGASEffectActor.generated.h"
 
+class URotatingMovementComponent;
 class UAbilitySystemComponent;
 class UGameplayEffect;
 
@@ -39,6 +40,8 @@ class AURAGAS_API AAGASEffectActor : public AActor
 
 public:
 	AAGASEffectActor();
+	
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -59,6 +62,42 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AppliedEffects")
 	bool bApplyEffectsToEnemies = false;
+	
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<URotatingMovementComponent> RotatingMovementComponent;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupMovement")
+	float RotationRate = 35.f;
+	
+	// toggle for rotation
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupMovement")
+	bool bShouldRotate = false;
+	
+	// toggle for bounce
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupMovement")
+	bool bShouldBounce = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupMovement")
+	bool bSinusoidalMovement = false;
+	
+	UFUNCTION(BlueprintCallable)
+	void StartSinusoidalMovement();
+	
+	UFUNCTION(BlueprintCallable)
+	void StartRotationalMovement();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupMovement")
+	float SineAmplitude = 8.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupMovement")
+	float SinePeriodConstant = 3.f;
+	
+	// location of the actor when it gets spawned; used for sinusoidal vertical movement
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PickupMovement")
+	FVector InitialLocation;
+	
+	UPROPERTY(BlueprintReadWrite)
+	FVector CalculatedLocation;
 	
 	//~ GameplayEffect Types and Policies Begin
 	// Instant Effect
@@ -98,6 +137,12 @@ protected:
 	 */
 	TMap<uint32, TMap<uint32, TArray<FActiveGameplayEffectHandle>>> ActiveInfiniteEffects;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AppliedEffects")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AppliedEffects", meta = (ExposeOnSpawn = "true"))
 	float ActorLevel = 1.f;
+	
+private:
+	
+	float RunningTime = 0.f;
+	
+	void ItemVerticalMovement();
 };
