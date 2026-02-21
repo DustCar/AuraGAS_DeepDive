@@ -32,18 +32,18 @@ void AAGASMagicCircle::BeginPlay()
 void AAGASMagicCircle::OnMagicCircleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IAGASHighlightInterface* TargetInterface = Cast<IAGASHighlightInterface>(OtherActor))
+	if (OtherActor->Implements<UAGASHighlightInterface>())
 	{
-		TargetInterface->HighlightActor();
+		IAGASHighlightInterface::Execute_HighlightActor(OtherActor);
 	}
 }
 
 void AAGASMagicCircle::OnMagicCircleEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (IAGASHighlightInterface* TargetInterface = Cast<IAGASHighlightInterface>(OtherActor))
+	if (OtherActor->Implements<UAGASHighlightInterface>())
 	{
-		TargetInterface->UnHighlightActor();
+		IAGASHighlightInterface::Execute_UnHighlightActor(OtherActor);
 	}
 }
 

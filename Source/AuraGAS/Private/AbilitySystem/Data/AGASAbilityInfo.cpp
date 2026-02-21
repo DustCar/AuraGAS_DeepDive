@@ -23,3 +23,13 @@ FAbilityInfo UAGASAbilityInfo::FindAbilityInfoForTag(const FGameplayTag& Ability
 
 	return FAbilityInfo();
 }
+
+TSubclassOf<UGameplayEffect> UAGASAbilityInfo::FindDebuffGameplayEffectForTag(const FGameplayTag& AbilityTag) const
+{
+	if (DamageTagToDebuffEffectMap.Contains(AbilityTag))
+	{
+		return DamageTagToDebuffEffectMap[AbilityTag];
+	}
+	
+	return nullptr;
+}

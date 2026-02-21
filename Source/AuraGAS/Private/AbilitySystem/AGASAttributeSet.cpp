@@ -8,7 +8,9 @@
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
+#include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "AbilitySystem/ExecCalcs/ExecCalc_Damage.h"
+#include "AuraGAS/AGASLogChannels.h"
 #include "GameFramework/Character.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
 #include "Interaction/AGASCombatInterface.h"
@@ -265,77 +267,39 @@ void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
 {
 	// TODO: Instead of dynamically creating the GE for the debuffs, refactor this to just saving a TMap of DamageTag to Debuff GE class
 	// TODO: then do a lookup for the specific Debuff GE and then apply it. So we create the GE in the editor.
-	// create a new effect context handle for the dynamic debuff GE
 	FGameplayEffectContextHandle DebuffEffectContextHandle = Props.SourceProperties->AbilitySystemComponent->MakeEffectContext();
 	DebuffEffectContextHandle.AddSourceObject(Props.SourceProperties->AvatarActor);
 	
-	// obtain all necessary tags and floats
 	const FGameplayTag DamageTypeTag = UAGASAbilitySystemLibrary::GetDamageType(Props.EffectContextHandle);
-	const float DebuffDamage = UAGASAbilitySystemLibrary::GetDebuffDamage(Props.EffectContextHandle);
-	const float DebuffFrequency = UAGASAbilitySystemLibrary::GetDebuffFrequency(Props.EffectContextHandle);
-	const float DebuffDuration = UAGASAbilitySystemLibrary::GetDebuffDuration(Props.EffectContextHandle);
-	
-	// create a new GameplayEffect object
-	FString DebuffName = FString::Printf(TEXT("DynamicDebuff %s"), *DamageTypeTag.ToString());
-	UGameplayEffect* Effect = NewObject<UGameplayEffect>(GetTransientPackage(), FName(DebuffName));
-	
-	// set its policy and durations
-	Effect->DurationPolicy = EGameplayEffectDurationType::HasDuration;
-	Effect->Period = DebuffFrequency;
-	Effect->bExecutePeriodicEffectOnApplication = false;
-	Effect->DurationMagnitude = FScalableFloat(DebuffDuration);
-	// set stacking policy
-	Effect->StackingType = EGameplayEffectStackingType::AggregateBySource;
-	Effect->StackLimitCount = 1;
-	
-	// Original way to apply damage. Does not account for resistances and debuffs
-	// add a modifier for debuff damage and set it; it is possible to add more modifiers in the same way
-	// const int32 Index = Effect->Modifiers.Add(FGameplayModifierInfo());
-	// FGameplayModifierInfo& ModifierInfo = Effect->Modifiers[Index];
-	//
-	// ModifierInfo.ModifierMagnitude = FScalableFloat(DebuffDamage);
-	// ModifierInfo.ModifierOp = EGameplayModOp::Additive;
-	// ModifierInfo.Attribute = GetIncomingDamageAttribute();
-	
-	// Alternative way using ExecCalc_Damage
-	FGameplayEffectExecutionDefinition ExecutionDef;
-	ExecutionDef.CalculationClass = UExecCalc_Damage::StaticClass();
-	Effect->Executions.Add(ExecutionDef);
-	
-	// Add the debuff tag to the gameplay effect
-	// NOTE: the next few lines of code is the updated way to add tags to "InheritableOwnedTagsContainer" from previous versions
-	// that variable has depreciated, so this is the new way (next 4 lines tbe)
 	const FGameplayTag DebuffTag = AGASGameplayTags::GetDamageTypeToDebuffMap()[DamageTypeTag];
-	FInheritedTagContainer TagContainer = FInheritedTagContainer();
-	UTargetTagsGameplayEffectComponent& Component = Effect->FindOrAddComponent<UTargetTagsGameplayEffectComponent>();
-	TagContainer.AddTag(DebuffTag);
-	// if the debuff is stun specifically then we block all player input
-	if (DebuffTag.MatchesTagExact(TAG_Debuff_Stun))
-	{
-		TagContainer.AddTag(TAG_Player_Block_CursorTrace);
-		TagContainer.AddTag(TAG_Player_Block_InputHeld);
-		TagContainer.AddTag(TAG_Player_Block_InputPressed);
-		TagContainer.AddTag(TAG_Player_Block_InputReleased);
-	}
-	Component.SetAndApplyTargetTagChanges(TagContainer);
+	const float DebuffDamage = UAGASAbilitySystemLibrary::GetDebuffDamage(Props.EffectContextHandle);
 	
-	// create a new GameplayEffectSpec, set its damage type and apply that effect
-	if (FGameplayEffectSpec* MutableSpec = new FGameplayEffectSpec(Effect, DebuffEffectContextHandle, 1.f))
-	{
-		// set the damage value for ExecCalc_Damage
-		MutableSpec->SetSetByCallerMagnitude(DamageTypeTag, DebuffDamage);
-		
-		FAGASGameplayEffectContext* AGASDebuffEffectContext = static_cast<FAGASGameplayEffectContext*>(MutableSpec->GetContext().Get());
-		TSharedPtr<FGameplayTag> DebuffDamageType = MakeShareable(new FGameplayTag(DamageTypeTag));
-		AGASDebuffEffectContext->SetDamageType(DebuffDamageType);
-		
-		const FGameplayTagContainer AbilitiesToCancelTags(TAG_Abilities);
-		const FGameplayTagContainer AbilitiesToIgnoreTags(TAG_Abilities_Passive);
-		Props.TargetProperties->AbilitySystemComponent->CancelAbilities(&AbilitiesToCancelTags, &AbilitiesToIgnoreTags);
-		
-		Props.TargetProperties->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*MutableSpec);
-	}
+	const UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(Props.SourceProperties->AbilitySystemComponent);
 	
+	if (AbilityInfo)
+	{
+		TSubclassOf<UGameplayEffect> DebuffGameplayEffectClass = AbilityInfo->FindDebuffGameplayEffectForTag(DebuffTag);
+		if (DebuffGameplayEffectClass != nullptr)
+		{
+			const FGameplayEffectSpecHandle DebuffEffectSpecHandle = Props.SourceProperties->AbilitySystemComponent->MakeOutgoingSpec(DebuffGameplayEffectClass, 1.f, DebuffEffectContextHandle);
+			
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DebuffEffectSpecHandle, DamageTypeTag, DebuffDamage);
+			
+			if (DebuffTag.MatchesTagExact(TAG_Debuff_Stun))
+			{
+				const FGameplayTagContainer AbilitiesToCancelTags(TAG_Abilities);
+				const FGameplayTagContainer AbilitiesToIgnoreTags(TAG_Abilities_Passive);
+				
+				Props.TargetProperties->AbilitySystemComponent->CancelAbilities(&AbilitiesToCancelTags, &AbilitiesToIgnoreTags);
+			}
+			
+			Props.TargetProperties->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*DebuffEffectSpecHandle.Data);
+		}
+		else
+		{
+			UE_LOG(LogAGAS, Warning, TEXT("Debuff Tag: %s does not have an entry in the AbilityInfo Data Asset."), *DebuffTag.GetTagName().ToString())
+		}
+	}
 }
 
 void UAGASAttributeSet::OnRep_HealthPoints(const FGameplayAttributeData& OldHealthPoints) const

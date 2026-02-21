@@ -8,6 +8,7 @@
 #include "AGASAbilityInfo.generated.h"
 
 
+class UGameplayEffect;
 class UGameplayAbility;
 
 USTRUCT(BlueprintType)
@@ -67,7 +68,11 @@ public:
 
 	FAbilityInfo FindAbilityInfoForTag(const FGameplayTag& AbilityTag, const bool bLogNotFoundVerbose = false) const;
 
-	
+	TSubclassOf<UGameplayEffect> FindDebuffGameplayEffectForTag(const FGameplayTag& AbilityTag) const;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "AbilityTag"))
 	TArray<FAbilityInfo> AbilityInformation;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TMap<FGameplayTag, TSubclassOf<UGameplayEffect>> DamageTagToDebuffEffectMap;
 };
