@@ -22,6 +22,7 @@
 #include "Input/AGASInputComponent.h"
 #include "Interaction/AGASHighlightInterface.h"
 #include "Interaction/AGASTargetInterface.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Player/AGASPlayerState.h"
 #include "UI/HUD/AGASHUD.h"
@@ -45,12 +46,53 @@ void AAGASPlayerController::PlayerTick(float DeltaTime)
 
 	CursorTrace();
 
-	if (bAutoRunning)
+	if (bAutoRunEnabled && bAutoRunning)
 	{
 		AutoRun();
 	}
 	
 	UpdateMagicCircleLocation();
+}
+
+void AAGASPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	check(AGASInputMapping);
+	
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (Subsystem)
+	{
+		Subsystem->AddMappingContext(AGASInputMapping, 0);
+	}
+
+	bShowMouseCursor = true;
+	DefaultMouseCursor = EMouseCursor::Type::Default;
+
+	FInputModeGameAndUI InputModeData;
+	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+	InputModeData.SetHideCursorDuringCapture(false);
+	SetInputMode(InputModeData);
+
+	NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+
+	if (IsValid(GetPawn()))
+	{
+		ActiveSpringArm = Cast<USpringArmComponent>(GetPawn()->GetComponentByClass(USpringArmComponent::StaticClass()));
+		ActiveCamera = Cast<UCameraComponent>(GetPawn()->GetComponentByClass(UCameraComponent::StaticClass()));
+		ActiveCapsuleComponent = Cast<UCapsuleComponent>(GetPawn()->GetComponentByClass(UCapsuleComponent::StaticClass()));
+	}
+}
+
+void AAGASPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	UAGASInputComponent* AGASInputComponent = CastChecked<UAGASInputComponent>(InputComponent);
+	if (AGASInputComponent == nullptr) return;
+	
+	AGASInputComponent->BindAction(AGASInputActions->InputMove, ETriggerEvent::Triggered, this, &ThisClass::Move);
+	AGASInputComponent->BindAction(AGASInputActions->InputShift, ETriggerEvent::Triggered, this, &ThisClass::ShiftPressed);
+	AGASInputComponent->BindAbilityActions(AGASInputActions, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
 }
 
 void AAGASPlayerController::ShowMagicCircle(float Radius, UMaterialInterface* DecalMaterial)
@@ -72,6 +114,22 @@ void AAGASPlayerController::HideMagicCircle()
 	if (IsValid(MagicCircle))
 	{
 		MagicCircle->Destroy();
+	}
+}
+
+void AAGASPlayerController::UpdateMagicCircleLocation()
+{
+	if (IsValid(MagicCircle))
+	{
+		if (CursorHit.bBlockingHit)
+		{
+			MagicCircle->SetActorHiddenInGame(false);
+			MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
+		}
+		else
+		{
+			MagicCircle->SetActorHiddenInGame(true);
+		}
 	}
 }
 
@@ -117,47 +175,6 @@ void AAGASPlayerController::CursorTrace()
 	}
 }
 
-void AAGASPlayerController::BeginPlay()
-{
-	Super::BeginPlay();
-	check(AGASInputMapping);
-	
-	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-	if (Subsystem)
-	{
-		Subsystem->AddMappingContext(AGASInputMapping, 0);
-	}
-
-	bShowMouseCursor = true;
-	DefaultMouseCursor = EMouseCursor::Type::Default;
-
-	FInputModeGameAndUI InputModeData;
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-	InputModeData.SetHideCursorDuringCapture(false);
-	SetInputMode(InputModeData);
-
-	NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
-
-	if (IsValid(GetPawn()))
-	{
-		ActiveSpringArm = Cast<USpringArmComponent>(GetPawn()->GetComponentByClass(USpringArmComponent::StaticClass()));
-		ActiveCamera = Cast<UCameraComponent>(GetPawn()->GetComponentByClass(UCameraComponent::StaticClass()));
-		ActiveCapsuleComponent = Cast<UCapsuleComponent>(GetPawn()->GetComponentByClass(UCapsuleComponent::StaticClass()));
-	}
-}
-
-void AAGASPlayerController::SetupInputComponent()
-{
-	Super::SetupInputComponent();
-
-	UAGASInputComponent* AGASInputComponent = CastChecked<UAGASInputComponent>(InputComponent);
-	if (AGASInputComponent == nullptr) return;
-	
-	AGASInputComponent->BindAction(AGASInputActions->InputMove, ETriggerEvent::Triggered, this, &ThisClass::Move);
-	AGASInputComponent->BindAction(AGASInputActions->InputShift, ETriggerEvent::Triggered, this, &ThisClass::ShiftPressed);
-	AGASInputComponent->BindAbilityActions(AGASInputActions, this, &ThisClass::AbilityInputTagPressed, &ThisClass::AbilityInputTagReleased, &ThisClass::AbilityInputTagHeld);
-}
-
 void AAGASPlayerController::Move(const FInputActionValue& Value)
 {
 	if (GetASC()->HasMatchingGameplayTag(TAG_Debuff_Stun)) return;
@@ -186,21 +203,77 @@ void AAGASPlayerController::AutoRun()
 {
 	if (APawn* ControlledPawn = GetPawn())
 	{
+		const FVector PawnLocation = ControlledPawn->GetActorLocation();
 		// literally just returns the closest point to the player
-		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(ControlledPawn->GetActorLocation(), ESplineCoordinateSpace::World);
-		// then based on that point then we get the direction pointed to that point
-		const FVector Direction = Spline->FindDirectionClosestToWorldLocation(LocationOnSpline, ESplineCoordinateSpace::World);
-		// moves toward that point; we don't add any extra size since AutoRun is in tick so unit vector is fine
-		ControlledPawn->AddMovementInput(Direction);
-
+		const FVector LocationOnSpline = Spline->FindLocationClosestToWorldLocation(PawnLocation, ESplineCoordinateSpace::World);
+		// retrieve the point on the spline at Target index
+		const FVector TargetSplinePointLocation = Spline->GetLocationAtSplinePoint(TargetSplinePointIdx, ESplineCoordinateSpace::World);
+		FVector WorldDirection = TargetSplinePointLocation - PawnLocation;
+		// zero the Z of the world direction to keep XY movement speed constant
+		WorldDirection.Z = 0.f;
+		// normalize it since its getting ran every tick so unit vectors are fine
+		WorldDirection = WorldDirection.GetSafeNormal();
+		
+		ControlledPawn->AddMovementInput(WorldDirection);
+		
 		// Length() turns the value Absolute in case you forget why this subtraction works no matter the values
 		// plus we got the direction from earlier anyway. This is just to check if we stop running
-		const float DistanceToDestination = (LocationOnSpline - CachedDestination).Length();
+		const float DistanceToDestination = (LocationOnSpline - TargetSplinePointLocation).Length();
 		if (DistanceToDestination <= AutoRunAcceptanceRadius)
 		{
-			bAutoRunning = false;
+			// even if within radius, rather than stopping abruptly, follow through to each point
+			const bool bNextTargetPointExist = TargetSplinePointIdx < Spline->GetNumberOfSplinePoints() - 1;
+			if (bNextTargetPointExist)
+			{
+				TargetSplinePointIdx++;
+			}
+			else
+			{
+				bAutoRunning = false;
+			}
 		}
 	}
+}
+
+bool AAGASPlayerController::GetCursorPlaneIntersection(const FVector& InPlaneOrigin, const FVector& InPlaneNormal,
+	FVector& OutPlanePoint) const
+{
+	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	if (LocalPlayer && LocalPlayer->ViewportClient)
+	{
+		FVector2D MousePosition;
+		const bool bMousePositionFound = LocalPlayer->ViewportClient->GetMousePosition(MousePosition);
+		if (bMousePositionFound)
+		{
+			return GetScreenPositionPlaneIntersection(MousePosition, InPlaneOrigin, InPlaneNormal, OutPlanePoint);
+		}
+	}
+	return false;
+}
+
+bool AAGASPlayerController::GetScreenPositionPlaneIntersection(const FVector2D& ScreenPosition,
+	const FVector& InPlaneOrigin, const FVector& InPlaneNormal, FVector& OutPlanePoint) const
+{
+	// if we hit a HUD menu then return early
+	AHUD* HUD = GetHUD();
+	if (HUD && HUD->GetHitBoxAtCoordinates(ScreenPosition, true))
+	{
+		return false;
+	}
+	
+	// obtain the mouse position in world space
+	FVector WorldOrigin;
+	FVector WorldDirection;
+	const bool bScreenPositionDeprojected = UGameplayStatics::DeprojectScreenToWorld(this, ScreenPosition, WorldOrigin, WorldDirection);
+	if (bScreenPositionDeprojected)
+	{
+		// Point1 the deprojected position of our mouse cursor from our screen, Point2 is the same point as Point1 but quite
+		// a distance away in the direction away from the camera (could think of it as the point under our cursor).
+		// InPlaneOrigin is the location where we want the plane to sit, InPlaneNormal is the type of normal vector we want (usually UpVector)
+		OutPlanePoint = FMath::LinePlaneIntersection(WorldOrigin, WorldOrigin + WorldDirection * HitResultTraceDistance, InPlaneOrigin, InPlaneNormal);
+		return true;
+	}
+	return false;
 }
 
 void AAGASPlayerController::HighlightActor(AActor* InActor)
@@ -230,6 +303,7 @@ void AAGASPlayerController::AbilityInputTagPressed(const FInputActionValue& Valu
 	
 	if (InputTag.MatchesTagExact(TAG_InputTag_LMB))
 	{
+		ControlledPawnHalfHeight = Cast<IAGASCombatInterface>(GetPawn())->GetHalfHeight();
 		if (IsValid(CurrentActor))
 		{
 			TargetingStatus = CurrentActor->Implements<UAGASTargetInterface>() ? ETargetingStatus::TargetingEnemy : ETargetingStatus::TargetingNonEnemy;
@@ -261,26 +335,30 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 			const APawn* ControlledPawn = GetPawn();
 			if (FollowTime <= ShortPressThreshold && ControlledPawn)
 			{
+				// Trace under the Navigation channel and use the Impact point as our desired location
+				FHitResult NavChannelCursorHitResult;
+				GetHitResultUnderCursor(ECC_Navigation, false, NavChannelCursorHitResult);
+				
 				if (IsValid(CurrentActor) && CurrentActor->Implements<UAGASHighlightInterface>())
 				{
-					IAGASHighlightInterface::Execute_SetMoveToLocation(CurrentActor, CachedDestination);
+					IAGASHighlightInterface::Execute_SetMoveToLocation(CurrentActor, NavChannelCursorHitResult.ImpactPoint);
 				}
 				else if (GetASC() && !GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputPressed))
 				{
-					UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, CachedDestination);
+					UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, ClickNiagaraSystem, NavChannelCursorHitResult.ImpactPoint);
 				}
 				
-				FNavLocation CachedDestinationNavLocation;
+				FNavLocation ImpactPointNavLocation;
 				// padding to be more lenient with the path finding. Larger number less precise, smaller more precise
 				const FVector QueryExtent = FVector(250.f, 250.f, 200.f);
 				const FNavAgentProperties& NavAgentProperties = GetNavAgentPropertiesRef();
 				// ProjectPointToNavigation finds the closest point on the nav mesh to the clicked location,
 				// used for areas that do not have nav mesh (i.e. under an item)
-				const bool bNavLocationFound = NavSystem->ProjectPointToNavigation(CachedDestination, CachedDestinationNavLocation, QueryExtent, &NavAgentProperties);
+				const bool bNavLocationFound = NavSystem->ProjectPointToNavigation(NavChannelCursorHitResult.ImpactPoint, ImpactPointNavLocation, QueryExtent, &NavAgentProperties);
 
 				if (!bNavLocationFound) return;
 				
-				UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), CachedDestinationNavLocation);
+				UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(this, ControlledPawn->GetActorLocation(), ImpactPointNavLocation);
 				if (NavPath == nullptr || NavPath->PathPoints.Num() <= 0) return;
 
 				Spline->ClearSplinePoints();
@@ -289,7 +367,7 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 					Spline->AddSplinePoint(PointLoc, ESplineCoordinateSpace::World);
 				}
 
-				CachedDestination = NavPath->PathPoints.Last();
+				TargetSplinePointIdx = 1;
 				bAutoRunning = true;
 			}
 		
@@ -305,28 +383,27 @@ void AAGASPlayerController::AbilityInputTagHeld(const FInputActionInstance& Inst
 	{
 		return;
 	}
-	
-	// checks if we are using mouse keys for abilities since they do other things; LMB for movement, RMB for moving camera
-	const bool bMouseKeys = InputTag.MatchesTagExact(TAG_InputTag_LMB);
 
 	// using mouse keys and not targeting or in "offensive" mode
-	if (bMouseKeys && TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown)
+	if (InputTag.MatchesTagExact(TAG_InputTag_LMB) && TargetingStatus != ETargetingStatus::TargetingEnemy && !bShiftKeyDown)
 	{
-		// place this return for RMB since we don't want RMB to be movement
-		if (InputTag.MatchesTagExact(TAG_InputTag_RMB)) return;
-		
 		FollowTime += GetWorld()->GetDeltaSeconds();
-
-		FHitResult Hit;
-		if (GetHitResultUnderCursor(ECC_Navigation, false, Hit))
-		{
-			CachedDestination = Hit.ImpactPoint;
-		}
 
 		if (APawn* ControlledPawn = GetPawn())
 		{
-			const FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-			ControlledPawn->AddMovementInput(WorldDirection);
+			const FVector PawnLocation = ControlledPawn->GetActorLocation();
+			// obtain the location at the player character's feet, this will be used as the location for the invisible plane we want to project
+			// for the press-to-move system
+			FVector PawnFloorLocation = PawnLocation;
+			PawnFloorLocation.Z -= ControlledPawnHalfHeight;
+			FVector CursorHorizPlaneIntersection;
+			const bool bIntersectionFound = GetCursorPlaneIntersection(PawnFloorLocation, FVector::UpVector, CursorHorizPlaneIntersection);
+			if (bIntersectionFound)
+			{
+				FVector WorldDirection = (CursorHorizPlaneIntersection - PawnLocation).GetSafeNormal();
+				WorldDirection.Z = 0.f;
+				ControlledPawn->AddMovementInput(WorldDirection);
+			}
 		}
 	}
 	// use ability that is tied to that input tag
@@ -413,18 +490,16 @@ void AAGASPlayerController::SyncOccludedActors()
 	}
 }
 
-void AAGASPlayerController::UpdateMagicCircleLocation()
+void AAGASPlayerController::ForceShowOccludedActors()
 {
-	if (IsValid(MagicCircle))
+	for (auto& Elem : OccludedActors)
 	{
-		if (CursorHit.bBlockingHit)
+		if (Elem.Value.bIsOccluded)
 		{
-			MagicCircle->SetActorHiddenInGame(false);
-			MagicCircle->SetActorLocation(CursorHit.ImpactPoint);
-		}
-		else
-		{
-			MagicCircle->SetActorHiddenInGame(true);
+			ShowOccludedActor(Elem.Value);
+
+			if (bDebugLineTraces) UE_LOG(LogTemp, Warning, TEXT("Actor %s was occluded, force to show again."),
+			*Elem.Value.Actor->GetName());
 		}
 	}
 }
@@ -456,6 +531,7 @@ bool AAGASPlayerController::HideOccludedActor(const AActor* Actor)
 		OccludedActor.Actor = Actor;
 		OccludedActor.StaticMesh = StaticMesh;
 		OccludedActor.Materials = StaticMesh->GetMaterials();
+		OccludedActor.OriginalCollisionProfileName = StaticMesh->GetCollisionProfileName();
 		OccludedActor.bIsOccluded = true;
 		OccludedActors.Add(Actor, OccludedActor);
 		OnHideOccludedActor(OccludedActor);
@@ -465,20 +541,6 @@ bool AAGASPlayerController::HideOccludedActor(const AActor* Actor)
 	}
 
 	return true;
-}
-
-void AAGASPlayerController::ForceShowOccludedActors()
-{
-	for (auto& Elem : OccludedActors)
-	{
-		if (Elem.Value.bIsOccluded)
-		{
-			ShowOccludedActor(Elem.Value);
-
-			if (bDebugLineTraces) UE_LOG(LogTemp, Warning, TEXT("Actor %s was occluded, force to show again."),
-			*Elem.Value.Actor->GetName());
-		}
-	}
 }
 
 void AAGASPlayerController::ShowOccludedActor(FCameraOccludedActor& OccludedActor)
@@ -497,13 +559,13 @@ void AAGASPlayerController::OnHideOccludedActor(const FCameraOccludedActor& Occl
 	for (int i = 0; i < OccludedActor.StaticMesh->GetNumMaterials(); ++i)
 	{
 		OccludedActor.StaticMesh->SetMaterial(i, FadeMaterial);
-		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
-		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Ignore);
-		// after some testing, we will straight up make anything that is occluding "not hittable", including Navigation channel.
-		// this will for sure create some bugs since some static meshes are tied together and can softlock movement for some meshes
-		// with the original mouse movement system (I will be updating this movement system so it could get fixed)
-		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Navigation, ECR_Ignore);
 	}
+	OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
+	OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Ignore);
+	// after some testing, we will straight up make anything that is occluding "not hittable", including Navigation channel.
+	// this will for sure create some bugs since some static meshes are tied together and can softlock movement for some meshes
+	// with the original mouse movement system (I will be updating this movement system so it could get fixed).
+	OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Navigation, ECR_Ignore);
 }
 
 void AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& OccludedActor) const
@@ -511,10 +573,11 @@ void AAGASPlayerController::OnShowOccludedActor(const FCameraOccludedActor& Occl
 	for (int matIdx = 0; matIdx < OccludedActor.Materials.Num(); ++matIdx)
 	{
 		OccludedActor.StaticMesh->SetMaterial(matIdx, OccludedActor.Materials[matIdx]);
-		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Block);
-		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Block);
-		OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Navigation, ECR_Block);
 	}
+	// OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Target, ECR_Block);
+	// OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_ExcludeActors, ECR_Block);
+	// OccludedActor.StaticMesh->SetCollisionResponseToChannel(ECC_Navigation, ECR_Block);
+	OccludedActor.StaticMesh->SetCollisionProfileName(OccludedActor.OriginalCollisionProfileName);
 }
 
 void AAGASPlayerController::InitializeHUD()

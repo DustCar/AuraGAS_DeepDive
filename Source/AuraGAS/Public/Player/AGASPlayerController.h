@@ -38,6 +38,9 @@ struct FCameraOccludedActor
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<UMaterialInterface*> Materials;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintreadOnly)
+	FName OriginalCollisionProfileName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool bIsOccluded = false;
@@ -135,6 +138,14 @@ private:
 	TObjectPtr<AActor> LastActor;
 	UPROPERTY()
 	TObjectPtr<AActor> CurrentActor;
+	
+	// Press-to-move upgrade; implementation courtesy of Diego Mellizo
+	float ControlledPawnHalfHeight = 0.0f;
+	
+	bool GetCursorPlaneIntersection(const FVector& InPlaneOrigin, const FVector& InPlaneNormal, FVector& OutPlanePoint) const;
+	bool GetScreenPositionPlaneIntersection(const FVector2D& ScreenPosition, const FVector& InPlaneOrigin, const FVector& InPlaneNormal, FVector& OutPlanePoint) const;
+	
+	// Highlight interface utility
 	void HighlightActor(AActor* InActor);
 	void UnHighlightActor(AActor* InActor);
 
@@ -151,12 +162,12 @@ private:
 
 	// Nav System for autorun
 	UPROPERTY()
-	UNavigationSystemV1* NavSystem = nullptr;
+	TObjectPtr<UNavigationSystemV1> NavSystem = nullptr;
 
 	// Autorun variables
-	FVector CachedDestination = FVector::ZeroVector;
 	float FollowTime = 0.f;
 	float ShortPressThreshold = 0.5f;
+	bool bAutoRunEnabled = true;
 	bool bAutoRunning = false;
 	ETargetingStatus TargetingStatus = ETargetingStatus::NotTargeting;
 
@@ -165,6 +176,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USplineComponent> Spline;
+	
+	int32 TargetSplinePointIdx = 0;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UNiagaraSystem> ClickNiagaraSystem;
@@ -192,15 +205,16 @@ private:
 	
 	// forces the actor to be shown
 	void ForceShowOccludedActors();
+	
+	UFUNCTION(BlueprintCallable)
+	void SyncOccludedActors();
 
 	FORCEINLINE bool ShouldCheckCameraOcclusion() const
 	{
 		return bIsOcclusionEnabled && FadeMaterial && ActiveCamera && ActiveCapsuleComponent;
 	}
 
-	UFUNCTION(BlueprintCallable)
-	void SyncOccludedActors();
-	
+	// Magic Circle
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AAGASMagicCircle> MagicCircleClass;
 	

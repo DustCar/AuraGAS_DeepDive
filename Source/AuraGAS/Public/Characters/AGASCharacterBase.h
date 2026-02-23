@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystem/Data/AGASCharacterClassInfo.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/Character.h"
 #include "Interaction/AGASCombatInterface.h"
 #include "AGASCharacterBase.generated.h"
@@ -66,6 +67,7 @@ public:
 	virtual void SetIsBeingShocked_Implementation(bool bInIsBeingShocked) override;
 	// Get bIsBeingShocked bool
 	virtual bool IsBeingShocked_Implementation() const override;
+	FORCEINLINE virtual float GetHalfHeight() const override { return GetCapsuleComponent()->GetScaledCapsuleHalfHeight(); }
 	// Returns the delegate for OnASCRegistered
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
 	// Returns the delegate for OnDeath

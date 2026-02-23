@@ -107,6 +107,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void SetIsBeingShocked(bool bInIsBeingShocked);
 	
+	FORCEINLINE virtual float GetHalfHeight() const { return 0.f; }
+	
 	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() = 0;
 	virtual FOnDeath& GetOnDeathDelegate() = 0;
 };
