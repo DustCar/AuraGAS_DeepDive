@@ -234,8 +234,6 @@ FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarge
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, InParams.DamageType, InParams.BaseDamage);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Chance, InParams.DebuffChance);
 	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Damage, InParams.DebuffDamage);
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Frequency, InParams.DebuffFrequency);
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DamageEffectSpecHandle, TAG_Debuff_Params_Duration, InParams.DebuffDuration);
 	
 	SourceASC->ApplyGameplayEffectSpecToTarget(*DamageEffectSpecHandle.Data, TargetASC);
 	
@@ -277,26 +275,6 @@ float UAGASAbilitySystemLibrary::GetDebuffDamage(const FGameplayEffectContextHan
 	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		return AGASEffectContext->GetDebuffDamage();
-	}
-
-	return 0.f;
-}
-
-float UAGASAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContextHandle& EffectContextHandle)
-{
-	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
-	{
-		return AGASEffectContext->GetDebuffFrequency();
-	}
-
-	return 0.f;
-}
-
-float UAGASAbilitySystemLibrary::GetDebuffDuration(const FGameplayEffectContextHandle& EffectContextHandle)
-{
-	if (const FAGASGameplayEffectContext* AGASEffectContext = static_cast<const FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
-	{
-		return AGASEffectContext->GetDebuffDuration();
 	}
 
 	return 0.f;
@@ -405,24 +383,6 @@ void UAGASAbilitySystemLibrary::SetDebuffDamage(FGameplayEffectContextHandle& Ef
 	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
 		AGASEffectContext->SetDebuffDamage(InDebuffDamage);
-	}
-}
-
-void UAGASAbilitySystemLibrary::SetDebuffFrequency(FGameplayEffectContextHandle& EffectContextHandle,
-	const float InDebuffFrequency)
-{
-	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
-	{
-		AGASEffectContext->SetDebuffFrequency(InDebuffFrequency);
-	}
-}
-
-void UAGASAbilitySystemLibrary::SetDebuffDuration(FGameplayEffectContextHandle& EffectContextHandle,
-	const float InDebuffDuration)
-{
-	if (FAGASGameplayEffectContext* AGASEffectContext = static_cast<FAGASGameplayEffectContext*>(EffectContextHandle.Get()))
-	{
-		AGASEffectContext->SetDebuffDuration(InDebuffDuration);
 	}
 }
 

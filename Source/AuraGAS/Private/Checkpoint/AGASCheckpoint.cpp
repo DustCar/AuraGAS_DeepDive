@@ -79,9 +79,9 @@ void AAGASCheckpoint::UnHighlightActor_Implementation()
 	CheckpointMesh->SetRenderCustomDepth(false);
 }
 
-void AAGASCheckpoint::SetMoveToLocation_Implementation(FVector& OutDestination)
+FVector AAGASCheckpoint::GetMoveToLocation()
 {
-	OutDestination = MoveToComponent->GetComponentLocation();
+	return MoveToComponent->GetComponentLocation();
 }
 
 void AAGASCheckpoint::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

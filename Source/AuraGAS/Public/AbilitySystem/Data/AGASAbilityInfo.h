@@ -35,6 +35,9 @@ struct FAbilityInfo
 	int32 AbilityLevel = 0;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int32 MaxAbilityLevel = 10;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FText AbilityName = FText();
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

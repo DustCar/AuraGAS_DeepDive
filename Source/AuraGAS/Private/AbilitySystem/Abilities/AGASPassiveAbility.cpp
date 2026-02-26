@@ -19,6 +19,16 @@ void UAGASPassiveAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handl
 	}
 }
 
+float UAGASPassiveAbility::GetPercentAtLevel(int32 Level) const
+{
+	if (PercentEffective.IsValid())
+	{
+		return PercentEffective.GetValueAtLevel(Level);
+	}
+	
+	return 0.f;
+}
+
 void UAGASPassiveAbility::ReceivedDeactivate(const FGameplayTag& AbilityTag)
 {
 	if (AbilityTags.HasTagExact(AbilityTag))

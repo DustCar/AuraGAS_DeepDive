@@ -81,11 +81,6 @@ void AAGASEnemy::UnHighlightActor_Implementation()
 	}
 }
 
-void AAGASEnemy::SetMoveToLocation_Implementation(FVector& OutDestination)
-{
-	// Do not change OutDestination
-}
-
 int32 AAGASEnemy::GetCharacterLevel_Implementation()
 {
 	return Level;

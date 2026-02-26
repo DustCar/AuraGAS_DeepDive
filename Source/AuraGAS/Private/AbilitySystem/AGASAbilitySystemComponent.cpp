@@ -365,10 +365,10 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 			OutDescription = FString::Printf(
 				TEXT(
 				// Ability Name
-				"<Title>%s </>\n"
+				"<Title>%s</>\n"
 				
 				// Level, Mana cost, and Cooldown
-				"<SubTitle>Level: </><Level>%d</>\n"
+				"<SubTitle>Level: </><Level>%d</>/<Level>%d</>\n"
 				"<SubTitle>Mana Cost: </><ManaCost>%d</>\n"
 				"<SubTitle>Cooldown: </><Cooldown>%.1f</> s\n"
 				
@@ -379,30 +379,41 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 				),
 				*Info.AbilityName.ToString(),
 				Level,
+				Info.MaxAbilityLevel,
 				DamageAbility->GetRoundedManaCost(Level),
 				DamageAbility->GetCooldown(Level),
 				*FormattedDescription
 			);
-			OutNextLevelDescription = FString::Printf(
-				TEXT(
-				// Same as Ability description but includes the previous and next level iteration
-				"<Title>%s </>\n"
-				"<SubTitle>Level: </><OldValue>%d</> > <Level>%d</>\n"
-				"<SubTitle>Mana Cost: </><OldValue>%d</> > <ManaCost>%d</>\n"
-				"<SubTitle>Cooldown: </><OldValue>%.1f</> > <Cooldown>%.1f</> s\n"
-				"\n"
-				"%s\n"
-				"\n"
-				),
-				*Info.AbilityName.ToString(),
-				Level,
-				Level + 1,
-				DamageAbility->GetRoundedManaCost(Level),
-				DamageAbility->GetRoundedManaCost(Level + 1),
-				DamageAbility->GetCooldown(Level),
-				DamageAbility->GetCooldown(Level + 1),
-				*FormattedNextLvlDescription
-			);
+			if (Level < Info.MaxAbilityLevel)
+			{
+				OutNextLevelDescription = FString::Printf(
+					TEXT(
+					// Same as Ability description but includes the previous and next level iteration
+					"<Title>%s</>\n"
+					"<SubTitle>Level: </><Level>%d</>/<Level>%d</>\n"
+					"<SubTitle>Mana Cost: </><OldValue>%d</> > <ManaCost>%d</>\n"
+					"<SubTitle>Cooldown: </><OldValue>%.1f</> > <Cooldown>%.1f</> s\n"
+					"\n"
+					"%s\n"
+					"\n"
+					),
+					*Info.AbilityName.ToString(),
+					Level + 1,
+					Info.MaxAbilityLevel,
+					DamageAbility->GetRoundedManaCost(Level),
+					DamageAbility->GetRoundedManaCost(Level + 1),
+					DamageAbility->GetCooldown(Level),
+					DamageAbility->GetCooldown(Level + 1),
+					*FormattedNextLvlDescription
+				);
+			}
+			else
+			{
+				OutNextLevelDescription = FString::Printf(
+					TEXT("Max Level reached.")
+				);
+			}
+			
 			return true;
 		}
 		
@@ -417,10 +428,10 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 			OutDescription = FString::Printf(
 				TEXT(
 				// Ability Name
-				"<Title>%s </>\n"
+				"<Title>%s</>\n"
 				
 				// Level, Mana cost, and Cooldown
-				"<SubTitle>Level: </><Level>%d</>\n"
+				"<SubTitle>Level: </><Level>%d</>/<Level>%d</>\n"
 				
 				// Ability info body that gets formatted and obtained from ability info
 				"\n"
@@ -429,22 +440,34 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 				),
 				*Info.AbilityName.ToString(),
 				Level,
+				Info.MaxAbilityLevel,
 				*FormattedDescription
 			);
-			OutNextLevelDescription = FString::Printf(
-				TEXT(
-				// Same as Ability description but includes the previous and next level iteration
-				"<Title>%s </>\n"
-				"<SubTitle>Level: </><OldValue>%d</> > <Level>%d</>\n"
-				"\n"
-				"%s\n"
-				"\n"
-				),
-				*Info.AbilityName.ToString(),
-				Level,
-				Level + 1,
-				*FormattedNextLvlDescription
-			);
+			
+			if (Level < Info.MaxAbilityLevel)
+			{
+				OutNextLevelDescription = FString::Printf(
+					TEXT(
+					// Same as Ability description but includes the previous and next level iteration
+					"<Title>%s</>\n"
+					"<SubTitle>Level: </><Level>%d</>/<Level>%d</>\n"
+					"\n"
+					"%s\n"
+					"\n"
+					),
+					*Info.AbilityName.ToString(),
+					Level + 1,
+					Info.MaxAbilityLevel,
+					*FormattedNextLvlDescription
+				);
+			}
+			else
+			{
+				OutNextLevelDescription = FString::Printf(
+					TEXT("Max Level reached.")
+				);
+			}
+			
 			return true;
 		}
 	}
@@ -503,7 +526,6 @@ void UAGASAbilitySystemComponent::ServerEquipAbility_Implementation(const FGamep
 					TryActivateAbility(AbilitySpec->Handle);
 					MulticastActivatePassiveEffect(AbilityTag, true);
 				}
-				
 			}
 			
 			// cache the old input tag for broadcast

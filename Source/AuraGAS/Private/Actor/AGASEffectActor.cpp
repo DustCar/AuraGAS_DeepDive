@@ -126,13 +126,16 @@ void AAGASEffectActor::RemoveInfiniteEffectsFromActor(AActor* TargetActor)
 	if (!ActiveInfiniteEffects.Contains(UID)) return;
 	if (!ActiveInfiniteEffects[UID].Contains(GetUniqueID())) return;
 
-	auto& ActorsAppliedEffects = ActiveInfiniteEffects[UID][GetUniqueID()];
+	// loop through all the effect actor's applied effects and remove them
+	const auto& ActorsAppliedEffects = ActiveInfiniteEffects[UID][GetUniqueID()];
 	for (const auto& AppliedEffect : ActorsAppliedEffects)
 	{
 		if (!TargetASC->RemoveActiveGameplayEffect(AppliedEffect, 1)) return;
 	}
 
+	// remove the effect actor from the target's map
 	ActiveInfiniteEffects[UID].Remove(GetUniqueID());
+	// if the target actor no longer has any active infinite effects then we can remove its entry from the main map
 	if (ActiveInfiniteEffects[UID].IsEmpty())
 	{
 		ActiveInfiniteEffects.Remove(UID);

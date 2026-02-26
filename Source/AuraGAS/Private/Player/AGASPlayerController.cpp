@@ -339,9 +339,10 @@ void AAGASPlayerController::AbilityInputTagReleased(FGameplayTag InputTag)
 				FHitResult NavChannelCursorHitResult;
 				GetHitResultUnderCursor(ECC_Navigation, false, NavChannelCursorHitResult);
 				
-				if (IsValid(CurrentActor) && CurrentActor->Implements<UAGASHighlightInterface>())
+				if (IsValid(CurrentActor))
 				{
-					IAGASHighlightInterface::Execute_SetMoveToLocation(CurrentActor, NavChannelCursorHitResult.ImpactPoint);
+					IAGASHighlightInterface* HighlightInterface = Cast<IAGASHighlightInterface>(CurrentActor);
+					NavChannelCursorHitResult.ImpactPoint = HighlightInterface->GetMoveToLocation();
 				}
 				else if (GetASC() && !GetASC()->HasMatchingGameplayTag(TAG_Player_Block_InputPressed))
 				{

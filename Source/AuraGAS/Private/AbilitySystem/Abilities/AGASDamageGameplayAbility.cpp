@@ -52,8 +52,6 @@ FDamageEffectParams UAGASDamageGameplayAbility::MakeDamageEffectParamsFromClassD
 	Params.DamageType = DamageTag;
 	Params.DebuffChance = DebuffChance;
 	Params.DebuffDamage = DebuffDamage;
-	Params.DebuffFrequency = DebuffFrequency;
-	Params.DebuffDuration = DebuffDuration;
 	Params.DeathImpulseMagnitude = DeathImpulseMagnitude;
 	Params.KnockbackChance = KnockbackChance;
 	Params.KnockbackImpulseMagnitude = KnockbackImpulseMagnitude;

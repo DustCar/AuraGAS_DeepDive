@@ -51,13 +51,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff");
 	float DebuffDamage = 5.f;
 	
-	// you can think of this as the tick for DOTs
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff");
-	float DebuffFrequency = 1.f;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Debuff");
-	float DebuffDuration = 5.f;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Damage|DeathImpulse")
 	float DeathImpulseMagnitude = 2500.f;
 	

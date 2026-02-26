@@ -45,12 +45,6 @@ struct FDamageEffectParams
 	float DebuffDamage = 0.f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float DebuffFrequency = 0.f;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float DebuffDuration = 0.f;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float DeathImpulseMagnitude = 0.f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -89,8 +83,6 @@ public:
 	bool IsBlockedHit() const { return bIsBlockedHit; }
 	bool IsSuccessfulDebuff() const { return bIsSuccessfulDebuff; }
 	float GetDebuffDamage() const { return DebuffDamage; }
-	float GetDebuffFrequency() const { return DebuffFrequency; }
-	float GetDebuffDuration() const { return DebuffDuration; }
 	TSharedPtr<FGameplayTag> GetDamageType() const { return DamageType; }
 	FVector GetDeathImpulse() const { return DeathImpulse; }
 	FVector GetKnockbackDirection() const { return KnockbackDirection; }
@@ -103,8 +95,6 @@ public:
 	void SetIsBlockedHit(const bool bInIsBlockedHit) { bIsBlockedHit = bInIsBlockedHit; }
 	void SetIsSuccessfulDebuff(const bool bInIsSuccessfulDebuff) { bIsSuccessfulDebuff = bInIsSuccessfulDebuff; }
 	void SetDebuffDamage(const float InDebuffDamage) { DebuffDamage = InDebuffDamage; }
-	void SetDebuffFrequency(const float InDebuffFrequency) { DebuffFrequency = InDebuffFrequency; }
-	void SetDebuffDuration(const float InDebuffDuration) { DebuffDuration = InDebuffDuration; }
 	void SetDamageType(const TSharedPtr<FGameplayTag>& InDamageType) { DamageType = InDamageType; }
 	void SetDeathImpulse(const FVector& InDeathImpulse) { DeathImpulse = InDeathImpulse; }
 	void SetKnockbackDirection(const FVector& InKnockbackDirection) { KnockbackDirection = InKnockbackDirection; }
@@ -148,12 +138,7 @@ protected:
 	
 	UPROPERTY()
 	float DebuffDamage = 0.f;
-	
-	UPROPERTY()
-	float DebuffFrequency = 0.f;
-	
-	UPROPERTY()
-	float DebuffDuration = 0.f;
+
 	
 	UPROPERTY()
 	FVector DeathImpulse = FVector::ZeroVector;

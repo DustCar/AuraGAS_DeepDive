@@ -129,8 +129,8 @@ protected:
 	 * Map that holds the TargetActor's UID as key and has a value of another map which holds the actors
 	 * that apply the effects and what effects they apply.
 	 *
-	 * main map - key: TargetActor UID, value: Map of effect actors and their applied effects
-	 * value map - key: EffectActor UID, value: Array of applied effects
+	 * main map - key: TargetActor UID, value: Map of effect actors and their applied effects.
+	 * inner map - key: EffectActor UID, value: Array of applied effects.
 	 *
 	 * Tbh, this seems a little overkill for knowing what gameplay effects one actor is applying, but I can't
 	 * think of anything else at the moment

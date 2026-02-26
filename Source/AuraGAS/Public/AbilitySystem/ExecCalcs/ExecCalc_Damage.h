@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameplayEffectExecutionCalculation.h"
-#include "AbilitySystem/Data/AGASCharacterClassInfo.h"
 #include "ExecCalc_Damage.generated.h"
 
+class UAGASCharacterClassInfo;
 /**
  * 
  */

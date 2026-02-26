@@ -52,8 +52,6 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Physical, "Debuff.Physical")
 // Debuff Tags: Params
 UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Params_Chance, "Debuff.Params.Chance")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Params_Damage, "Debuff.Params.Damage")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Params_Frequency, "Debuff.Params.Frequency")
-UE_DEFINE_GAMEPLAY_TAG(TAG_Debuff_Params_Duration, "Debuff.Params.Duration")
 
 // Resistance Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Attributes_Resistance, "Attributes.Resistance")
@@ -93,6 +91,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_HaloOfProtection, "Abilities.Passiv
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_LifeSiphon, "Abilities.Passive.LifeSiphon")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_ManaSiphon, "Abilities.Passive.ManaSiphon")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_ListenForEvent, "Abilities.Passive.ListenForEvent")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_Buff_HaloWard, "Abilities.Passive.Buff.HaloWard")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_Buff_LifeSiphon, "Abilities.Passive.Buff.LifeSiphon")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_Buff_ManaSiphon, "Abilities.Passive.Buff.ManaSiphon")
 
 // Cooldown Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBolt, "Cooldown.Fire.FireBolt")

@@ -8,6 +8,8 @@
 #include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
 #include "AbilitySystem/AGASAttributeSet.h"
+#include "AbilitySystem/Abilities/AGASPassiveAbility.h"
+#include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "AbilitySystem/Data/AGASCharacterClassInfo.h"
 #include "Interaction/AGASCombatInterface.h"
 
@@ -110,20 +112,10 @@ void UExecCalc_Damage::DetermineDebuff(const FGameplayEffectCustomExecutionParam
 			UAGASAbilitySystemLibrary::SetDamageType(EffectContextHandle, DamageTypeTag);
 			
 			const float DebuffDamage = Spec.GetSetByCallerMagnitude(TAG_Debuff_Params_Damage, false, DefaultIfNotFound);
-			const float DebuffFrequency = Spec.GetSetByCallerMagnitude(TAG_Debuff_Params_Frequency, false, DefaultIfNotFound);
-			const float DebuffDuration = Spec.GetSetByCallerMagnitude(TAG_Debuff_Params_Duration, false, DefaultIfNotFound);
 			
 			if (!FMath::IsNearlyEqual(DebuffDamage, DefaultIfNotFound))
 			{
 				UAGASAbilitySystemLibrary::SetDebuffDamage(EffectContextHandle, DebuffDamage);
-			}
-			if (!FMath::IsNearlyEqual(DebuffFrequency, DefaultIfNotFound))
-			{
-				UAGASAbilitySystemLibrary::SetDebuffFrequency(EffectContextHandle, DebuffFrequency);
-			}
-			if (!FMath::IsNearlyEqual(DebuffDuration, DefaultIfNotFound))
-			{
-				UAGASAbilitySystemLibrary::SetDebuffDuration(EffectContextHandle, DebuffDuration);
 			}
 		}
 	}
@@ -160,7 +152,7 @@ float UExecCalc_Damage::CalculateBaseDamage(const FGameplayEffectCustomExecution
 			const float DistanceToTarget = (UAGASAbilitySystemLibrary::GetRadialDamageOrigin(EffectContextHandle) - TargetLocation).Size();
 			float const ValidDistanceToTarget = FMath::Max(0.f, DistanceToTarget);
 			
-			// calculate damage falloff once actor gets past inner radius
+			// calculate damage falloff once target actor gets past inner radius
 			if (ValidDistanceToTarget > ValidInnerRadius)
 			{
 				// do no damage if actor is out of range
@@ -286,7 +278,25 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		// Armor ignores a percentage of Damage
 		Damage *= (100 - PercentDamageIgnored) / 100.f;
 	}
-
+	
+	// check if target has halo of protection passive
+	if (TargetASC && TargetASC->HasMatchingGameplayTag(TAG_Abilities_Passive_Buff_HaloWard))
+	{
+		// try to obtain the percent to reduce, if not then damage is unaffected
+		float HaloWardDamageReduction = 0.f;
+		UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(SourceAvatar);
+		if (AbilityInfo)
+		{
+			FAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(TAG_Abilities_Passive_HaloOfProtection);
+			FGameplayAbilitySpec* HaloOfProtAbilitySpec = TargetASC->FindAbilitySpecFromClass(Info.Ability);
+			const UAGASPassiveAbility* HaloOfProtAbility = Cast<UAGASPassiveAbility>(HaloOfProtAbilitySpec->Ability);
+			HaloWardDamageReduction = HaloOfProtAbility->GetPercentAtLevel(HaloOfProtAbilitySpec->Level);
+		}
+		// for Halo Of Protection, the coefficient will just be the full damage reduction
+		
+		Damage *= (100 - HaloWardDamageReduction) / 100.f;
+	}
+	
 	const FGameplayModifierEvaluatedData EvaluatedData(UAGASAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
 	OutExecutionOutput.AddOutputModifier(EvaluatedData);
 }

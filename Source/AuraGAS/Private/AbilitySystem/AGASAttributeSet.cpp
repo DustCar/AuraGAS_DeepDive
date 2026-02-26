@@ -265,8 +265,6 @@ void UAGASAttributeSet::HandleKnockback(const FEffectPropertiesAdvanced& Props)
 
 void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
 {
-	// TODO: Instead of dynamically creating the GE for the debuffs, refactor this to just saving a TMap of DamageTag to Debuff GE class
-	// TODO: then do a lookup for the specific Debuff GE and then apply it. So we create the GE in the editor.
 	FGameplayEffectContextHandle DebuffEffectContextHandle = Props.SourceProperties->AbilitySystemComponent->MakeEffectContext();
 	DebuffEffectContextHandle.AddSourceObject(Props.SourceProperties->AvatarActor);
 	
