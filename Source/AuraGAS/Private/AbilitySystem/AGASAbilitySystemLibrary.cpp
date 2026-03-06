@@ -7,6 +7,8 @@
 #include "AGASAbilityTypes.h"
 #include "AGASGameplayTags.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
+#include "AbilitySystem/Abilities/AGASPassiveAbility.h"
+#include "AbilitySystem/Data/AGASAbilityInfo.h"
 #include "AuraGAS/AGASLogChannels.h"
 #include "AuraGAS/AuraGAS.h"
 #include "Engine/OverlapResult.h"
@@ -175,6 +177,26 @@ UAGASLootTiers* UAGASAbilitySystemLibrary::GetLootTiers(const UObject* WorldCont
 	if (AGASGameInstance == nullptr) return nullptr;
 
 	return AGASGameInstance->LootTiers;
+}
+
+float UAGASAbilitySystemLibrary::GetPassiveAbilityValueByTag(const UObject* WorldContextObject,
+	const FGameplayTag& PassiveAbilityTag, const UAbilitySystemComponent* InASC)
+{
+	if (!InASC) return 0.f;
+	
+	UAGASAbilityInfo* AbilityInfo = GetAbilityInfo(WorldContextObject);
+	if (!AbilityInfo) return 0.f;
+	
+	FAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(PassiveAbilityTag);
+	if (!Info.Ability) return 0.f;
+	
+	const FGameplayAbilitySpec* PassiveAbilitySpec = InASC->FindAbilitySpecFromClass(Info.Ability);
+	if (!PassiveAbilitySpec) return 0.f;
+	
+	const UAGASPassiveAbility* PassiveAbility = Cast<UAGASPassiveAbility>(PassiveAbilitySpec->Ability);
+	if (!PassiveAbility) return 0.f;
+	
+	return PassiveAbility->GetPercentAtLevel(PassiveAbilitySpec->Level);
 }
 
 FGameplayEffectContextHandle UAGASAbilitySystemLibrary::ApplyDamageEffectToTarget(const FDamageEffectParams& InParams)

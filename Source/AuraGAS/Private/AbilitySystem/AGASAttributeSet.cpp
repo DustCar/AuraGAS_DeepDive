@@ -8,8 +8,8 @@
 #include "GameplayEffectExtension.h"
 #include "AbilitySystem/AGASAbilitySystemComponent.h"
 #include "AbilitySystem/AGASAbilitySystemLibrary.h"
+#include "AbilitySystem/Abilities/AGASPassiveAbility.h"
 #include "AbilitySystem/Data/AGASAbilityInfo.h"
-#include "AbilitySystem/ExecCalcs/ExecCalc_Damage.h"
 #include "AuraGAS/AGASLogChannels.h"
 #include "GameFramework/Character.h"
 #include "GameplayEffectComponents/TargetTagsGameplayEffectComponent.h"
@@ -204,6 +204,16 @@ void UAGASAttributeSet::HandleIncomingDamage(const FEffectPropertiesAdvanced& Pr
 	const float LocalIncomingDamage = FMath::RoundFromZero(GetIncomingDamage());
 	SetIncomingDamage(0.f);
 	if (LocalIncomingDamage < 0.f) return;
+	
+	if (Props.SourceProperties->AbilitySystemComponent->HasMatchingGameplayTag(TAG_Abilities_Passive_Buff_LifeSiphon) && !bIsDebuff)
+	{
+		ApplyLifeSiphon(Props, LocalIncomingDamage);
+	}
+	
+	if (Props.SourceProperties->AbilitySystemComponent->HasMatchingGameplayTag(TAG_Abilities_Passive_Buff_ManaSiphon) && !bIsDebuff)
+	{
+		ApplyManaSiphon(Props, LocalIncomingDamage);
+	}
 		
 	const float NewHealth = GetHealthPoints() - LocalIncomingDamage;
 	SetHealthPoints(FMath::Clamp(NewHealth, 0.f, GetMaxHealthPoints()));
@@ -265,6 +275,8 @@ void UAGASAttributeSet::HandleKnockback(const FEffectPropertiesAdvanced& Props)
 
 void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
 {
+	// we want to create a new effect context handle since we wouldn't want the variables to be passed down from the original
+	// i.e. we don't want the debuff to have crit, debuff params, etc.
 	FGameplayEffectContextHandle DebuffEffectContextHandle = Props.SourceProperties->AbilitySystemComponent->MakeEffectContext();
 	DebuffEffectContextHandle.AddSourceObject(Props.SourceProperties->AvatarActor);
 	
@@ -272,12 +284,12 @@ void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
 	const FGameplayTag DebuffTag = AGASGameplayTags::GetDamageTypeToDebuffMap()[DamageTypeTag];
 	const float DebuffDamage = UAGASAbilitySystemLibrary::GetDebuffDamage(Props.EffectContextHandle);
 	
-	const UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(Props.SourceProperties->AbilitySystemComponent);
+	const UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(Props.SourceProperties->AvatarActor);
 	
 	if (AbilityInfo)
 	{
 		TSubclassOf<UGameplayEffect> DebuffGameplayEffectClass = AbilityInfo->FindDebuffGameplayEffectForTag(DebuffTag);
-		if (DebuffGameplayEffectClass != nullptr)
+		if (DebuffGameplayEffectClass)
 		{
 			const FGameplayEffectSpecHandle DebuffEffectSpecHandle = Props.SourceProperties->AbilitySystemComponent->MakeOutgoingSpec(DebuffGameplayEffectClass, 1.f, DebuffEffectContextHandle);
 			
@@ -296,6 +308,61 @@ void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
 		else
 		{
 			UE_LOG(LogAGAS, Warning, TEXT("Debuff Tag: %s does not have an entry in the AbilityInfo Data Asset."), *DebuffTag.GetTagName().ToString())
+		}
+	}
+}
+
+void UAGASAttributeSet::ApplyLifeSiphon(const FEffectPropertiesAdvanced& Props, float InDamage)
+{
+	// similarly we just want an empty effect context, we don't want any of the original effect context
+	FGameplayEffectContextHandle LifeSiphonEffectContextHandle = Props.SourceProperties->AbilitySystemComponent->MakeEffectContext();
+	LifeSiphonEffectContextHandle.AddSourceObject(Props.SourceProperties->AvatarActor);
+	
+	float LifeSiphonPercent = UAGASAbilitySystemLibrary::GetPassiveAbilityValueByTag(Props.SourceProperties->AvatarActor, TAG_Abilities_Passive_LifeSiphon, Props.SourceProperties->AbilitySystemComponent);
+	
+	const UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(Props.SourceProperties->AvatarActor);
+	const float AmountToHeal = InDamage * (LifeSiphonPercent / 100.f);
+	if (AbilityInfo)
+	{
+		TSubclassOf<UGameplayEffect> LifeSiphonEffectClass = AbilityInfo->GetAddHealthPointsEffect();
+		if (LifeSiphonEffectClass)
+		{
+			const FGameplayEffectSpecHandle LifeSiphonSpecHandle = Props.SourceProperties->AbilitySystemComponent->MakeOutgoingSpec(LifeSiphonEffectClass, 1.f, LifeSiphonEffectContextHandle);
+			
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(LifeSiphonSpecHandle, TAG_Buff_HealthPointsToAdd, AmountToHeal);
+			
+			Props.SourceProperties->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*LifeSiphonSpecHandle.Data);
+		}
+		else
+		{
+			UE_LOG(LogAGAS, Warning, TEXT("AddHealthPointsEffectClass is not set in the AbilityInfo Data Asset."))
+		}
+	}
+}
+
+void UAGASAttributeSet::ApplyManaSiphon(const FEffectPropertiesAdvanced& Props, float InDamage)
+{
+	FGameplayEffectContextHandle ManaSiphonEffectContextHandle = Props.SourceProperties->AbilitySystemComponent->MakeEffectContext();
+	ManaSiphonEffectContextHandle.AddSourceObject(Props.SourceProperties->AvatarActor);
+	
+	float ManaSiphonPercent = UAGASAbilitySystemLibrary::GetPassiveAbilityValueByTag(Props.SourceProperties->AvatarActor, TAG_Abilities_Passive_ManaSiphon, Props.SourceProperties->AbilitySystemComponent);
+	
+	const UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(Props.SourceProperties->AvatarActor);
+	const float AmountToReplenish = InDamage * (ManaSiphonPercent / 100.f);
+	if (AbilityInfo)
+	{
+		TSubclassOf<UGameplayEffect> ManaSiphonEffectClass = AbilityInfo->GetAddManaPointsEffect();
+		if (ManaSiphonEffectClass)
+		{
+			const FGameplayEffectSpecHandle ManaSiphonSpecHandle = Props.SourceProperties->AbilitySystemComponent->MakeOutgoingSpec(ManaSiphonEffectClass, 1.f, ManaSiphonEffectContextHandle);
+			
+			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(ManaSiphonSpecHandle, TAG_Buff_ManaPointsToAdd, AmountToReplenish);
+			
+			Props.SourceProperties->AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*ManaSiphonSpecHandle.Data);
+		}
+		else
+		{
+			UE_LOG(LogAGAS, Warning, TEXT("AddManaPointsEffectClass is not set in the AbilityInfo Data Asset."))
 		}
 	}
 }

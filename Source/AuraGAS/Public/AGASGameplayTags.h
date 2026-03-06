@@ -92,6 +92,7 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Lightning_Electrocute)
 
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Arcane_ArcaneShards)
 
+// Ability Tags: Passive
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive) // different from Type_Passive; this one is for GAs, the other is for UI and AbilityInfo
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_HaloOfProtection)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_LifeSiphon)
@@ -101,6 +102,9 @@ UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_ListenForEvent)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_Buff_HaloWard)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_Buff_LifeSiphon)
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Abilities_Passive_Buff_ManaSiphon)
+
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Buff_HealthPointsToAdd)
+UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Buff_ManaPointsToAdd)
 
 // Cooldown Tags
 UE_DECLARE_GAMEPLAY_TAG_EXTERN(TAG_Cooldown_Fire_FireBolt)

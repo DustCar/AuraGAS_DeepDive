@@ -3,10 +3,9 @@
 
 #include "AbilitySystem/Abilities/AGASGA_CastPointCollection.h"
 
-FString UAGASGA_CastPointCollection::FormatDamageAbilityDescription(int32 Level, const FString& Description,
-	UGameplayAbility* Ability)
+FString UAGASGA_CastPointCollection::FormatDamageAbilityDescription(int32 Level, const FString& Description)
 {
-	FString ParentDescription = Super::FormatDamageAbilityDescription(Level, Description, Ability);
+	FString ParentDescription = Super::FormatDamageAbilityDescription(Level, Description);
 	FStringFormatNamedArguments PointCollectionNamesToValues;
 	
 	PointCollectionNamesToValues.Add(TEXT("_PointCount0"), FMath::Min(Level, MaxPointCount));

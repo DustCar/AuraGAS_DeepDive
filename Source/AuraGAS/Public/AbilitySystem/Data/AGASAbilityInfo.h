@@ -69,13 +69,25 @@ class AURAGAS_API UAGASAbilityInfo : public UDataAsset
 
 public:
 
+	UFUNCTION(BlueprintCallable)
 	FAbilityInfo FindAbilityInfoForTag(const FGameplayTag& AbilityTag, const bool bLogNotFoundVerbose = false) const;
 
 	TSubclassOf<UGameplayEffect> FindDebuffGameplayEffectForTag(const FGameplayTag& AbilityTag) const;
+	TSubclassOf<UGameplayEffect> GetAddHealthPointsEffect() const { return AddHealthPointsEffect; }
+	TSubclassOf<UGameplayEffect> GetAddManaPointsEffect() const { return AddManaPointsEffect; }
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "AbilityTag"))
 	TArray<FAbilityInfo> AbilityInformation;
+
+private:
 	
 	UPROPERTY(EditDefaultsOnly)
 	TMap<FGameplayTag, TSubclassOf<UGameplayEffect>> DamageTagToDebuffEffectMap;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> AddHealthPointsEffect;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UGameplayEffect> AddManaPointsEffect;
+	
 };

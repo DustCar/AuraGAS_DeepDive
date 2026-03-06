@@ -283,17 +283,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	if (TargetASC && TargetASC->HasMatchingGameplayTag(TAG_Abilities_Passive_Buff_HaloWard))
 	{
 		// try to obtain the percent to reduce, if not then damage is unaffected
-		float HaloWardDamageReduction = 0.f;
-		UAGASAbilityInfo* AbilityInfo = UAGASAbilitySystemLibrary::GetAbilityInfo(SourceAvatar);
-		if (AbilityInfo)
-		{
-			FAbilityInfo Info = AbilityInfo->FindAbilityInfoForTag(TAG_Abilities_Passive_HaloOfProtection);
-			FGameplayAbilitySpec* HaloOfProtAbilitySpec = TargetASC->FindAbilitySpecFromClass(Info.Ability);
-			const UAGASPassiveAbility* HaloOfProtAbility = Cast<UAGASPassiveAbility>(HaloOfProtAbilitySpec->Ability);
-			HaloWardDamageReduction = HaloOfProtAbility->GetPercentAtLevel(HaloOfProtAbilitySpec->Level);
-		}
+		const float HaloWardDamageReduction = UAGASAbilitySystemLibrary::GetPassiveAbilityValueByTag(TargetAvatar, TAG_Abilities_Passive_HaloOfProtection, TargetASC);
 		// for Halo Of Protection, the coefficient will just be the full damage reduction
-		
 		Damage *= (100 - HaloWardDamageReduction) / 100.f;
 	}
 	

@@ -19,6 +19,8 @@ public:
 	
 	float GetPercentAtLevel(int32 Level) const;
 	
+	virtual FString FormatPassiveAbilityDescription(int32 Level, const FString& Description);
+	
 	void ReceivedDeactivate(const FGameplayTag& AbilityTag);
 	
 protected:

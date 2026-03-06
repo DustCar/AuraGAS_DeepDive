@@ -86,6 +86,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Lightning_Electrocute, "Abilities.Lightning
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Arcane_ArcaneShards, "Abilities.Arcane.ArcaneShards")
 
+// Ability Tags: Passive
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive, "Abilities.Passive")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_HaloOfProtection, "Abilities.Passive.HaloOfProtection")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_LifeSiphon, "Abilities.Passive.LifeSiphon")
@@ -95,6 +96,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_ListenForEvent, "Abilities.Passive.
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_Buff_HaloWard, "Abilities.Passive.Buff.HaloWard")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_Buff_LifeSiphon, "Abilities.Passive.Buff.LifeSiphon")
 UE_DEFINE_GAMEPLAY_TAG(TAG_Abilities_Passive_Buff_ManaSiphon, "Abilities.Passive.Buff.ManaSiphon")
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Buff_HealthPointsToAdd, "Buff.HealthPointsToAdd")
+UE_DEFINE_GAMEPLAY_TAG(TAG_Buff_ManaPointsToAdd, "Buff.ManaPointsToAdd")
 
 // Cooldown Tags
 UE_DEFINE_GAMEPLAY_TAG(TAG_Cooldown_Fire_FireBolt, "Cooldown.Fire.FireBolt")

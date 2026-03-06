@@ -24,8 +24,7 @@ int32 UAGASDamageGameplayAbility::GetRoundedDamageAtLevel(int32 Level) const
 	return 0;
 }
 
-FString UAGASDamageGameplayAbility::FormatDamageAbilityDescription(int32 Level, const FString& Description,
-	UGameplayAbility* Ability)
+FString UAGASDamageGameplayAbility::FormatDamageAbilityDescription(int32 Level, const FString& Description)
 {
 	FString NewDescription = Description;
 	FStringFormatNamedArguments NamesToValues;

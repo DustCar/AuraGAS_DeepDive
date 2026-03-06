@@ -8,10 +8,9 @@
 #include "Interaction/AGASCombatInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-FString UAGASGA_CastBeam::FormatDamageAbilityDescription(int32 Level, const FString& Description,
-	UGameplayAbility* Ability)
+FString UAGASGA_CastBeam::FormatDamageAbilityDescription(int32 Level, const FString& Description)
 {
-	FString ParentDescription = Super::FormatDamageAbilityDescription(Level, Description, Ability);
+	FString ParentDescription = Super::FormatDamageAbilityDescription(Level, Description);
 	FStringFormatNamedArguments BeamNamesToValues;
 	
 	BeamNamesToValues.Add(TEXT("_BeamNum0"), FMath::Min(FMath::CeilToInt32(Level * 0.5), MaxNumShockTargets));

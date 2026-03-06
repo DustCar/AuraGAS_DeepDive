@@ -16,7 +16,7 @@ class AURAGAS_API UAGASGA_CastPointCollection : public UAGASDamageGameplayAbilit
 	GENERATED_BODY()
 	
 public:
-	virtual FString FormatDamageAbilityDescription(int32 Level, const FString& Description, UGameplayAbility* Ability) override;
+	virtual FString FormatDamageAbilityDescription(int32 Level, const FString& Description) override;
 	
 protected:
 	

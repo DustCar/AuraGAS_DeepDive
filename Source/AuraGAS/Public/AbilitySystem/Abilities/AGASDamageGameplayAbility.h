@@ -23,7 +23,7 @@ public:
 	
 	int32 GetRoundedDamageAtLevel(int32 Level) const;
 	
-	virtual FString FormatDamageAbilityDescription(int32 Level, const FString& Description, UGameplayAbility* Ability);
+	virtual FString FormatDamageAbilityDescription(int32 Level, const FString& Description);
 	
 	UFUNCTION(BlueprintPure)
 	FDamageEffectParams MakeDamageEffectParamsFromClassDefaults(AActor* TargetActor = nullptr) const;

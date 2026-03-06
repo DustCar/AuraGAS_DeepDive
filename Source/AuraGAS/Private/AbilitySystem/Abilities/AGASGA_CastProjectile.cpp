@@ -10,10 +10,9 @@
 #include "Interaction/AGASCombatInterface.h"
 
 
-FString UAGASGA_CastProjectile::FormatDamageAbilityDescription(int32 Level, const FString& Description,
-	UGameplayAbility* Ability)
+FString UAGASGA_CastProjectile::FormatDamageAbilityDescription(int32 Level, const FString& Description)
 {
-	FString ParentDescription = Super::FormatDamageAbilityDescription(Level, Description, Ability);
+	FString ParentDescription = Super::FormatDamageAbilityDescription(Level, Description);
 	FStringFormatNamedArguments ProjNamesToValues;
 	
 	ProjNamesToValues.Add(TEXT("_ProjNum0"), FMath::Min(Level, MaxNumProjectiles));

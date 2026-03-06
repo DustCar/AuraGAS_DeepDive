@@ -68,6 +68,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|LootTiers", meta = (WorldContext = "WorldContextObject"))
 	static UAGASLootTiers* GetLootTiers(const UObject* WorldContextObject);
+	
+	UFUNCTION(BlueprintCallable, Category = "AGASAbilitySystemLibrary|AbilityInfo", meta = (WorldContext = "WorldContextObject"))
+	static float GetPassiveAbilityValueByTag(const UObject* WorldContextObject, const FGameplayTag& PassiveAbilityTag, const UAbilitySystemComponent* InASC);
 
 	/*
 	 * EffectContext getters

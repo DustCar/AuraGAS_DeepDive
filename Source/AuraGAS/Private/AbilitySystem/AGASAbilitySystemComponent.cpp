@@ -359,8 +359,8 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 			// Note: Previously used AbilitySpec->Level for level but is too inconsistent with client so we pass one in
 			// Note for formats: Formats are for damage abilities and will only format if ability is a damage GA, else
 			// it's normal
-			const FString FormattedDescription = DamageAbility->FormatDamageAbilityDescription(Level, Info.AbilityDescription.ToString(), DamageAbility);
-			const FString FormattedNextLvlDescription = DamageAbility->FormatDamageAbilityDescription(Level, Info.NextLevelDescription.ToString(), DamageAbility);
+			const FString FormattedDescription = DamageAbility->FormatDamageAbilityDescription(Level, Info.AbilityDescription.ToString());
+			const FString FormattedNextLvlDescription = DamageAbility->FormatDamageAbilityDescription(Level, Info.NextLevelDescription.ToString());
 			
 			OutDescription = FString::Printf(
 				TEXT(
@@ -422,8 +422,8 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 			// Note: Previously used AbilitySpec->Level for level but is too inconsistent with client so we pass one in
 			// Note for formats: Formats are for damage abilities and will only format if ability is a damage GA, else
 			// it's normal
-			const FString FormattedDescription = TEXT("Work in progress");
-			const FString FormattedNextLvlDescription = TEXT("Work in progress");
+			const FString FormattedDescription = PassiveAbility->FormatPassiveAbilityDescription(Level, Info.AbilityDescription.ToString());
+			const FString FormattedNextLvlDescription = PassiveAbility->FormatPassiveAbilityDescription(Level, Info.NextLevelDescription.ToString());
 			
 			OutDescription = FString::Printf(
 				TEXT(

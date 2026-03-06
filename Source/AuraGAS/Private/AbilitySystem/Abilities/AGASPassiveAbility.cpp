@@ -29,6 +29,20 @@ float UAGASPassiveAbility::GetPercentAtLevel(int32 Level) const
 	return 0.f;
 }
 
+FString UAGASPassiveAbility::FormatPassiveAbilityDescription(int32 Level, const FString& Description)
+{
+	FString NewDescription = Description;
+	FStringFormatNamedArguments NamesToValues;
+	
+	NamesToValues.Add(TEXT("_Percent0"), FMath::TruncToInt32(GetPercentAtLevel(Level)));
+	NamesToValues.Add(TEXT("_Percent1"), FMath::TruncToInt32(GetPercentAtLevel(Level + 1)));
+	NamesToValues.Add(TEXT("_LineBreak"), "\n");
+	
+	NewDescription = FString::Format(*Description, NamesToValues);
+	
+	return NewDescription;
+}
+
 void UAGASPassiveAbility::ReceivedDeactivate(const FGameplayTag& AbilityTag)
 {
 	if (AbilityTags.HasTagExact(AbilityTag))
