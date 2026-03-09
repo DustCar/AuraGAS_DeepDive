@@ -22,8 +22,6 @@ public:
 	
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
-	virtual void OnRep_IsStunned() override;
-	virtual void OnRep_IsBurned() override;
 
 	//~ Begin Combat Interface
 	virtual int32 GetCharacterLevel_Implementation() override;
@@ -54,6 +52,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void AddCharacterAbilities() override;
+	virtual void InitializeAbilityActorInfo() override;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "Attributes")
 	TSubclassOf<UGameplayEffect> DefaultPrimaryAttributes;
@@ -75,8 +74,6 @@ protected:
 
 private:
 	
-	virtual void InitializeAbilityActorInfo() override;
-
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastLevelUpParticles() const;
 

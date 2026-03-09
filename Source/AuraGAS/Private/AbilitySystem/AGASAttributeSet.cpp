@@ -295,6 +295,7 @@ void UAGASAttributeSet::Debuff(const FEffectPropertiesAdvanced& Props)
 			
 			UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(DebuffEffectSpecHandle, DamageTypeTag, DebuffDamage);
 			
+			// cancel abilities that are active (e.g. electrocute) and could activate to allow the stun effect to play its montage
 			if (DebuffTag.MatchesTagExact(TAG_Debuff_Stun))
 			{
 				const FGameplayTagContainer AbilitiesToCancelTags(TAG_Abilities);

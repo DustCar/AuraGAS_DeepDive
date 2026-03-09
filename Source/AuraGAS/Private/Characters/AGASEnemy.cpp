@@ -147,6 +147,7 @@ void AAGASEnemy::InitializeAbilityActorInfo()
 	AbilitySystemComponent->AbilityActorInfoSet();
 	
 	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Debuff_Stun, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::StunTagChanged);
+	AbilitySystemComponent->RegisterGameplayTagEvent(TAG_Debuff_Slowed, EGameplayTagEventType::NewOrRemoved).AddUObject(this, &ThisClass::SlowedTagChanged);
 
 	if (HasAuthority())
 	{

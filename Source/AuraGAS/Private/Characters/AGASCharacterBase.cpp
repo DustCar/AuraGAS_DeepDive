@@ -61,8 +61,6 @@ void AAGASCharacterBase::GetLifetimeReplicatedProps(TArray<class FLifetimeProper
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
-	DOREPLIFETIME(AAGASCharacterBase, bIsStunned);
-	DOREPLIFETIME(AAGASCharacterBase, bIsBurned);
 	DOREPLIFETIME(AAGASCharacterBase, bIsBeingShocked);
 }
 
@@ -87,12 +85,10 @@ void AAGASCharacterBase::BurnTagChanged(const FGameplayTag CallbackTag, int32 Ne
 	bIsBurned = NewCount > 0;
 }
 
-void AAGASCharacterBase::OnRep_IsStunned()
+void AAGASCharacterBase::SlowedTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
-}
-
-void AAGASCharacterBase::OnRep_IsBurned()
-{
+	bIsSlowed = NewCount > 0;
+	GetCharacterMovement()->MaxWalkSpeed = bIsSlowed ? BaseWalkSpeed * (1 - SlowedMultiplier) : BaseWalkSpeed;
 }
 
 void AAGASCharacterBase::BeginPlay()

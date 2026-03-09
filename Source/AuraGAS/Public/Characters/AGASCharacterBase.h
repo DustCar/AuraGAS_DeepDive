@@ -86,20 +86,18 @@ public:
 
 	void SetWasSummoned(bool bInWasSummoned);
 	
-	UPROPERTY(ReplicatedUsing=OnRep_IsStunned, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsStunned = false;
 	
-	UPROPERTY(ReplicatedUsing=OnRep_IsBurned, BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	bool bIsBurned = false;
+	
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsSlowed = false;
 	
 	UPROPERTY(Replicated, BlueprintReadOnly)
 	bool bIsBeingShocked = false;
 	
-	UFUNCTION()
-	virtual void OnRep_IsStunned();
-	
-	UFUNCTION()
-	virtual void OnRep_IsBurned();
 
 protected:
 	virtual void BeginPlay() override;
@@ -165,8 +163,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Setup|Combat")
 	float BaseWalkSpeed = 600.f;
 	
+	float SlowedMultiplier = 0.4f;
+	
 	virtual void StunTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 	virtual void BurnTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
+	virtual void SlowedTagChanged(const FGameplayTag CallbackTag, int32 NewCount);
 	
 	FOnBeingShocked OnBeingShocked;
 
