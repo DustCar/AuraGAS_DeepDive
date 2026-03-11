@@ -7,10 +7,16 @@
 #include "Interaction/AGASPlayerInterface.h"
 #include "AGASCharacter.generated.h"
 
+class UAGASRespawnMessageWidgetController;
+class UAGASUserWidget;
+class UAGASWidgetController;
+class UWidgetComponent;
 class UNiagaraComponent;
 class USpringArmComponent;
 class UCameraComponent;
 struct FGameplayEffectContextHandle;
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnDeathTimer, float /*NewValue*/);
 
 UCLASS()
 class AURAGAS_API AAGASCharacter : public AAGASCharacterBase, public IAGASPlayerInterface
@@ -39,10 +45,12 @@ public:
 	virtual void SaveProgress_Implementation(const FName& CheckpointTag) override;
 	//~ End Player Interface
 	
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float DeathTime = 5.f;
 	
 	FTimerHandle DeathTimerHandle;
+	
+	FOnDeathTimer OnDeathTimerSent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> LevelUpNiagaraComponent;
@@ -68,6 +76,15 @@ protected:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = "Setup|Camera")
 	TObjectPtr<UCameraComponent> CameraComponent;
+	
+	UPROPERTY(EditAnywhere, Category = "Setup|UI")
+	TSubclassOf<UAGASRespawnMessageWidgetController> RespawnMessageWidgetControllerClass;
+
+	UPROPERTY()
+	TObjectPtr<UAGASRespawnMessageWidgetController> RespawnMessageWidgetController;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UAGASUserWidget> RespawnMessageWidgetClass;
 
 	void InitializeDefaultAttributes() const;
 	void LoadProgress();
@@ -85,4 +102,6 @@ private:
 	
 	// New function for applying effect to self
 	void ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect>& GameplayEffectClass, const FGameplayEffectContextHandle& EffectContextHandle, float Level = 1.0f) const;
+	
+	void InitializeRespawnWidgetController();
 };

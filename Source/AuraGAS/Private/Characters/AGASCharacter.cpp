@@ -21,6 +21,8 @@
 #include "Player/AGASPlayerController.h"
 #include "Player/AGASPlayerState.h"
 #include "UI/HUD/AGASHUD.h"
+#include "UI/Widget/AGASUserWidget.h"
+#include "UI/WidgetController/AGASRespawnMessageWidgetController.h"
 
 
 AAGASCharacter::AAGASCharacter()
@@ -31,11 +33,11 @@ AAGASCharacter::AAGASCharacter()
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Target, ECR_Ignore);
 
 	LevelUpNiagaraComponent = CreateDefaultSubobject<UNiagaraComponent>("LevelUpNiagaraComponent");
-	LevelUpNiagaraComponent->SetupAttachment(RootComponent);
+	LevelUpNiagaraComponent->SetupAttachment(GetRootComponent());
 	LevelUpNiagaraComponent->bAutoActivate = false;
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
-	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->SetupAttachment(GetRootComponent());
 	SpringArm->SetUsingAbsoluteRotation(true);
 	SpringArm->bDoCollisionTest = false;
 	SpringArm->bEnableCameraLag = true;
@@ -122,7 +124,6 @@ void AAGASCharacter::PossessedBy(AController* NewController)
 
 	// Initialize Ability Actor Info for server
 	InitializeAbilityActorInfo();
-	
 	LoadProgress();
 	
 	if (AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this)))
@@ -161,9 +162,25 @@ void AAGASCharacter::Die(const FVector& DeathImpulse)
 			AGASGameMode->PlayerDied(this);
 		}
 	});
-	
 	GetWorldTimerManager().SetTimer(DeathTimerHandle, DeathTimerDelegate, DeathTime, false);
 	CameraComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	
+	// RespawnMessageWidget: creating it dynamically since I want the message to fill the entire screen
+	InitializeRespawnWidgetController();
+	UAGASUserWidget* RespawnMessageWidget = CreateWidget<UAGASUserWidget>(GetController<AAGASPlayerController>(), RespawnMessageWidgetClass);
+	if (RespawnMessageWidget)
+	{
+		// NOTE: this sequence of setting the WidgetController then broadcasting seems a little racy to me but its because of 
+		// how I want the widget to be created dynamically rather than already being created.
+		// This means that a value may not appear for the timer until after a small delay
+		if (RespawnMessageWidgetController)
+		{
+			RespawnMessageWidget->SetWidgetController(RespawnMessageWidgetController);
+			OnDeathTimerSent.Broadcast(DeathTime);
+		}
+		RespawnMessageWidget->AddToViewport();
+	}
+	
 }
 
 void AAGASCharacter::KnockbackCharacter_Implementation(const FVector& KnockbackForce)
@@ -282,6 +299,20 @@ void AAGASCharacter::ApplyGameplayEffectToSelf(const TSubclassOf<UGameplayEffect
 {
 	const FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(GameplayEffectClass, Level, EffectContextHandle);
 	AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+}
+
+void AAGASCharacter::InitializeRespawnWidgetController()
+{
+	checkf(RespawnMessageWidgetControllerClass, TEXT("WidgetControllerClass not set in BP_EnemyBase."))
+
+	if (RespawnMessageWidgetController == nullptr)
+	{
+		// Create a new progress bar widget controller and set it
+		RespawnMessageWidgetController = NewObject<UAGASRespawnMessageWidgetController>(this, RespawnMessageWidgetControllerClass);
+		FWidgetControllerParams WCParams(GetController<AAGASPlayerController>(), GetPlayerState<AAGASPlayerState>(), AbilitySystemComponent, AttributeSet);
+		RespawnMessageWidgetController->SetWidgetControllerParams(WCParams);
+		RespawnMessageWidgetController->BindCallbacksToDependencies();
+	}
 }
 
 void AAGASCharacter::InitializeDefaultAttributes() const
