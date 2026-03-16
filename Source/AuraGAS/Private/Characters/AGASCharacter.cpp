@@ -243,8 +243,6 @@ void AAGASCharacter::HideMagicCircleOnPlayerController_Implementation()
 	AGASPlayerController->SetShowMouseCursorAndForceRefresh(true);
 }
 
-// function where we can save the location of the character so that we can potentially refactor "last saved position" to be
-// an actual position rather than just a checkpoint (part of a TODO)
 void AAGASCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 {
 	AAGASGameModeBase* AGASGameMode = Cast<AAGASGameModeBase>(UGameplayStatics::GetGameMode(this));

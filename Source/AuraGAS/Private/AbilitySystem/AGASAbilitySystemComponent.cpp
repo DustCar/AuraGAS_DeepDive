@@ -473,14 +473,13 @@ bool UAGASAbilitySystemComponent::GetAbilityDescriptionsFromTagAndLevel(const FG
 	}
 	
 	// here we consider the ability locked if no spec is found
-	// also, clear ability description if spell globe does not have an ability assigned
 	if (AbilityTag.IsValid())
 	{
 		OutDescription = UAGASGameplayAbility::GetLockedDescription(Info.LevelRequirement);
 	}
 	else
 	{
-		OutDescription = FString();
+		OutDescription = FString(TEXT("Ability Coming Soon."));
 	}
 	OutNextLevelDescription = FString();
 	return false;
