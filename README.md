@@ -10,6 +10,8 @@ To play the game, just head over to the Releases page and download the zip under
 # Core Concepts Learned
 These are what I would say are the concepts that I learned the most about and retained the most from. They are also what I would be most confident about from everything that I learned.
 
+**NOTE: This project includes code that tries to make it compatible with Multiplayer, but with the nature of the course, it ended up being single player only. I still tried to keep multiplayer in mind when implementing things and most did work in testing, but just know that by the end, the game became single player focused.**
+
 ### AbilitySystemComponent/AttributeSet
 - How to set up custom ASC/AS on player state and on characters
 - Setting up attributes on AS and handling changes due to GameplayEffects
