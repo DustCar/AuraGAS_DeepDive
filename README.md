@@ -5,7 +5,7 @@ Throughout this project, I learned most of the core concepts that GAS revolves a
 
 I tried staying close to what the course provided to focus on learning the concepts, but there are quite a few decisions that I made that deviated from the course, as well as new additions that weren't present. And despite implementing some systems that was taught during the course, I have my own preferences to said systems and alternatives for them (i.e. using Model-View-ViewModel in the latter half for the sake of learning).
 
-To play the game, just head over to the Releases page and download the zip under "Initial Completed Game Build".
+To play the game, just head over to the Releases page and download the zip under "v0.1.0/Initial Completed Game Build".
 
 # Core Concepts Learned
 These are what I would say are the concepts that I learned the most about and retained the most from. They are also what I would be most confident about from everything that I learned.
