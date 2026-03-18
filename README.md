@@ -5,6 +5,8 @@ Throughout this project, I learned most of the core concepts that GAS revolves a
 
 I tried staying close to what the course provided to focus on learning the concepts, but there are quite a few decisions that I made that deviated from the course, as well as new additions that weren't present. And despite implementing some systems that was taught during the course, I have my own preferences to said systems and alternatives for them (i.e. using Model-View-ViewModel in the latter half for the sake of learning).
 
+To play the game, just head over to the Releases page and download the zip under "Initial Completed Game Build".
+
 # Core Concepts Learned
 These are what I would say are the concepts that I learned the most about and retained the most from. They are also what I would be most confident about from everything that I learned.
 
@@ -52,11 +54,14 @@ The gameplay is very simple and only a few controls are needed.
 - Movement: WASD/Click-to-move/Left Mouse Button Hold-to-move
 - Use Ability: Target Enemy+Input/Shift+LMB/Input Button
 
+### Abilities
+I implemented a few offensive and passive abilities. These can be unlocked and equipped into any slot that is available on the hotbar. Offensive abilities are split into damage types, and each damage type has an associated debuff effect. Fire and Lightning have debuffs that have effects, while Physical and Arcane do not, which makes it harder to see if the effect is applied. Since I only implemented a few offensive abilities, the other ability slots will remain locked.
+
 ### Leveling Up
 You can level up by killing monsters and upgrade/unlock abilities using spell points earned from leveling up. You can also upgrade your main attributes using attribute points also earned from leveling up.
 
 ### Enemies
-The enemies use behavior trees and tasks to find you and attack you. Enemies can respawn again after re-entering a level and reaching their triggers. They can drop consumables that you can pick up to heal/replenish mana. Currently these are the only pickups, I have not implemented loot, like equipment, in this game.
+The enemies use behavior trees and tasks to find you and attack you. Enemies can respawn again after re-entering a level and reaching their triggers. The enemies can also debuff the player. They can drop consumables that you can pick up to heal/replenish mana. Currently these are the only pickups, I have not implemented loot, like equipment, in this game.
 
 ### Saving
 You can create up to 3 saves, and you can delete them too. The only way to save progress in game though, is to find checkpoints. Currently, these checkpoints are one-time use only, meaning that you might want to use them after making progress. I was planning to make checkpoints interactable, after reaching them, to give an option to save again but ultimately decided to leave that to later projects. I only include beacons that do nothing much other than show where you have been already.
