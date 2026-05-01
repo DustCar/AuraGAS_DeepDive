@@ -7,6 +7,35 @@ I tried staying close to what the course provided to focus on learning the conce
 
 To play the game, just head over to the Releases page and download the zip under "v0.1.0/Initial Completed Game Build".
 
+# What Is Included
+- Main menu/Load menu
+- Multiple Abilities with spell tree
+- Multiple attributes with attribute menu
+- Multiple enemies with different abilities and simple AI
+- Pickups like potions and crystals
+- FX for abilities and sounds
+- Checkpoint system
+
+# Screenshots
+### Main Menu
+<img width="1916" height="999" alt="mainMenu" src="https://github.com/user-attachments/assets/cc471a85-4625-4d30-a9bf-2f93ae7019cc" />
+
+### Load Menu
+<img width="1915" height="997" alt="loadMenu" src="https://github.com/user-attachments/assets/f24a8c46-ef96-44c0-9548-98ff4010b0ae" />
+
+### Spell Menu/Attribute Menu
+<img width="1916" height="995" alt="spellAttributeMenu" src="https://github.com/user-attachments/assets/dab5378c-d3b5-491c-9eaf-6da27ae6f14f" />
+
+### In Game
+<img width="1917" height="999" alt="inGame" src="https://github.com/user-attachments/assets/0f8da536-d9d6-420e-83b2-c70122b31b88" />
+
+### Spell Menu Upgrades
+<img width="1917" height="992" alt="spellMenu2" src="https://github.com/user-attachments/assets/7df585aa-3982-4c71-9bcc-7feb527128a7" />
+
+### Checkpoint
+<img width="1913" height="995" alt="checkpoint" src="https://github.com/user-attachments/assets/dc624989-1ab9-4a2c-bf3a-147fb377a9fe" />
+
+
 # Core Concepts Learned
 These are what I would say are the concepts that I learned the most about and retained the most from. They are also what I would be most confident about from everything that I learned.
 
